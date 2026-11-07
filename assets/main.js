@@ -88,26 +88,25 @@ const FORM_ENDPOINT = "";
     });
   });
 
-  /* ---- Dark / light mode ---- */
-  document.querySelectorAll(".theme-toggle").forEach((b) => b.addEventListener("click", () => {
-    const root = document.documentElement;
-    const next = root.dataset.theme === "dark" ? "light" : "dark";
-    root.classList.add("theme-anim");
-    root.dataset.theme = next;
-    try { localStorage.setItem("nf-theme", next); } catch (e) {}
+  /* ---- Theme: follows the device setting; the footer switch can override it ---- */
+  const root = document.documentElement;
+  const mq = window.matchMedia ? matchMedia("(prefers-color-scheme: light)") : null;
+  const saved = () => { try { return localStorage.getItem("nf-theme"); } catch (e) { return null; } };
+  const apply = (mode, animate) => {
+    const t = mode === "system" ? (mq && mq.matches ? "light" : "dark") : mode;
+    if (animate) { root.classList.add("theme-anim"); setTimeout(() => root.classList.remove("theme-anim"), 450); }
+    root.dataset.theme = t;
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.content = next === "dark" ? "#0C0F17" : "#F3F1EC";
-    setTimeout(() => root.classList.remove("theme-anim"), 450);
+    if (meta) meta.content = t === "dark" ? "#050B1A" : "#FFFFFF";
+    document.querySelectorAll("[data-theme-set]").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.themeSet === mode)));
+  };
+  apply(saved() || "system", false);
+  document.querySelectorAll("[data-theme-set]").forEach((b) => b.addEventListener("click", () => {
+    const mode = b.dataset.themeSet;
+    try { mode === "system" ? localStorage.removeItem("nf-theme") : localStorage.setItem("nf-theme", mode); } catch (e) {}
+    apply(mode, true);
   }));
-
-  /* Follow the browser/device setting live, until the visitor picks one with the button */
-  try {
-    const mq = matchMedia("(prefers-color-scheme: light)");
-    mq.addEventListener("change", (e) => {
-      if (localStorage.getItem("nf-theme")) return;
-      document.documentElement.dataset.theme = e.matches ? "light" : "dark";
-    });
-  } catch (e) {}
+  if (mq) mq.addEventListener("change", () => { if (!saved()) apply("system", true); });
 
   /* ---- Year ---- */
   document.querySelectorAll("[data-year]").forEach((el) => (el.textContent = new Date().getFullYear()));

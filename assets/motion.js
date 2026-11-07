@@ -1,4 +1,4 @@
-/* NexFlo Cloud - product animations only: hero demo, translation demo, dashboard, code tabs */
+/* NexFlo Cloud - animations: scroll reveals, growing circles, hero demo, typing code, chat, meter, dashboard, tabs */
 (function () {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -10,9 +10,103 @@
     io.observe(el);
   };
   const splitLines = (code) => {
-    code.innerHTML = code.innerHTML.split("\n").map((l) => `<span class="ln">${l || " "}</span>`).join("");
-    return [...code.children];
+    if (!code.querySelector(".ln")) code.innerHTML = code.innerHTML.split("\n").map((l) => `<span class="ln">${l || " "}</span>`).join("");
+    return [...code.querySelectorAll(".ln")];
   };
+
+  /* ---- Reveal on scroll (home and inner pages) ---- */
+  const REVEAL = ".section-head, .frow-text, .vis, .card, .feature, .step, .pain, .price-card, .form-card, .doc, .tile, .scard, .faq, .prow, .fact, .orbit, .notice, .cta2-box, .meter-wrap";
+  if (!reduce && "IntersectionObserver" in window) {
+    const els = [...document.querySelectorAll(REVEAL)].filter((e) => !e.closest(".hero-s, .page-hero, .dropdown") && !e.parentElement.closest(REVEAL));
+    els.forEach((e) => {
+      const sibs = [...e.parentElement.children].filter((c) => els.includes(c));
+      e.style.setProperty("--i", Math.min(sibs.indexOf(e), 5));
+      e.classList.add("rv");
+    });
+    const io = new IntersectionObserver((entries) => entries.forEach((en) => {
+      if (!en.isIntersecting) return;
+      en.target.classList.add("in");
+      io.unobserve(en.target);
+      setTimeout(() => { en.target.classList.remove("rv", "in"); en.target.style.removeProperty("--i"); }, 1400);
+    }), { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+    els.forEach((e) => io.observe(e));
+  }
+
+  /* ---- Brand circles grow as they scroll into view ---- */
+  const arcs = [...document.querySelectorAll("[data-arc]")];
+  if (arcs.length && !reduce) {
+    let ticking = false;
+    const update = () => {
+      const vh = innerHeight;
+      arcs.forEach((a) => {
+        const host = a.parentElement.getBoundingClientRect();
+        const p = Math.min(Math.max((vh - host.top) / (vh * 0.9), 0), 1);
+        const from = parseFloat(a.dataset.arc) || 0.7;
+        a.style.setProperty("--s", (from + (1 - from) * p).toFixed(4));
+      });
+      ticking = false;
+    };
+    addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    addEventListener("resize", update);
+    update();
+  }
+
+  /* ---- Code windows that type themselves out ---- */
+  document.querySelectorAll("[data-type]").forEach((w) => {
+    const lines = splitLines(w.querySelector("pre code"));
+    if (reduce) return;
+    const r = w.getBoundingClientRect();
+    if (r.top < innerHeight * 0.8) return;
+    w.classList.add("is-animated");
+    onVisible(w, async () => {
+      await sleep(250);
+      for (const l of lines) { l.classList.add("on", "cur"); await sleep(70); l.classList.remove("cur"); }
+    });
+  });
+
+  /* ---- Support chat ---- */
+  document.querySelectorAll("[data-chat]").forEach((c) => {
+    const msgs = [...c.querySelectorAll(".msg")];
+    const typing = c.querySelector(".typing");
+    if (reduce) { msgs.forEach((m) => m.classList.add("show")); if (typing) typing.hidden = true; return; }
+    const loop = async () => {
+      for (;;) {
+        msgs.forEach((m) => m.classList.remove("show"));
+        if (typing) typing.hidden = true;
+        await sleep(500);
+        msgs[0].classList.add("show");
+        await sleep(900);
+        if (typing) typing.hidden = false;
+        await sleep(1500);
+        if (typing) typing.hidden = true;
+        for (const m of msgs.slice(1)) { m.classList.add("show"); await sleep(700); }
+        await sleep(6500);
+      }
+    };
+    onVisible(c, loop);
+  });
+
+  /* ---- Usage meter ---- */
+  document.querySelectorAll("[data-meter]").forEach((m) => {
+    const num = m.querySelector(".meter-num");
+    const bar = m.querySelector(".meter-bar i");
+    let value = parseInt(m.dataset.meter, 10) || 1000;
+    const cap = value * 1.6;
+    const show = () => { num.textContent = value.toLocaleString(); bar.style.setProperty("--w", `${Math.min(value / cap * 100, 100)}%`); };
+    if (reduce) return show();
+    num.textContent = "0";
+    onVisible(m, () => {
+      const t0 = performance.now(), dur = 1300, end = value;
+      const step = (now) => {
+        const p = Math.min((now - t0) / dur, 1);
+        num.textContent = Math.round(end * (1 - Math.pow(1 - p, 3))).toLocaleString();
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+      bar.style.setProperty("--w", `${end / cap * 100}%`);
+      setInterval(() => { value += 1 + Math.floor(Math.random() * 3); if (value > cap * 0.95) value = end; show(); }, 2200);
+    });
+  });
   const clock = () => {
     const d = new Date();
     return [d.getHours(), d.getMinutes(), d.getSeconds()].map((n) => String(n).padStart(2, "0")).join(":");
