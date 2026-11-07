@@ -51,6 +51,17 @@
     update();
   }
 
+  /* ---- Steps that light up in turn ---- */
+  document.querySelectorAll("[data-cycle]").forEach((wrap) => {
+    const items = [...wrap.children];
+    if (reduce || !items.length) { items.forEach((x) => x.classList.add("active")); return; }
+    let i = 0;
+    onVisible(wrap, () => {
+      const go = () => { items.forEach((x, j) => { x.classList.toggle("active", j === i % items.length); x.classList.toggle("past", j < i % items.length); }); i++; };
+      go(); setInterval(go, 2200);
+    });
+  });
+
   /* ---- Code windows that type themselves out ---- */
   document.querySelectorAll("[data-type]").forEach((w) => {
     const lines = splitLines(w.querySelector("pre code"));

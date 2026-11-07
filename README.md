@@ -41,6 +41,10 @@ Then run `npx vercel --prod` to publish to production.
 
 The site follows the visitor's browser or device setting (dark or light), and switches live if that setting changes. The sun/moon button in the header overrides it, and that choice is remembered. With no setting, it opens in dark mode. Dark styles live in `assets/theme-dark.css`.
 
+## Pricing
+
+Pricing isn't final, so the pricing page says "coming soon" and explains the package model (Starter, Growth and Enterprise, each including a set number of documents or transactions per month). The drafted plans are saved in `PLANS` in `build.py`. When they're confirmed, set `SHOW_PRICES = True` and rebuild to publish them. HealthFlo Growth and Enterprise show "Contact sales" until those prices are set.
+
 ## Before launch
 
 - **Brand assets are in place.** `logo.png` is your wordmark with a transparent background. The hero art is the cloud and ribbon from the launch graphic, with the text removed. The favicons and the dark sign-up band's glow come from your cloud icons. `og-image.jpg` (1200×630) is the social sharing image. If you have a vector (SVG) logo, use it instead of `logo.png` for sharper edges.

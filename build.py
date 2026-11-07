@@ -26,6 +26,20 @@ PORTAL_URL = "portal.html"
 LINKEDIN = "https://www.linkedin.com/company/nexflo-cloud"  # TODO: confirm company page URL
 YEAR = "2026"
 
+# Pricing isn't final. Flip to True to publish the drafted plans below on the pricing page.
+SHOW_PRICES = False
+PLANS = {
+    "TradeFlo": [("Starter", "$119", "500 documents / month", "For small businesses getting started with EDI."),
+                 ("Growth", "$299", "3,000 documents / month", "For growing businesses with more trading partner activity."),
+                 ("Enterprise", "$719", "10,000 documents / month", "For established businesses with larger volumes and more complex setups.")],
+    "CareFlo": [("Starter", "$299", "250 transactions / month", "For smaller practices and billing operations."),
+                ("Growth", "$799", "1,000 transactions / month", "For growing healthcare organizations and billing teams."),
+                ("Enterprise", "$1,799", "3,000 transactions / month", "For higher volumes and more demanding integration needs.")],
+    "HealthFlo": [("Starter", "$499", "Volume to be confirmed", "For teams starting with clinical system integration."),
+                  ("Growth", None, "Contact sales", "Pricing for this plan isn't set yet."),
+                  ("Enterprise", None, "Contact sales", "Pricing for this plan isn't set yet.")],
+}
+
 # ---------------------------------------------------------------- icons
 ICONS = {
     "plug": '<path d="M9 2v6M15 2v6M6 8h12v3a6 6 0 0 1-12 0V8zM12 17v5"/>',
@@ -64,11 +78,14 @@ LINKEDIN_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
 # ---------------------------------------------------------------- products & solutions data
 PRODUCTS = [
     dict(key="tradeflo", name="TradeFlo", mark="Trade", href="tradeflo.html", status="live",
-         line="EDI for manufacturers, distributors and retail suppliers: orders, invoices and ship notices with your trading partners."),
+         line="Send and receive orders, invoices and shipping notices with the retailers, distributors and suppliers you work with.",
+         **{"for": "manufacturers, distributors, retail suppliers and e-commerce sellers"}),
     dict(key="careflo", name="CareFlo", mark="Care", href="careflo.html", status="soon",
-         line="Healthcare claims and eligibility translation, built for medical billing and RCM teams."),
+         line="Handle healthcare claims, insurance eligibility checks and payment remittances without the paperwork.",
+         **{"for": "medical billing companies, healthcare providers and revenue cycle teams"}),
     dict(key="healthflo", name="HealthFlo", mark="Health", href="healthflo.html", status="soon",
-         line="HL7 v2 and FHIR data exchange, built for health tech and hospital systems."),
+         line="Connect hospital and health tech systems, like electronic health records, so clinical data gets where it's needed.",
+         **{"for": "hospitals, clinics, EHR vendors and digital health companies"}),
 ]
 
 SOLUTIONS = [
@@ -190,7 +207,7 @@ def api_tabs():
 
 def dashboard_mock():
     return '''<div class="dash" data-dash aria-label="Dashboard preview with sample data">
-  <div class="dash-top"><span class="dots"><i></i><i></i><i></i></span><span>app.nexflo.cloud / transactions</span><span class="badge">Sample data</span></div>
+  <div class="dash-top"><span class="dots"><i></i><i></i><i></i></span><span>app.nexflo.cloud / transactions</span><span class="badge">Illustration</span></div>
   <div class="dash-kpis">
     <div><small>Documents today</small><b data-kpi="docs">1,284</b></div>
     <div><small>Acknowledged</small><b>99.6%</b></div>
@@ -342,9 +359,13 @@ def nav_html(active):
           </div></li>
       </ul>
       <div class="nav-actions">
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch between light and dark mode" title="Light / dark mode">
+          <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
         <a class="nav-login" href="{PORTAL_URL}">Portal login</a>
-        <a class="btn btn-primary btn-sm arrow" href="demo.html">Book a demo</a>
-        <a class="btn btn-white btn-sm" href="early-access.html">Get early access</a>
+        <a class="btn btn-primary btn-sm arrow" href="demo.html">Talk to us</a>
+        <a class="btn btn-white btn-sm" href="early-access.html">Join early access</a>
       </div>
     </div>
   </nav>
@@ -365,7 +386,7 @@ def footer_html():
         ("Products", [("TradeFlo", "tradeflo.html"), ("CareFlo", "careflo.html"), ("HealthFlo", "healthflo.html"), ("Pricing", "pricing.html"), ("Portal login", PORTAL_URL)]),
         ("Solutions", [(s["name"], s["href"]) for s in SOLUTIONS]),
         ("Resources", [("EDI guides", "resources.html"), ("What is EDI?", "what-is-edi.html"), ("837 and 835 explained", "837-835-transactions.html"), ("Security", "security.html"), ("FAQ", "resources.html#faq")]),
-        ("Company", [("About", "about.html"), ("Contact", "contact.html"), ("Book a demo", "demo.html"), ("Get early access", "early-access.html")]),
+        ("Company", [("About", "about.html"), ("Contact", "contact.html"), ("Talk to us", "demo.html"), ("Join early access", "early-access.html")]),
     ]
     col_html = "".join(f'<div class="foot-col"><h4>{h}</h4><ul>{"".join(f'<li><a href="{u}">{t}</a></li>' for t, u in links)}</ul></div>' for h, links in cols)
     return f'''<footer class="site-footer">
@@ -462,10 +483,10 @@ def page_hero(title, lead, eyebrow="", crumbs=None, actions="", badge=""):
 </div></section>'''
 
 
-def cta_band(title="Get early access", text="Founding customers keep their launch pricing. Join the list and you'll hear from the founder directly.",
+def cta_band(title="Join early access", text="Founding customers keep their launch pricing. Join the list and the NexFlo team will reach out personally.",
              source="cta", product="", secondary=True):
-    sec = (f'<p class="small">Want numbers first? <a href="pricing.html#quote">Request pricing</a> '
-           f'or <a href="demo.html">book a demo</a>.</p>') if secondary else ""
+    sec = (f'<p class="small">Have questions first? <a href="demo.html">Talk to us</a> '
+           f'or <a href="pricing.html#quote">ask about pricing</a>.</p>') if secondary else ""
     return f'''<section class="cta2"><div class="container"><div class="cta2-box"><div class="arc"></div>
   <div><h2>{title}</h2><p>{text}</p></div>
   <div>{signup_inline(source, product=product)}{sec}</div>
@@ -568,12 +589,12 @@ def win(name, meta, body, typing=False):
 
 
 def hero_demo():
-    steps = "".join(f'<li>{t}<span>--:--:--</span></li>' for t in ("Received", "Validated", "997 sent", "Delivered"))
+    steps = "".join(f'<li>{t}<span>--:--:--</span></li>' for t in ("Received", "Checked", "Confirmed", "Delivered"))
     return f'''<div class="demo" data-demo aria-label="Example: a Walmart purchase order translated to JSON">
   <div class="demo-bar"><span class="tab-name">850_4500018273.x12</span><span>Sample order</span></div>
   <div class="demo-panes">
-    <div class="demo-pane"><div class="demo-label">From Walmart · X12 850</div><pre><code>{hl_edi(PO_X12)}</code></pre></div>
-    <div class="demo-pane"><div class="demo-label">To your ERP · JSON</div><pre><code>{hl_json(HERO_JSON)}</code></pre></div>
+    <div class="demo-pane"><div class="demo-label">What Walmart sends you · EDI purchase order (850)</div><pre><code>{hl_edi(PO_X12)}</code></pre></div>
+    <div class="demo-pane"><div class="demo-label">What NexFlo hands your system · plain data</div><pre><code>{hl_json(HERO_JSON)}</code></pre></div>
   </div>
   <ol class="demo-steps">{steps}</ol>
 </div>'''
@@ -609,14 +630,14 @@ def orbit():
 
 
 DOCS = [
-    ("850", "Purchase order", "Orders from your retail partners, delivered to you as JSON or CSV."),
-    ("855", "PO acknowledgment", "Accept, change or backorder lines before anything ships."),
-    ("856", "Advance ship notice", "Carton and pallet detail sent before the truck arrives. The document most tied to chargebacks."),
-    ("810", "Invoice", "Invoices that match the order and the ship notice, so payment isn't held up."),
-    ("846", "Inventory advice", "Share stock levels so partners stop ordering what you can't fill."),
-    ("997", "Functional acknowledgment", "Sent and tracked automatically for every file you receive."),
-    ("ORDERS · INVOIC · DESADV", "EDIFACT", "The same order, invoice and despatch flow for partners outside North America."),
-    ("837 · 835 · 270/271", "Healthcare", "Claims, remittance and eligibility, coming with CareFlo in 2027."),
+    ("850", "Purchase order", "A customer's order: what they want, how many, and where to ship it."),
+    ("855", "Order confirmation", "Your reply saying you accept the order, or which items you can't fill."),
+    ("856", "Shipping notice", "What's in each box and pallet, sent before the truck arrives. Late or wrong ones often lead to fines."),
+    ("810", "Invoice", "Your bill for the order, matched to what you shipped so you get paid on time."),
+    ("846", "Inventory update", "How much stock you have, so partners don't order what you can't send."),
+    ("997", "Receipt", "An automatic note confirming a file arrived. NexFlo sends and tracks these for you."),
+    ("ORDERS · INVOIC · DESADV", "International (EDIFACT)", "The same orders, invoices and shipping notices, in the format used outside North America."),
+    ("837 · 835 · 270/271", "Healthcare (coming 2027)", "Claims, payments and insurance eligibility checks, handled by CareFlo."),
 ]
 
 TILE_ICONS = {
@@ -638,26 +659,35 @@ def product_tiles():
     <div class="sq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{TILE_ICONS[p["key"]]}</svg></div></div>
   <h3>{p["name"]} {status_badge(p["status"])}</h3>
   <p>{p["line"]}</p>
+  <p class="tile-for"><b>For</b> {p["for"]}</p>
   <a class="link-arrow" href="{p["href"]}">{"Explore " + p["name"] if live else "Join the waitlist"}</a>
 </div>''')
     return f'<div class="tiles">{"".join(out)}</div>'
 
 
-@page("index.html", "NexFlo Cloud | EDI for suppliers and manufacturers",
-      "NexFlo Cloud translates the purchase orders, ship notices and invoices your retail partners send, in X12 and EDIFACT, over SFTP or an API.")
+FLOW_STEPS = [
+    ("Connect your systems", "Link the software you already use, like your ERP, accounting tool or spreadsheets."),
+    ("Set up your partners", "Tell us who you trade with. We set up each partner's rules with you."),
+    ("Documents translate automatically", "Orders come in and invoices go out in the exact format each partner requires."),
+    ("Track everything in one place", "See what arrived, what was sent, and anything that needs your attention."),
+]
+
+
+def flow_steps():
+    items = "".join(f'<li class="f4"><span class="f4-n">{i}</span><div><b>{t}</b><p>{d}</p></div></li>' for i, (t, d) in enumerate(FLOW_STEPS, 1))
+    return f'<div class="flow4-wrap"><ol class="flow4" data-cycle>{items}</ol><p class="flow4-note">How NexFlo is being built to work</p></div>'
+
+
+@page("index.html", "NexFlo Cloud | EDI made simple for growing businesses",
+      "NexFlo Cloud handles EDI for you: the orders, invoices and claims big retailers and insurers require, translated automatically so your team never retypes a document.")
 def home():
-    words = "EDI for suppliers, without the legacy bill.".split()
+    words = "EDI made simple for growing businesses.".split()
     title = " ".join(f'<span class="w" style="--i:{i}">{w}</span>' for i, w in enumerate(words))
-    meter = '''<div class="meter-wrap"><div class="meter" data-meter="1284">
-  <div class="meter-top"><span>Documents this month</span><span class="badge">Sample account</span></div>
-  <div class="meter-num">1,284</div>
-  <div class="meter-bar"><i></i></div>
-  <div class="meter-rows"><div><span>Trading partners</span><b>4</b></div><div><span>Billing</span><b>Per document</b></div><div><span>Setup</span><b>Quoted upfront</b></div></div>
-</div></div>'''
     chat = f'''<div class="chat" data-chat aria-label="Example support conversation">
-  <div class="msg"><span class="avatar them">JM</span><div><b>Jordan, Acme Supply</b><time>9:12 AM</time><p>Walmart rejected this morning's 856. Any idea why?</p></div></div>
+  <div class="msg"><span class="avatar them">JM</span><div><b>Jordan, Acme Supply</b><time>9:12 AM</time><p>Walmart rejected this morning's shipping notice. Any idea why?</p></div></div>
   <div class="typing" hidden><i></i><i></i><i></i></div>
-  <div class="msg"><span class="avatar">AB</span><div><b>Aadith, NexFlo</b><time>9:31 AM</time><p>The carton-level <code>SSCC-18</code> labels were missing. I've added them to your mapping, so the next ASN will pass.</p></div></div>
+  <div class="msg"><span class="avatar">NF</span><div><b>NexFlo team</b><time>9:31 AM</time><p>Walmart needs a label number on every box. We've added it to your setup, so the next one will go through.</p></div></div>
+  <p class="chat-note">Example conversation</p>
 </div>'''
     docs = "".join(f'<div class="doc"><h3><code>{c}</code><span>{n}</span></h3><p>{d}</p></div>' for c, n, d in DOCS)
     return f'''
@@ -665,73 +695,74 @@ def home():
   {hero_lines()}
   <div class="container">
     <h1>{title}</h1>
-    <p class="sub">Receive purchase orders and send ship notices and invoices in the exact format each retail partner expects. Over SFTP or a REST API.</p>
-    {signup_inline("home-hero", button="Join the waitlist")}
-    <p class="hero-note">TradeFlo early access · Founding customers keep launch pricing</p>
+    <p class="sub">Big retailers and insurers require EDI: orders, invoices and claims sent in a strict computer format. NexFlo handles that format for you, so your team never has to retype a document.</p>
+    {signup_inline("home-hero", button="Join early access")}
+    <p class="hero-note">TradeFlo early access is open · CareFlo and HealthFlo coming 2027</p>
     <div class="hero-stage"><div class="arc hero-circle"></div>{hero_demo()}</div>
   </div>
-  <div class="hero-strip"><div class="container"><p>Speaks the documents your trading partners send</p></div>{ticker()}</div>
+  <div class="hero-strip"><div class="container"><p>Handles the documents your partners ask for</p></div>{ticker()}</div>
 </section>
 
 <section><div class="container frows">
   <div class="frow">
-    <div class="frow-text"><span class="label">Pricing</span><h2>Pay per document, not per partner</h2>
-      <p>Usage-based pricing with a written quote before you sign. No surprise setup fees, and founding customers keep their launch pricing.</p>
-      <a class="link-arrow" href="pricing.html#quote">Request pricing</a></div>
-    <div class="vis"><div class="arc" data-arc="0.6"></div>{meter}</div>
+    <div class="frow-text"><span class="label">How it works</span><h2>Set it up once, then it runs on its own</h2>
+      <p>No new software to learn and no retyping orders from emails or portals. Once your partners are connected, documents move back and forth automatically.</p>
+      <a class="link-arrow" href="what-is-edi.html">New to EDI? Start here</a></div>
+    <div class="vis tall"><div class="arc" data-arc="0.6"></div>{flow_steps()}</div>
   </div>
   <div class="frow flip">
-    <div class="frow-text"><span class="label">API</span><h2>JSON in, valid EDI out</h2>
-      <p>Send an invoice as JSON and Walmart receives a correct 810. New orders arrive as clean JSON your ERP or storefront can read.</p>
-      <p class="small muted">API in preview. Endpoint names may change before launch.</p>
-      <a class="link-arrow" href="tradeflo.html">Explore TradeFlo</a></div>
-    <div class="vis"><div class="arc" data-arc="0.6"></div>{win("sendInvoice.js", "TradeFlo API", hl_js(API_JS), typing=True)}</div>
+    <div class="frow-text"><span class="label">No tech team needed</span><h2>Works with a spreadsheet</h2>
+      <p>Save a spreadsheet into a secure shared folder and NexFlo turns it into the EDI your partner needs. New orders show up in the same folder, ready to open.</p>
+      <p class="small">This uses SFTP, a secure way to share files between companies.</p></div>
+    <div class="vis"><div class="arc" data-arc="0.6"></div>{win("shared folder", "sftp.nexflo.cloud", hl_shell(SFTP_SESSION), typing=True)}</div>
   </div>
   <div class="frow">
-    <div class="frow-text"><span class="label">SFTP</span><h2>No code? Drop files in a folder.</h2>
-      <p>Put CSV files in a folder per trading partner and pick up new orders the same way. Works for teams running spreadsheets or an older ERP.</p>
-      <a class="link-arrow" href="demo.html">See it on a call</a></div>
-    <div class="vis"><div class="arc" data-arc="0.6"></div>{win("sftp", "sftp.nexflo.cloud", hl_shell(SFTP_SESSION), typing=True)}</div>
+    <div class="frow-text"><span class="label">For developers</span><h2>Or connect your software directly</h2>
+      <p>If you have a tech team, they can send and receive documents through our API in JSON, the format most modern software already uses.</p>
+      <p class="small">The API is in development. Details may change before launch.</p></div>
+    <div class="vis"><div class="arc" data-arc="0.6"></div>{win("sendInvoice.js", "NexFlo API", hl_js(API_JS), typing=True)}</div>
   </div>
   <div class="frow flip">
-    <div class="frow-text"><span class="label">Dashboard</span><h2>Every document, from received to acknowledged</h2>
-      <p>See where each order, ship notice and invoice stands, and hear about a rejection before it turns into a chargeback.</p></div>
+    <div class="frow-text"><span class="label">One dashboard</span><h2>See every order and invoice in one place</h2>
+      <p>Know what arrived, what was sent and what needs attention, before a small mistake turns into a fine from your retailer.</p>
+      <p class="small">Illustration of the planned dashboard, with sample data.</p></div>
     <div class="vis tall"><div class="arc" data-arc="0.6"></div>{dashboard_mock()}</div>
   </div>
 </div></section>
 
 <section class="s-light"><div class="container split">
-  <div class="frow-text"><span class="label">Support</span><h2>Help from the person who built it</h2>
-    <p>Email goes straight to the founder. Expect a reply within one business day, and hands-on help mapping your first trading partner.</p>
+  <div class="frow-text"><span class="label">Support</span><h2>Real people, quick answers</h2>
+    <p>Email the NexFlo team and get a reply within one business day, plus hands-on help connecting your first trading partner.</p>
     <a class="link-arrow" href="contact.html">Contact us</a></div>
   <div class="vis" style="background:var(--blue);border:0"><div class="arc" data-arc="0.6" style="background:rgba(255,255,255,.1)"></div>{chat}</div>
 </div></section>
 
 <section class="orbit-sec"><div class="container orbit-split">
   {orbit()}
-  <div class="frow-text"><span class="label">Trading partners</span><h2>One connection for every trading partner</h2>
-    <p>Retailers, distributors and 3PLs each send their own flavor of EDI. TradeFlo keeps every partner's IDs, specs and connections in one place, so adding the next one is routine.</p>
+  <div class="frow-text"><span class="label">Trading partners</span><h2>One hub for all your trading partners</h2>
+    <p>Every retailer, distributor and shipper does EDI a little differently. NexFlo keeps each partner's rules in one place, so adding a new one doesn't mean starting over.</p>
     <a class="btn btn-primary mt-2" href="tradeflo.html">Explore TradeFlo</a></div>
 </div></section>
 
 <section><div class="container doc-split">
-  <div class="doc-head"><h2>Every core retail document</h2>
-    <p class="lead">The documents suppliers get asked for most, with healthcare transactions on the 2027 roadmap.</p>
-    <a class="link-arrow" href="retail-edi-documents.html">Read the document guide</a></div>
+  <div class="doc-head"><h2>The documents your partners will ask for</h2>
+    <p class="lead">In EDI, every type of document has a number. Here's what the common ones mean.</p>
+    <a class="link-arrow" href="retail-edi-documents.html">Read the full guide</a></div>
   <div class="doclist">{docs}</div>
 </div></section>
 
 <section class="s-light"><div class="container">
-  <div class="section-head"><span class="label">Products</span><h2>Three products, one translation engine</h2></div>
+  <div class="section-head"><span class="label">Products</span><h2>Three products for three kinds of businesses</h2>
+    <p class="lead">Pick the one that matches what you do. They all run on the same NexFlo platform.</p></div>
   {product_tiles()}
 </div></section>
 
 <section class="s-accent"><div class="container">
   <div class="section-head center"><span class="label">Security</span><h2>Built carefully, claimed honestly</h2></div>
   <div class="scards">
-    <div class="scard"><h3>Encryption in transit and at rest</h3><p>Planned from day one: TLS 1.2 or higher on every connection and AES-256 for stored documents.</p></div>
-    <div class="scard"><h3>Role-based access and MFA</h3><p>Planned for every account, so people only see and change what they should.</p></div>
-    <div class="scard"><h3>A BAA for healthcare</h3><p>CareFlo and HealthFlo customers handling PHI can sign a Business Associate Agreement where applicable.</p></div>
+    <div class="scard"><h3>Your data is encrypted</h3><p>Planned from day one: encryption for every connection and for every stored document.</p></div>
+    <div class="scard"><h3>Only the right people get in</h3><p>Planned for every account: individual logins, two-step sign-in and permissions for who can see or change what.</p></div>
+    <div class="scard"><h3>Ready for healthcare rules</h3><p>For healthcare customers, we're prepared to sign a Business Associate Agreement (BAA) where required.</p></div>
     <div class="scard"><h3>No claims we can't back up</h3><p>We don't claim HIPAA certification or a SOC 2 report today. They'll be on our <a href="security.html" style="text-decoration:underline">Security page</a> once independently verified.</p></div>
   </div>
 </div></section>
@@ -740,8 +771,8 @@ def home():
   <div class="arc cta-circle" data-arc="0.75"></div>
   <div class="container cta-in">
     <h2>Less friction.<br>More flow.</h2>
-    <p>TradeFlo is opening to a small group of founding customers. Join the waitlist, or book 30 minutes with the founder.</p>
-    <div class="row"><a class="btn btn-ghost arrow" href="demo.html">Book a demo</a><a class="btn btn-white btn-lg" href="early-access.html">Join the waitlist</a></div>
+    <p>Join early access, or talk to us about your partners and documents. No technical knowledge needed.</p>
+    <div class="row"><a class="btn btn-ghost arrow" href="demo.html">Talk to us</a><a class="btn btn-white btn-lg" href="early-access.html">Join early access</a></div>
   </div>
 </section>
 '''
@@ -957,41 +988,59 @@ for _s in SOLUTIONS:
 
 
 PRICING_FAQ = [
-    ("Are there setup fees?", "Our goal is no surprise fees. Any onboarding cost is quoted upfront, in writing, before you sign anything."),
-    ("How long are contracts?", "We plan to offer month-to-month and annual options. Founding customers won't be locked into multi-year terms."),
-    ("How fast will you respond to my request?", "Within one business day. You'll hear from the founder, not an automated sequence."),
-    ("What does early access mean?", "TradeFlo is opening to a small group of founding customers first. You get hands-on onboarding, direct access to the team, and a say in what we build next."),
+    ("How will pricing work?", "In packages. Each product will have monthly Starter, Growth and Enterprise packages, each including a set number of documents or transactions. We're finalizing the exact prices and amounts."),
+    ("Why aren't prices listed yet?", "We're still setting final prices with our first customers. We'd rather publish numbers we can stand behind than change them later."),
+    ("Will there be options for small businesses?", "Yes. NexFlo is being built for small and mid-sized businesses first, with room to grow into higher volumes."),
+    ("Are there setup fees or long contracts?", "Those details aren't decided yet. Whatever they are, you'll have them in writing before you sign anything."),
     ("Do founding customers lock in launch pricing?", "Yes. Founding customers keep their launch pricing as the product grows."),
-    ("When will prices be published?", "Once early access wraps up. Until then, every quote is tailored to your volume and partners."),
+    ("How fast will you get back to me?", "Within one business day, from the NexFlo team, not an automated sequence."),
 ]
 
 
-@page("pricing.html", "Pricing", "Transparent, usage-based EDI plans, typically well below legacy EDI providers. Request a quote from NexFlo Cloud.", "pricing")
+@page("pricing.html", "Pricing", "NexFlo Cloud pricing for TradeFlo, CareFlo and HealthFlo. Plans are being finalized; ask about early-access pricing.", "pricing")
 def pricing():
     incl = {
-        "TradeFlo": ["X12 and EDIFACT translation", "EDI to JSON", "SFTP and REST API", "Trading partner management", "Transaction tracking and error alerts", "Hands-on onboarding"],
-        "CareFlo": ["HIPAA X12 translation (planned)", "Claims, eligibility, claim status, remittance", "Pre-submission validation", "Monitoring and alerts", "Works alongside your clearinghouse"],
-        "HealthFlo": ["HL7 v2 and FHIR (planned)", "Data mapping", "Message routing", "Interface monitoring", "Alerts"],
+        "TradeFlo": ["Orders, invoices and shipping notices", "Works with spreadsheets, your ERP or an API", "Trading partner setup with you", "Tracking and alerts for every document"],
+        "CareFlo": ["Claims, eligibility and claim status (planned)", "Payment remittances (planned)", "Checks for errors before claims go out", "Works alongside your clearinghouse"],
+        "HealthFlo": ["HL7 and FHIR connections (planned)", "Mapping data between systems", "Routing messages where they need to go", "Monitoring and alerts"],
     }
-    cards = []
-    for p in PRODUCTS:
-        live = p["status"] == "live"
-        btn = (f'<a class="btn btn-primary" href="?product={p["name"]}#quote" data-product="{p["name"]}">Request pricing</a>' if live
-               else f'<a class="btn btn-secondary" href="?product={p["name"]}#quote" data-product="{p["name"]}">Join the waitlist</a>')
-        cards.append(f'''<div class="card price-card{" featured" if live else ""}">
+    if SHOW_PRICES:
+        blocks = []
+        for p in PRODUCTS:
+            cards = "".join(f'''<div class="price-card{" featured" if tier == "Growth" else ""}">
+  <div class="card-top"><h3 class="mb-0">{tier}</h3>{'<span class="badge badge-blue">Most popular</span>' if tier == "Growth" else ""}</div>
+  <div class="price">{price + ' <small>/ month</small>' if price else "Contact sales"}</div>
+  <p class="muted">{vol}</p><p>{desc}</p>
+  <a class="btn {"btn-primary" if tier == "Growth" else "btn-secondary"} mt-3" href="{"early-access.html?product=" + p["name"] if price else "contact.html"}">{"Request access" if price else "Contact sales"}</a>
+</div>''' for tier, price, vol, desc in PLANS[p["name"]])
+            blocks.append(f'<div class="price-block" id="{p["key"]}"><div class="card-top"><div class="product-mark">{p["mark"]}<span>Flo</span></div>{status_badge(p["status"])}</div>'
+                          f'<p class="muted">{p["line"]}</p><div class="grid grid-3 mt-3">{cards}</div></div>')
+        top = "".join(blocks)
+        hero = page_hero("Simple monthly plans for each product",
+                         "Each product has Starter, Growth and Enterprise plans. Need something custom? Contact sales.",
+                         "Pricing", [("Home", "index.html"), ("Pricing", None)])
+    else:
+        cards = []
+        for p in PRODUCTS:
+            live = p["status"] == "live"
+            cards.append(f'''<div class="price-card{" featured" if live else ""}">
   <div class="card-top"><div class="product-mark">{p["mark"]}<span>Flo</span></div>{status_badge(p["status"])}</div>
   <p>{p["line"]}</p>
-  <div class="price">{"Usage-based" if live else "Coming 2027"} <small>{"· quote on request" if live else ""}</small></div>
-  <ul class="checks">{"".join(f"<li>{x}</li>" for x in incl[p["name"]])}</ul>{btn}</div>''')
-    return page_hero("Transparent, usage-based plans, typically well below legacy EDI providers.",
-                     "Prices aren't published during early access. Tell us about your volume and partners and we'll send a quote within one business day.",
-                     "Pricing", [("Home", "index.html"), ("Pricing", None)]) + f'''
-<section><div class="container"><div class="grid grid-3">{"".join(cards)}</div></div></section>
+  <div class="price">Pricing coming soon</div>
+  <p class="muted small">Starter · Growth · Enterprise packages</p>
+  <ul class="checks">{"".join(f"<li>{x}</li>" for x in incl[p["name"]])}</ul>
+  <a class="btn {"btn-primary" if live else "btn-secondary"}" href="?product={p["name"]}#quote">{"Ask about pricing" if live else "Join the waitlist"}</a></div>''')
+        top = f'<div class="grid grid-3">{"".join(cards)}</div>'
+        hero = page_hero("Simple packages, coming soon",
+                         "Each product will come in monthly packages (Starter, Growth and Enterprise), sized to how many orders, invoices or claims you handle. We're finalizing the numbers. Tell us your volume and we'll share early-access pricing as soon as it's ready.",
+                         "Pricing", [("Home", "index.html"), ("Pricing", None)])
+    return hero + f'''
+<section><div class="container">{top}</div></section>
 
 <section class="section-soft" id="quote"><div class="container split top">
-  <div><span class="eyebrow">Request pricing</span><h2>Get a quote</h2>
-    <p class="lead">A few details help us size your plan accurately. We'll reply from {SALES} within one business day.</p>
-    <ul class="checks mt-4"><li>No obligation, no sales sequence</li><li>Founding customers lock in launch pricing</li><li>Talk directly to the founder</li></ul></div>
+  <div><span class="eyebrow">Ask about pricing</span><h2>Tell us what you need</h2>
+    <p class="lead">A few details help us understand your business. We'll reply from {SALES} within one business day.</p>
+    <ul class="checks mt-4"><li>No obligation</li><li>Founding customers lock in launch pricing</li><li>A real person replies, not an automated sequence</li></ul></div>
   <form class="form-card" data-form="Pricing request" data-to="{SALES}">
     {HONEYPOT}
     <div class="form-body"><div class="form-grid">
@@ -999,12 +1048,12 @@ def pricing():
       <div class="field"><label for="q-email">Work email</label><input id="q-email" name="email" type="email" required autocomplete="email"></div>
       <div class="field"><label for="q-company">Company</label><input id="q-company" name="company" required autocomplete="organization"></div>
       <div class="field"><label for="q-product">Product of interest</label><select id="q-product" name="product" required>{opt(PRODUCT_OPTS)}</select></div>
-      <div class="field"><label for="q-volume">Documents or transactions per month</label><select id="q-volume" name="monthly_volume" required>{opt(VOLUME_OPTS)}</select></div>
+      <div class="field"><label for="q-volume">Orders, invoices or claims per month</label><select id="q-volume" name="monthly_volume" required>{opt(VOLUME_OPTS)}</select></div>
       <div class="field"><label for="q-provider">Current EDI provider <span class="opt">(if any)</span></label><input id="q-provider" name="current_provider" placeholder="e.g. none yet"></div>
-      <div class="field full"><label for="q-notes">Anything else? <span class="opt">(optional)</span></label><textarea id="q-notes" name="notes" placeholder="Trading partners, systems you use, timelines…"></textarea></div>
+      <div class="field full"><label for="q-notes">Anything else? <span class="opt">(optional)</span></label><textarea id="q-notes" name="notes" placeholder="Who you trade with, the software you use, timelines…"></textarea></div>
     </div>
-    <div class="form-foot"><small>By submitting you agree to our <a href="privacy.html">Privacy Policy</a>.</small><button class="btn btn-primary" type="submit">Request pricing</button></div></div>
-    {form_success("Thanks, we've got it.", f"We'll send your quote from {SALES} within one business day.")}
+    <div class="form-foot"><small>By submitting you agree to our <a href="privacy.html">Privacy Policy</a>.</small><button class="btn btn-primary" type="submit">Send</button></div></div>
+    {form_success("Thanks, we've got it.", f"We'll get back to you from {SALES} within one business day.")}
   </form>
 </div></section>
 
@@ -1190,7 +1239,10 @@ def contact():
     <div class="form-body"><div class="form-grid">
       <div class="field"><label for="c-name">Name</label><input id="c-name" name="name" required autocomplete="name"></div>
       <div class="field"><label for="c-email">Email</label><input id="c-email" name="email" type="email" required autocomplete="email"></div>
-      <div class="field full"><label for="c-company">Company <span class="opt">(optional)</span></label><input id="c-company" name="company" autocomplete="organization"></div>
+      <div class="field"><label for="c-company">Company <span class="opt">(optional)</span></label><input id="c-company" name="company" autocomplete="organization"></div>
+      <div class="field"><label for="c-phone">Phone <span class="opt">(optional)</span></label><input id="c-phone" name="phone" type="tel" autocomplete="tel"></div>
+      <div class="field"><label for="c-product">Product of interest <span class="opt">(optional)</span></label><select id="c-product" name="product">{opt(PRODUCT_OPTS)}</select></div>
+      <div class="field"><label for="c-volume">Orders, invoices or claims per month <span class="opt">(optional)</span></label><select id="c-volume" name="monthly_volume">{opt(VOLUME_OPTS)}</select></div>
       <div class="field full"><label for="c-msg">Message</label><textarea id="c-msg" name="message" required></textarea></div>
     </div>
     <div class="form-foot"><small>We'll reply within one business day.</small><button class="btn btn-primary" type="submit">Send message</button></div></div>
@@ -1204,28 +1256,28 @@ def contact():
 </div></section>'''
 
 
-@page("demo.html", "Book a demo", "Book a demo of NexFlo Cloud and see how TradeFlo handles your EDI documents.")
+@page("demo.html", "Talk to us", "Request a consultation with NexFlo Cloud about your trading partners, documents and how NexFlo could fit.")
 def demo():
-    return page_hero("Book a demo", "See TradeFlo with your own trading partners in mind. 30 minutes with the founder, no slides required.",
-                     "Demo", [("Home", "index.html"), ("Book a demo", None)]) + f'''
+    return page_hero("Talk to us", "Tell us who you trade with and what's slowing you down. We'll set up a call and explain plainly how NexFlo can help. No technical knowledge needed.",
+                     "Request a consultation", [("Home", "index.html"), ("Talk to us", None)]) + f'''
 <section><div class="container split top">
-  <form class="form-card" data-form="Demo request" data-to="{SALES}">
+  <form class="form-card" data-form="Consultation request" data-to="{SALES}">
     {HONEYPOT}
     <div class="form-body"><div class="form-grid">
       <div class="field"><label for="d-name">Name</label><input id="d-name" name="name" required autocomplete="name"></div>
       <div class="field"><label for="d-email">Work email</label><input id="d-email" name="email" type="email" required autocomplete="email"></div>
       <div class="field"><label for="d-company">Company</label><input id="d-company" name="company" required autocomplete="organization"></div>
-      <div class="field"><label for="d-role">Your role <span class="opt">(optional)</span></label><input id="d-role" name="role" autocomplete="organization-title"></div>
       <div class="field"><label for="d-product">Product of interest</label><select id="d-product" name="product" required>{opt(PRODUCT_OPTS)}</select></div>
-      <div class="field"><label for="d-time">Best time to talk <span class="opt">(optional)</span></label><input id="d-time" name="preferred_time" placeholder="e.g. weekday afternoons CT"></div>
-      <div class="field full"><label for="d-msg">What would you like to see? <span class="opt">(optional)</span></label><textarea id="d-msg" name="message" placeholder="Trading partners, documents, current setup…"></textarea></div>
+      <div class="field"><label for="d-volume">Orders, invoices or claims per month</label><select id="d-volume" name="monthly_volume">{opt(VOLUME_OPTS)}</select></div>
+      <div class="field"><label for="d-contact">Best way to reach you</label><select id="d-contact" name="preferred_contact">{opt(["Email", "Phone call", "Video call"])}</select></div>
+      <div class="field full"><label for="d-msg">What's the challenge? <span class="opt">(optional)</span></label><textarea id="d-msg" name="message" placeholder="e.g. Walmart asked us to start using EDI, or our current provider is too expensive"></textarea></div>
     </div>
-    <div class="form-foot"><small>By submitting you agree to our <a href="privacy.html">Privacy Policy</a>.</small><button class="btn btn-primary" type="submit">Request a demo</button></div></div>
-    {form_success("Demo requested.", "We'll email you within one business day to find a time.")}
+    <div class="form-foot"><small>By submitting you agree to our <a href="privacy.html">Privacy Policy</a>.</small><button class="btn btn-primary" type="submit">Request a consultation</button></div></div>
+    {form_success("Request received.", "We'll email you within one business day to find a time.")}
   </form>
-  <div><h2>What we'll cover</h2>
-    <ul class="checks mt-3"><li>Your trading partners and the documents they require</li><li>A live walk-through of an 850 to JSON translation</li>
-      <li>How SFTP and API connections work</li><li>Onboarding timeline and early-access pricing</li></ul>
+  <div><h2>What we'll talk about</h2>
+    <ul class="checks mt-3"><li>Who you trade with and which documents they ask for</li><li>How you handle orders and invoices today</li>
+      <li>How NexFlo would fit, step by step</li><li>Early-access timing and pricing as it's set</li></ul>
     <div class="notice mt-4"><div>Prefer email? Write to <a href="mailto:{SALES}">{SALES}</a>.</div></div></div>
 </div></section>'''
 
