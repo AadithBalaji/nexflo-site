@@ -14,7 +14,9 @@ import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).parent
-DIST = ROOT / "dist"
+# THEME=dark python3 build.py  ->  dark glass variant in ./dist-dark
+THEME = __import__("os").environ.get("THEME", "light")
+DIST = ROOT / ("dist-dark" if THEME == "dark" else "dist")
 
 # ---------------------------------------------------------------- settings
 SITE_URL = "https://nexflo.cloud"
@@ -543,7 +545,7 @@ def home():
       <p class="hero-note fade-up" style="--d:.8s">Founding customers lock in launch pricing. <a class="journey" href="{LINKEDIN}" target="_blank" rel="noopener">Follow our journey →</a></p>
     </div>
   </div>
-  <div class="hero-visual"><img class="hero-art" src="assets/hero-cloud.jpg" alt="A glass cloud wrapped in flowing blue ribbons" width="1254" height="570"></div>
+  <div class="hero-visual">{flow_lines(658, 360)}<img class="hero-art" src="assets/hero-cloud.jpg" alt="A glass cloud wrapped in flowing blue ribbons" width="1254" height="570"></div>
   {hero_toasts()}
 </section>
 
@@ -1231,6 +1233,42 @@ def clean_links(text):
     return re.sub(r'href="([a-z0-9-]+)\.html([#?][^"]*)?"', lambda m: f'href="/{m.group(1)}{m.group(2) or ""}"', text)
 
 
+
+def flow_lines(tx, ty):
+    """Curved data streams flowing into the cloud at (tx, ty), with dots travelling along them."""
+    starts = [(-900, ty - 260, -300, ty - 230), (-900, ty + 230, -250, ty + 200), (tx - 420, 900, tx - 260, 640),
+              (tx + 700, -260, tx + 520, ty - 300), (tx + 760, ty + 420, tx + 540, ty + 300), (-600, ty - 20, -100, ty + 40)]
+    paths, dots = [], []
+    for k, (x0, y0, cx, cy) in enumerate(starts):
+        d = f"M{x0} {y0} C{cx} {cy} {(cx + tx) / 2:.0f} {ty + (cy - ty) * 0.25:.0f} {tx} {ty}"
+        paths.append(f'<path id="fl{k}" d="{d}"/>')
+        for j in range(2):
+            dur = 4.2 + k * 0.45
+            green = " ok" if (k + j) % 5 == 2 else ""
+            begin = f"{-j * dur / 2 - k * 0.7:.2f}s"
+            dots.append(f'<circle class="flow-dot{green}" r="3.6"><animateMotion dur="{dur:.2f}s" begin="{begin}" '
+                        f'repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines=".4 0 .6 1">'
+                        f'<mpath href="#fl{k}"/></animateMotion><animate attributeName="opacity" values="0;0;1;1;0" '
+                        f'keyTimes="0;.3;.55;.92;1" dur="{dur:.2f}s" begin="{begin}" repeatCount="indefinite"/></circle>')
+    return (f'<svg class="flow-lines" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet" aria-hidden="true">'
+            f'<defs><linearGradient id="flg" gradientUnits="userSpaceOnUse" x1="{tx - 760}" y1="0" x2="{tx - 120}" y2="0">'
+            f'<stop offset="0" class="fl-s0"/><stop offset="1" class="fl-s1"/></linearGradient></defs>'
+            f'<g class="flow-paths" stroke="url(#flg)">{"".join(paths)}</g>{"".join(dots)}</svg>')
+
+
+DARK_VISUAL = ('<div class="hero-visual glow-visual">' + flow_lines(500, 307) + '<img class="glow-aura" src="assets/cloud-glow.webp" alt="" width="960" height="640">'
+               '<img class="glow-icon" src="assets/cloud-icon.png" alt="NexFlo cloud" width="1106" height="689"></div>')
+
+
+def apply_dark(text):
+    text = text.replace('<html lang="en">', '<html lang="en" data-theme="dark">')
+    text = text.replace('<meta name="theme-color" content="#006BFD">', '<meta name="theme-color" content="#05081A">')
+    text = text.replace('<link rel="stylesheet" href="assets/styles.css">',
+                        '<link rel="stylesheet" href="assets/styles.css">\n<link rel="stylesheet" href="assets/theme-dark.css">')
+    text = text.replace("assets/logo.png", "assets/logo-dark.png")
+    return re.sub(r'<div class="hero-visual"><svg class="flow-lines".*?</svg><img class="hero-art"[^>]*></div>', lambda m: DARK_VISUAL, text, flags=re.S)
+
+
 def build():
     if DIST.exists():
         shutil.rmtree(DIST)
@@ -1239,6 +1277,8 @@ def build():
     bare = {"portal.html"}
     for slug, (title, desc, active, fn) in PAGES.items():
         out = layout(title, desc, fn(), active, slug, bare=slug in bare)
+        if THEME == "dark":
+            out = apply_dark(out)
         if CLEAN_URLS:
             out = clean_links(out)
         (DIST / slug).write_text(out, encoding="utf-8")
