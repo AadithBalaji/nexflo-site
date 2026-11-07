@@ -591,18 +591,61 @@ def hero_lines():
 
 
 def hero_ribbons():
-    """Ribbon-like bundles of lines flowing across the hero (a nod to the ribbons in the NexFlo launch art), with data pulses travelling along them."""
+    """Ribbon-like bundles of lines flowing across the hero (a nod to the ribbons in the NexFlo launch art), with data pulses travelling along them.
+
+    The middle wave (x -60 to 1660) is the original design. EXTRA more waves are added on each side so the
+    ribbons reach the edges of very wide screens; the SVG is cropped to the screen width (see .hero-ribbons).
+    Longer paths would make one pulse spend most of its time off screen on normal laptops, so each ribbon
+    gets several evenly spaced pulses, and the timing is scaled so they move at the original speed."""
+    EXTRA, SEG = 2, 860
+    x0, x1 = -60 - EXTRA * SEG, 1660 + EXTRA * SEG
+
+    def cubic_len(p0, p1, p2, p3, n=40):
+        pts = [tuple((1 - t) ** 3 * a + 3 * (1 - t) ** 2 * t * b + 3 * (1 - t) * t ** 2 * c + t ** 3 * e
+                     for a, b, c, e in zip(p0, p1, p2, p3)) for t in (i / n for i in range(n + 1))]
+        return sum(((x2 - x1_) ** 2 + (y2 - y1) ** 2) ** 0.5 for (x1_, y1), (x2, y2) in zip(pts, pts[1:]))
+
+    def ribbon(yy, amp):
+        # Each added segment is one S-shaped wave (dips below the centre line, then rises above it, or the
+        # reverse). The left waves end with the tangent the original wave starts with at -60, and the right
+        # waves carry on smoothly from where it ends at 1660, so there are no kinks at the joins.
+        segs = []
+        for i in range(EXTRA):
+            end = x0 + (i + 1) * SEG
+            segs.append(((end - 300, yy + amp), (end, yy)))
+        segs.append(((520, yy + amp), (800, yy)))
+        segs.append(((1360, yy - amp), (1660, yy + 10)))
+        for i in range(EXTRA):
+            end = 1660 + (i + 1) * SEG
+            segs.append(((end - 300, yy + 10 - amp), (end, yy + 10)))
+        first_c1 = (x0 + 300, yy - amp)
+        d = f"M{x0} {yy} C {first_c1[0]} {first_c1[1]} {segs[0][0][0]} {segs[0][0][1]} {segs[0][1][0]} {segs[0][1][1]}"
+        length = cubic_len((x0, yy), first_c1, segs[0][0], segs[0][1])
+        prev, prev_c2 = segs[0][1], segs[0][0]
+        for c2, end in segs[1:]:
+            c1 = (2 * prev[0] - prev_c2[0], 2 * prev[1] - prev_c2[1])
+            length += cubic_len(prev, c1, c2, end)
+            d += f" S {c2[0]} {c2[1]} {end[0]} {end[1]}"
+            prev, prev_c2 = end, c2
+        return d, length
+
     bundles = [(470, 1, 5.5), (590, -1, 6.5), (700, 1, 7.5)]
     base, pulses = [], []
     for k, (y, direction, t) in enumerate(bundles):
         amp = 110 - k * 18
         for j in range(3):
-            yy = y + j * 10
-            d = f"M-60 {yy} C 240 {yy - amp} 520 {yy + amp} 800 {yy} S 1360 {yy - amp} 1660 {yy + 10}"
+            d, length = ribbon(y + j * 10, amp)
             base.append(f'<path d="{d}"/>')
             if j == 1:
-                pulses.append(f'<path class="{"rev" if direction < 0 else ""}" d="{d}" style="--t:{t}s;--dl:{k * 1.7:.1f}s"/>')
-    return (f'<svg class="hero-ribbons" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMin slice" aria-hidden="true">'
+                # Originally a 70-unit pulse travelled 2170 units in t seconds. Keep that speed on the longer path.
+                n = EXTRA * 2 + 1
+                travel = length + 70
+                dur = t * travel / 2170
+                for p in range(n):
+                    pulses.append(f'<path class="{"rev" if direction < 0 else ""}" d="{d}" pathLength="2100" '
+                                  f'style="stroke-dasharray:{70 * 2100 / length:.1f} 2100;--t:{dur:.2f}s;--dl:{k * 1.7 - p * dur / n:.2f}s"/>')
+    vb_w = x1 - x0 + 40
+    return (f'<svg class="hero-ribbons" viewBox="{x0 - 20} 0 {vb_w} 900" preserveAspectRatio="xMidYMin slice" aria-hidden="true">'
             f'<g class="hr-base">{"".join(base)}</g><g class="hr-pulse">{"".join(pulses)}</g></svg>')
 
 
