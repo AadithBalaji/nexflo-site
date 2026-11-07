@@ -100,6 +100,15 @@ const FORM_ENDPOINT = "";
     setTimeout(() => root.classList.remove("theme-anim"), 450);
   }));
 
+  /* Follow the browser/device setting live, until the visitor picks one with the button */
+  try {
+    const mq = matchMedia("(prefers-color-scheme: light)");
+    mq.addEventListener("change", (e) => {
+      if (localStorage.getItem("nf-theme")) return;
+      document.documentElement.dataset.theme = e.matches ? "light" : "dark";
+    });
+  } catch (e) {}
+
   /* ---- Year ---- */
   document.querySelectorAll("[data-year]").forEach((el) => (el.textContent = new Date().getFullYear()));
 })();

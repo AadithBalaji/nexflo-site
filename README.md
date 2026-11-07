@@ -39,7 +39,7 @@ Then run `npx vercel --prod` to publish to production.
 
 ## Dark and light mode
 
-The site opens in dark mode. Visitors can switch with the sun/moon button in the header, and their choice is remembered. Dark styles live in `assets/theme-dark.css`. To open in light mode by default instead, change `data-theme="dark"` on the `<html>` tag in `layout()` in `build.py` to `data-theme="light"`.
+The site follows the visitor's browser or device setting (dark or light), and switches live if that setting changes. The sun/moon button in the header overrides it, and that choice is remembered. With no setting, it opens in dark mode. Dark styles live in `assets/theme-dark.css`.
 
 ## Before launch
 
