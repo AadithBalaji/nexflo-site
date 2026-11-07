@@ -189,8 +189,8 @@ def api_tabs():
 
 
 def dashboard_mock():
-    return '''<div class="glass dash" data-dash aria-label="Illustrative dashboard preview">
-  <div class="dash-top"><span class="dots"><i></i><i></i><i></i></span><span>app.nexflo.cloud / transactions</span><span class="badge badge-blue">Illustrative preview</span></div>
+    return '''<div class="dash" data-dash aria-label="Dashboard preview with sample data">
+  <div class="dash-top"><span class="dots"><i></i><i></i><i></i></span><span>app.nexflo.cloud / transactions</span><span class="badge">Sample data</span></div>
   <div class="dash-kpis">
     <div><small>Documents today</small><b data-kpi="docs">1,284</b></div>
     <div><small>Acknowledged</small><b>99.6%</b></div>
@@ -201,38 +201,18 @@ def dashboard_mock():
 </div>'''
 
 
-TOASTS = [
-    ("↓", "", "Purchase order received", "Walmart · X12 850 · PO 4500018273"),
-    ("{ }", "", "Translated to JSON", "Validated and delivered to your ERP"),
-    ("✓", "ok", "Acknowledgment sent", "X12 997 · Accepted"),
-    ("→", "", "Ship notice sent", "X12 856 · 12 cartons"),
-    ("$", "ok", "Invoice delivered", "X12 810 · $1,164.00"),
+TICKER = [
+    ("850", "Purchase order", ""), ("855", "PO acknowledgment", ""), ("856", "Advance ship notice", ""), ("810", "Invoice", ""),
+    ("846", "Inventory advice", ""), ("997", "Functional acknowledgment", ""), ("ORDERS", "EDIFACT order", ""),
+    ("INVOIC", "EDIFACT invoice", ""), ("DESADV", "EDIFACT despatch advice", ""), ("837", "Health care claim", "2027"),
+    ("835", "Remittance advice", "2027"), ("270/271", "Eligibility", "2027"), ("HL7", "v2 messages", "2027"), ("FHIR", "R4 resources", "2027"),
 ]
 
 
-def hero_toasts():
-    return '<div class="toasts" aria-hidden="true">' + "".join(
-        f'<div class="toast"><span class="ti {c}">{i}</span><span><b>{t}</b><small>{d}</small></span><time>now</time></div>'
-        for i, c, t, d in TOASTS) + "</div>"
-
-
-MARQUEE = [
-    [("850", "Purchase order", ""), ("855", "PO acknowledgment", ""), ("856", "Advance ship notice", ""), ("810", "Invoice", ""),
-     ("846", "Inventory advice", ""), ("997", "Functional ack", ""), ("ORDERS", "EDIFACT order", ""), ("INVOIC", "EDIFACT invoice", ""),
-     ("DESADV", "EDIFACT despatch advice", "")],
-    [("837", "Health care claim", "2027"), ("835", "Remittance advice", "2027"), ("270/271", "Eligibility", "2027"),
-     ("276/277", "Claim status", "2027"), ("278", "Prior authorization", "2027"), ("HL7 v2", "ADT · ORM · ORU", "2027"),
-     ("FHIR R4", "Patient · Encounter", "2027"), ("JSON", "Clean output", ""), ("CSV", "Spreadsheet-friendly", "")],
-]
-
-
-def marquee():
-    rows = []
-    for k, items in enumerate(MARQUEE):
-        one = "".join(f'<span class="m-item"><code>{c}</code>{n}{f"<small>{t}</small>" if t else ""}</span>' for c, n, t in items)
-        rows.append(f'<div class="marquee{" rev" if k else ""}"><div class="marquee-track"><div class="m-set">{one}</div>'
-                    f'<div class="m-set" aria-hidden="true">{one}</div></div></div>')
-    return '<div class="marquee-wrap">' + "".join(rows) + "</div>"
+def ticker():
+    one = "".join(f'<span><b>{c}</b>{n}{f"<i>{t}</i>" if t else ""}</span>' for c, n, t in TICKER)
+    return (f'<div class="ticker" role="marquee" aria-label="Supported documents"><div class="ticker-track">'
+            f'<div class="ticker-set">{one}</div><div class="ticker-set" aria-hidden="true">{one}</div></div></div>')
 
 
 PO_X12 = """
@@ -376,29 +356,19 @@ def nav_html(active):
 
 
 def footer_html():
+    links = [("TradeFlo", "tradeflo.html"), ("CareFlo", "careflo.html"), ("HealthFlo", "healthflo.html"), ("Pricing", "pricing.html"),
+             ("Solutions", "solutions.html"), ("Guides", "resources.html"), ("Security", "security.html"), ("About", "about.html"),
+             ("Contact", "contact.html")]
     return f'''<footer class="site-footer">
   <div class="container">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <img src="assets/logo.png" alt="NexFlo Cloud" width="154" height="46">
-        <p>Less friction. More flow. Simpler EDI for growing businesses.</p>
-        <p class="mt-2"><a href="mailto:{SALES}">{SALES}</a></p>
-        <a class="social" href="{LINKEDIN}" rel="noopener" target="_blank">{LINKEDIN_SVG} LinkedIn</a>
-      </div>
-      <div><h4>Products</h4><ul>
-        <li><a href="tradeflo.html">TradeFlo</a></li><li><a href="careflo.html">CareFlo</a></li>
-        <li><a href="healthflo.html">HealthFlo</a></li><li><a href="pricing.html">Pricing</a></li></ul></div>
-      <div><h4>Solutions</h4><ul>
-        {"".join(f'<li><a href="{s["href"]}">{s["name"].split(" and ")[0] if s["key"] != "medical-billing" else "Medical billing"}</a></li>' for s in SOLUTIONS)}</ul></div>
-      <div><h4>Company</h4><ul>
-        <li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li>
-        <li><a href="security.html">Security</a></li><li><a href="resources.html">Resources</a></li></ul></div>
-      <div><h4>Legal</h4><ul>
-        <li><a href="privacy.html">Privacy Policy</a></li><li><a href="terms.html">Terms of Service</a></li></ul></div>
+    <div class="foot-top">
+      <a class="brand" href="index.html" aria-label="NexFlo Cloud home"><img src="assets/logo.png" alt="NexFlo Cloud" width="154" height="46"></a>
+      <p class="foot-tag">Less friction. More flow.</p>
     </div>
-    <div class="footer-bottom">
-      <span>© <span data-year>{YEAR}</span> NexFlo Cloud, Minnesota</span>
-      <span>Questions? <a href="mailto:{INFO}">{INFO}</a></span>
+    <nav class="foot-links" aria-label="Footer">{"".join(f'<a href="{h}">{t}</a>' for t, h in links)}</nav>
+    <div class="foot-bottom">
+      <span>© <span data-year>{YEAR}</span> NexFlo Cloud · Minnesota</span>
+      <span><a href="mailto:{INFO}">{INFO}</a> · <a href="{LINKEDIN}" rel="noopener" target="_blank">LinkedIn</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
     </div>
   </div>
 </footer>'''
@@ -426,15 +396,14 @@ def layout(title, description, body, active="", slug="", bare=False):
 <meta property="og:url" content="{canonical}">
 <meta property="og:image" content="{SITE_URL}/assets/og-image.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#05081A">
+<meta name="theme-color" content="#0C0F17">
 <script>try{{var d=document.documentElement,t=new URLSearchParams(location.search).get("theme")||localStorage.getItem("nf-theme")||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");d.dataset.theme=t;}}catch(e){{}}</script>
 <link rel="icon" href="assets/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
-<link rel="stylesheet" href="assets/theme-dark.css">
 <!-- Analytics: paste your snippet here (e.g. Plausible, GA4, Microsoft Clarity) -->
 </head>
 <body>
@@ -476,25 +445,22 @@ def page_hero(title, lead, eyebrow="", crumbs=None, actions="", badge=""):
 </div></section>'''
 
 
-def cta_band(title="Get early access", text="Founding customers lock in launch pricing. Join the list and we'll reach out personally.",
+def cta_band(title="Get early access", text="Founding customers keep their launch pricing. Join the list and you'll hear from the founder directly.",
              source="cta", product="", secondary=True):
-    sec = (f'<p class="small">Prefer to talk numbers first? <a href="pricing.html#quote">Request pricing</a> '
+    sec = (f'<p class="small">Want numbers first? <a href="pricing.html#quote">Request pricing</a> '
            f'or <a href="demo.html">book a demo</a>.</p>') if secondary else ""
-    return f'''<section class="cta-band"><div class="container"><div class="cta-box">
-  <div><h2>{title}</h2><p class="mb-0">{text}</p></div>
-  <div>{signup_inline(source, dark=True, product=product)}{sec}</div>
-</div></div></section>'''
+    return f'''<section class="cta2"><div class="container cta2-grid">
+  <div><h2>{title}</h2><p>{text}</p></div>
+  <div>{signup_inline(source, product=product)}{sec}</div>
+</div></section>'''
 
 
 def product_cards(link_label="Learn more"):
-    cards = []
-    for p in PRODUCTS:
-        feat = " featured" if p["status"] == "live" else ""
-        first = '<span class="badge badge-blue">First to launch</span>' if p["status"] == "live" else status_badge(p["status"])
-        cards.append(f'''<a class="card{feat}" href="{p["href"]}">
-  <div class="card-top"><div class="product-mark">{p["mark"]}<span>Flo</span></div>{first}</div>
-  <p>{p["line"]}</p><span class="more arrow">{link_label}</span></a>''')
-    return f'<div class="grid grid-3">{"".join(cards)}</div>'
+    rows = "".join(
+        f'<a class="prow" href="{p["href"]}"><span class="prow-num">0{i}</span><span class="prow-name">{p["mark"]}<span>Flo</span></span>'
+        f'<span class="prow-desc">{p["line"]}</span><span class="prow-status">{status_badge(p["status"])}</span>'
+        f'<span class="prow-go" aria-hidden="true">→</span></a>' for i, p in enumerate(PRODUCTS, 1))
+    return f'<div class="rows">{rows}</div>'
 
 
 def faq(items):
@@ -525,113 +491,82 @@ def page(slug, title, description, active=""):
     return deco
 
 
-def hub_hero():
-    """Hero visual, same in light and dark: a glass tile with the logo. Documents flow in (blue) and out as JSON (green)."""
-    return (f'<div class="hero-visual hub-visual">{flow_lines(500, 307, out=(3, 4))}'
-            '<div class="hub" role="img" aria-label="NexFlo translating documents"><span class="hub-ring"></span><span class="hub-ring"></span>'
-            '<div class="hub-tile"><img src="assets/cloud-icon.png" alt="" width="1106" height="689"></div>'
-            '<span class="hub-tag in">X12 850 in</span><span class="hub-tag out">JSON out</span></div></div>')
+HERO_JSON = """
+{
+  "type": "purchase_order",
+  "partner": "walmart",
+  "po_number": "4500018273",
+  "ship_by": "2026-11-18",
+  "ship_to": "Walmart DC 6094",
+  "lines": [
+    { "upc": "012345678905", "qty": 240, "unit_price": 4.85 }
+  ]
+}
+"""
 
 
-@page("index.html", "NexFlo Cloud — Less friction. More flow.",
-      "Simpler EDI for growing businesses. NexFlo Cloud translates and exchanges your EDI documents with transparent pricing and simple onboarding.")
+def hero_demo():
+    """The hero is the product: a sample Walmart 850 arriving and leaving as JSON, with each step timestamped."""
+    steps = "".join(f'<li>{t}<span>--:--:--</span></li>' for t in ("Received", "Validated", "997 sent", "Delivered"))
+    return f'''<div class="demo" data-demo aria-label="Example: a Walmart purchase order translated to JSON">
+  <div class="demo-bar"><span><b>inbound/walmart/</b>850_4500018273.x12</span><span>Sample order</span></div>
+  <div class="demo-pane"><div class="demo-label">Received from Walmart · X12 850</div><pre><code>{hl_edi(PO_X12)}</code></pre></div>
+  <div class="demo-pane"><div class="demo-label">Delivered to your ERP · JSON</div><pre><code>{hl_json(HERO_JSON)}</code></pre></div>
+  <ol class="demo-steps">{steps}</ol>
+</div>'''
+
+
+@page("index.html", "NexFlo Cloud | EDI for suppliers and manufacturers",
+      "NexFlo Cloud translates the purchase orders, ship notices and invoices your retail partners send, in X12 and EDIFACT, over SFTP or an API.")
 def home():
-    why = [
-        ("tag", "Transparent pricing", "Usage-based plans you can understand, typically well below legacy EDI providers. No surprise fees."),
-        ("rocket", "Simple onboarding", "We help connect your first trading partner and walk you through every step."),
-        ("code", "Modern integrations", "Use a REST API with clean JSON, or keep it simple with SFTP. Your choice."),
-        ("chat", "A team that answers", "You talk directly to the person building the product. No ticket queues."),
+    facts = [
+        ("Pricing", "Usage-based. You get a written quote before you sign anything, and founding customers keep their launch pricing."),
+        ("Setup", "We connect your first trading partner with you on a call, not through a support ticket."),
+        ("Contracts", "Month-to-month and annual plans are planned. Founding customers won't be asked to sign multi-year terms."),
+        ("Support", "Email goes to the founder. You'll get a reply within one business day."),
+        ("Formats", "X12 and EDIFACT in. JSON or CSV out. Over SFTP or a REST API."),
+        ("Healthcare", "CareFlo (claims, eligibility, remittance) and HealthFlo (HL7 v2, FHIR) are planned for 2027."),
     ]
-    words = ["Less", "friction."]
-    words2 = ["More", "flow."]
-    title = (" ".join(f'<span class="w" style="--i:{i}">{w}</span>' for i, w in enumerate(words)) + "<br>" +
-             " ".join(f'<span class="w accent" style="--i:{i + 2}">{w}</span>' for i, w in enumerate(words2)))
     return f'''
-<section class="hero">
-  <div class="container hero-grid">
-    <div>
-      <span class="live-pill"><i></i>Early access now open</span>
-      <h1 class="hero-title">{title}</h1>
-      <p class="sub fade-up" style="--d:.5s">Simpler EDI for growing businesses.</p>
-      <div class="fade-up" style="--d:.65s">{signup_inline("home-hero")}</div>
-      <p class="hero-note fade-up" style="--d:.8s">Founding customers lock in launch pricing. <a class="journey" href="{LINKEDIN}" target="_blank" rel="noopener">Follow our journey →</a></p>
-    </div>
+<section class="hero2"><div class="container hero2-grid">
+  <div>
+    <p class="kicker">TradeFlo early access · Built in Minnesota</p>
+    <h1>EDI for suppliers, without the legacy bill.</h1>
+    <p class="hero2-sub">Your retail partners send purchase orders and expect ship notices and invoices back in their exact EDI format. NexFlo handles the X12 and EDIFACT, so your team works with clean data instead.</p>
+    {signup_inline("home-hero", button="Join the TradeFlo waitlist")}
+    <p class="hero2-note">Prices aren't on the site yet. <a href="pricing.html#quote">Ask for a quote</a> and you'll have one in writing within a business day.</p>
   </div>
-  {hub_hero()}
-  {hero_toasts()}
-</section>
-
-<section class="stats-band"><div class="container">
-  <div class="glass stats">
-    <div class="stat"><b data-count="6">6</b><span>core X12 documents at launch</span></div>
-    <div class="stat"><b>X12 + EDIFACT</b><span>retail and international standards</span></div>
-    <div class="stat"><b>API + SFTP</b><span>connect with or without code</span></div>
-    <div class="stat"><b>1 day</b><span>response time, from the founder</span></div>
-  </div>
+  {hero_demo()}
 </div></section>
-
+{ticker()}
 <section id="products"><div class="container">
-  <div class="section-head"><span class="eyebrow">What we do</span>
-    <h2>One platform for the documents your business runs on</h2>
-    <p class="lead">We start with retail and supply chain EDI, then extend the same translation engine to healthcare.</p></div>
+  <div class="section-head"><span class="label">Products</span><h2>TradeFlo ships first. CareFlo and HealthFlo follow in 2027.</h2></div>
   {product_cards()}
 </div></section>
-
-<section class="section-soft" id="how-it-works"><div class="container">
-  <div class="section-head"><span class="eyebrow">How it works</span>
-    <h2>From purchase order to payment, without the busywork</h2>
-    <p class="lead">Say Walmart sends you a purchase order. Here's what happens with NexFlo.</p></div>
-  <div class="steps" data-cycle>
-    <div class="step"><h3>Connect your systems</h3><p>Link your trading partners and your ERP, spreadsheet or storefront through SFTP or our API. We help set up the first connection.</p></div>
-    <div class="step"><h3>We translate and exchange</h3><p>Walmart's 850 purchase order arrives and becomes clean JSON your systems can read. Your invoice goes back as a correct 810.</p></div>
-    <div class="step"><h3>Track it in one dashboard</h3><p>See every document, acknowledgment and error in one place, with alerts when something needs your attention.</p></div>
-  </div>
-  {translate_demo("Walmart purchase order", "X12 850", PO_X12, "What your system receives", "JSON", PO_JSON, done="Validated · 997 sent")}
-</div></section>
-
 <section><div class="container split">
-  <div><span class="eyebrow">One dashboard</span>
-    <h2>Every document, from received to acknowledged</h2>
-    <p class="lead">Know exactly where each order, ship notice and invoice stands, without logging into five partner portals.</p>
-    <ul class="checks mt-4">
-      <li>Live status for every transaction, with full history</li>
-      <li>Alerts on rejections and late acknowledgments, before they become chargebacks</li>
-      <li>Search by PO number, partner or document type</li>
-      <li>Trading partner settings in one place</li>
-    </ul></div>
+  <div><span class="label">The dashboard</span>
+    <h2>Hear about a rejected ship notice before it turns into a chargeback.</h2>
+    <p class="lead">Every order, ship notice and invoice, from received to acknowledged, with the ones that need you flagged.</p>
+    <ul class="plain mt-4"><li>Search by PO number, partner or document type</li><li>Full history for every transaction</li><li>Partner IDs, specs and connections kept in one place</li></ul></div>
   {dashboard_mock()}
 </div></section>
-
-<section class="section-soft"><div class="container split">
+<section><div class="container split">
   {api_tabs()}
-  <div><span class="eyebrow">Connect your way</span>
-    <h2>API for developers. SFTP for everyone else.</h2>
-    <p class="lead">Send and receive documents as clean JSON over a REST API, or drop files in a secure SFTP folder. No proprietary software to install.</p>
-    <ul class="checks mt-4">
-      <li>REST API with JSON in, X12 or EDIFACT out</li>
-      <li>SFTP folders per trading partner, with CSV or JSON files</li>
-      <li>Webhooks when new documents arrive (planned)</li>
-    </ul></div>
+  <div><span class="label">Connecting</span>
+    <h2>SFTP if you'd rather not write code. An API if you would.</h2>
+    <p class="lead">Drop a CSV in a folder or send JSON to an endpoint. Either way, Walmart receives a valid 810.</p>
+    <p class="small muted">Webhooks for new documents are planned.</p></div>
 </div></section>
-
 <section><div class="container">
-  <div class="section-head center"><span class="eyebrow">Why NexFlo</span>
-    <h2>Enterprise-grade EDI, minus the enterprise overhead</h2></div>
-  <div class="feature-grid four">
-    {"".join(f'<div class="feature">{icon(i)}<h3>{t}</h3><p>{d}</p></div>' for i, t, d in why)}
-  </div>
+  <div class="section-head"><span class="label">Working with NexFlo</span><h2>What you can expect</h2></div>
+  <dl class="facts">{"".join(f'<div class="fact"><dt>{k}</dt><dd>{v}</dd></div>' for k, v in facts)}</dl>
 </div></section>
-
-<section class="section-soft" style="overflow:hidden">
-  <div class="container"><div class="section-head center"><span class="eyebrow">Standards</span>
-    <h2>Speak your partners' language</h2>
-    <p class="lead">Retail and supply chain standards first with TradeFlo. Healthcare standards are planned for CareFlo and HealthFlo in 2027.</p></div></div>
-  {marquee()}
-</section>
-
-
-
-<div style="padding-top:96px">{cta_band("Get early access", "TradeFlo opens to founding customers first. Founding customers lock in launch pricing.", "home-cta")}</div>
+<section><div class="container note">
+  <div><span class="label">From the founder</span>
+    <p class="note-text">If a retailer just told you to get on EDI and the quotes you've seen feel steep, send me your list of trading partners. I'll tell you plainly whether TradeFlo fits and roughly what it would cost.</p>
+    <p class="note-sign">Aadith Balaji<span>Founder, NexFlo Cloud · <a href="mailto:{SALES}">{SALES}</a></span></p></div>
+  <div>{signup_inline("home-note", button="Join the waitlist")}<p class="small muted mt-2">Founding customers keep launch pricing.</p></div>
+</div></section>
 '''
 
 
@@ -684,7 +619,7 @@ def product_page(name, mark, status, lead, who, example_intro, demo, features, s
 {cta_html}'''
 
 
-@page("tradeflo.html", "TradeFlo — EDI for suppliers and manufacturers",
+@page("tradeflo.html", "TradeFlo | EDI for suppliers and manufacturers",
       "TradeFlo translates X12 and EDIFACT documents like 850, 810 and 856 into clean JSON, with SFTP, API and transaction tracking.", "products")
 def tradeflo():
     return product_page(
@@ -713,7 +648,7 @@ def tradeflo():
     )
 
 
-@page("careflo.html", "CareFlo — Healthcare claims and eligibility translation",
+@page("careflo.html", "CareFlo | Healthcare claims and eligibility translation",
       "CareFlo is a planned HIPAA X12 translation layer for claims, eligibility, claim status and remittance. Coming 2027.", "products")
 def careflo():
     notice = ('<div class="notice mt-3"><div><strong>Integration and translation come first.</strong> CareFlo is the layer that '
@@ -744,7 +679,7 @@ def careflo():
     )
 
 
-@page("healthflo.html", "HealthFlo — HL7 and FHIR data exchange",
+@page("healthflo.html", "HealthFlo | HL7 and FHIR data exchange",
       "HealthFlo is a planned HL7 v2 and FHIR integration product for health tech and hospital systems. Coming 2027.", "products")
 def healthflo():
     return product_page(
@@ -1050,7 +985,7 @@ def security():
 
 @page("about.html", "About", "NexFlo Cloud is a Minnesota company building affordable, enterprise-grade integration for growing businesses.", "company")
 def about():
-    return page_hero("Enterprise-grade integration for growing businesses",
+    return page_hero("EDI for the suppliers big providers overlook",
                      "NexFlo Cloud exists to make EDI and data integration affordable and simple for the businesses that big providers overlook.",
                      "About us", [("Company", None), ("About", None)]) + f'''
 <section><div class="container split top">
@@ -1216,29 +1151,6 @@ def clean_links(text):
     text = re.sub(r'href="index\.html([#?][^"]*)?"', lambda m: f'href="/{m.group(1) or ""}"', text)
     return re.sub(r'href="([a-z0-9-]+)\.html([#?][^"]*)?"', lambda m: f'href="/{m.group(1)}{m.group(2) or ""}"', text)
 
-
-
-def flow_lines(tx, ty, out=()):
-    """Curved data streams flowing into the cloud at (tx, ty), with dots travelling along them."""
-    starts = [(-900, ty - 260, -300, ty - 230), (-900, ty + 230, -250, ty + 200), (tx - 420, 900, tx - 260, 640),
-              (tx + 700, -260, tx + 520, ty - 300), (tx + 760, ty + 420, tx + 540, ty + 300), (-600, ty - 20, -100, ty + 40)]
-    paths, dots = [], []
-    for k, (x0, y0, cx, cy) in enumerate(starts):
-        d = f"M{x0} {y0} C{cx} {cy} {(cx + tx) / 2:.0f} {ty + (cy - ty) * 0.25:.0f} {tx} {ty}"
-        paths.append(f'<path id="fl{k}" d="{d}"/>')
-        for j in range(2):
-            dur = 4.2 + k * 0.45
-            outgoing = k in out
-            green = " ok" if outgoing or (not out and (k + j) % 5 == 2) else ""
-            begin = f"{-j * dur / 2 - k * 0.7:.2f}s"
-            dots.append(f'<circle class="flow-dot{green}" r="3.6"><animateMotion dur="{dur:.2f}s" begin="{begin}" '
-                        f'repeatCount="indefinite" keyPoints="{"1;0" if outgoing else "0;1"}" keyTimes="0;1" calcMode="spline" keySplines=".4 0 .6 1">'
-                        f'<mpath href="#fl{k}"/></animateMotion><animate attributeName="opacity" values="0;0;1;1;0" '
-                        f'keyTimes="0;.3;.55;.92;1" dur="{dur:.2f}s" begin="{begin}" repeatCount="indefinite"/></circle>')
-    return (f'<svg class="flow-lines" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet" aria-hidden="true">'
-            f'<defs><linearGradient id="flg" gradientUnits="userSpaceOnUse" x1="{tx - 760}" y1="0" x2="{tx - 120}" y2="0">'
-            f'<stop offset="0" class="fl-s0"/><stop offset="1" class="fl-s1"/></linearGradient></defs>'
-            f'<g class="flow-paths" stroke="url(#flg)">{"".join(paths)}</g>{"".join(dots)}</svg>')
 
 
 LOGO_IMG = '<img src="assets/logo.png" alt="NexFlo Cloud" width="154" height="46">'
