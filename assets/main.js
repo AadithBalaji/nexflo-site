@@ -5,7 +5,7 @@
  * Every form posts to FORM_ENDPOINT as JSON: { form, to, page, fields: {...} }.
  * Point it at whatever forwards to your Microsoft 365 inbox, e.g. a Power Automate
  * "When an HTTP request is received" flow, an Azure Function, or a service like Formspree.
- * While it's empty, forms fall back to opening a pre-filled email to the right inbox.
+ * While it's empty, forms validate but don't send; they tell the visitor to email the inbox instead.
  */
 const FORM_ENDPOINT = "";
 
@@ -56,62 +56,76 @@ const FORM_ENDPOINT = "";
     });
   });
 
-  /* ---- Forms ---- */
+  /* ---- Forms ----
+     Validates inline, blocks double submits, and shows success only after the endpoint confirms.
+     Until FORM_ENDPOINT is set there is nowhere to send to, so the form says so and offers email instead. */
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  const setError = (field, msg) => {
+    const wrap = field.closest(".field");
+    const form = field.closest("form");
+    let el = wrap ? wrap.querySelector(".err-msg") : (form.nextElementSibling && form.nextElementSibling.classList.contains("err-msg") ? form.nextElementSibling : null);
+    if (!msg) { field.removeAttribute("aria-invalid"); if (el) el.remove(); return; }
+    field.setAttribute("aria-invalid", "true");
+    if (!el) {
+      el = document.createElement("p"); el.className = "err-msg"; el.setAttribute("role", "alert");
+      wrap ? wrap.appendChild(el) : form.insertAdjacentElement("afterend", el);
+    }
+    el.textContent = msg;
+  };
+  const check = (field) => {
+    const v = (field.value || "").trim();
+    if (field.required && !v) return field.tagName === "SELECT" ? "Please choose an option." : "This field is required.";
+    if (field.type === "email" && v && !EMAIL_RE.test(v)) return "Please enter a valid email address, like name@company.com.";
+    return "";
+  };
   document.querySelectorAll("form[data-form]").forEach((form) => {
+    form.setAttribute("novalidate", "");
+    const fields = [...form.querySelectorAll("input:not([type=hidden]):not([name=website]), select, textarea")];
+    fields.forEach((f) => f.addEventListener("blur", () => { if (f.hasAttribute("aria-invalid")) setError(f, check(f)); }));
+    let busy = false;
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (busy) return;
       if (form.querySelector(".hp input")?.value) return; // honeypot
-      if (!form.reportValidity()) return;
-
+      let first = null;
+      fields.forEach((f) => { const m = check(f); setError(f, m); if (m && !first) first = f; });
+      if (first) { first.focus(); return; }
+      let status = form.classList.contains("signup") ? form.parentNode.querySelector(".form-status") : form.querySelector(".form-status");
+      if (!status) {
+        status = Object.assign(document.createElement("p"), { className: "form-status" });
+        const foot = form.querySelector(".form-foot");
+        if (form.classList.contains("signup")) form.insertAdjacentElement("afterend", status);
+        else if (foot) foot.insertAdjacentElement("afterend", status);
+        else form.appendChild(status);
+      }
+      status.setAttribute("role", "status");
+      status.textContent = "";
+      if (!FORM_ENDPOINT) {
+        status.className = "form-status warn";
+        status.innerHTML = `Online sending isn't switched on yet, so this wasn't sent. Please email <a href="mailto:${form.dataset.to}">${form.dataset.to}</a>.`;
+        return;
+      }
       const data = Object.fromEntries(new FormData(form).entries());
       delete data.website;
-      const payload = { form: form.dataset.form, to: form.dataset.to, page: location.pathname, fields: data };
       const btn = form.querySelector('[type="submit"]');
       const label = btn ? btn.textContent : "";
+      busy = true;
       if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
-
       try {
-        if (FORM_ENDPOINT) {
-          const res = await fetch(FORM_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(payload) });
-          if (!res.ok) throw new Error("Request failed");
-        } else {
-          const lines = Object.entries(data).filter(([, v]) => v).map(([k, v]) => `${k.replace(/_/g, " ")}: ${v}`);
-          const subject = `[${form.dataset.form}] ${data.company || data.email || "New request"}`;
-          location.href = `mailto:${form.dataset.to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
-        }
+        const res = await fetch(FORM_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ form: form.dataset.form, to: form.dataset.to, page: location.pathname, submitted_at: new Date().toISOString(), fields: data }) });
+        if (!res.ok) throw new Error("Request failed");
         form.classList.add("sent");
+        form.reset();
       } catch (err) {
-        alert(`Sorry, something went wrong. Please email us at ${form.dataset.to}.`);
+        status.className = "form-status warn";
+        status.innerHTML = `Sorry, that didn't go through. Please try again or email <a href="mailto:${form.dataset.to}">${form.dataset.to}</a>.`;
       } finally {
+        busy = false;
         if (btn) { btn.disabled = false; btn.textContent = label; }
       }
     });
   });
-
-  /* ---- Theme: follows the device setting; the footer switch can override it ---- */
-  const root = document.documentElement;
-  const mq = window.matchMedia ? matchMedia("(prefers-color-scheme: light)") : null;
-  const saved = () => { try { return localStorage.getItem("nf-theme"); } catch (e) { return null; } };
-  const apply = (mode, animate) => {
-    const t = mode === "system" ? (mq && mq.matches ? "light" : "dark") : mode;
-    if (animate) { root.classList.add("theme-anim"); setTimeout(() => root.classList.remove("theme-anim"), 450); }
-    root.dataset.theme = t;
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.content = t === "dark" ? "#050B1A" : "#FFFFFF";
-    document.querySelectorAll("[data-theme-set]").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.themeSet === mode)));
-  };
-  apply(saved() || "system", false);
-  document.querySelectorAll("[data-theme-set]").forEach((b) => b.addEventListener("click", () => {
-    const mode = b.dataset.themeSet;
-    try { mode === "system" ? localStorage.removeItem("nf-theme") : localStorage.setItem("nf-theme", mode); } catch (e) {}
-    apply(mode, true);
-  }));
-  if (mq) mq.addEventListener("change", () => { if (!saved()) apply("system", true); });
-  document.querySelectorAll("[data-theme-toggle]").forEach((b) => b.addEventListener("click", () => {
-    const next = root.dataset.theme === "dark" ? "light" : "dark";
-    try { localStorage.setItem("nf-theme", next); } catch (e) {}
-    apply(next, true);
-  }));
 
   /* ---- Year ---- */
   document.querySelectorAll("[data-year]").forEach((el) => (el.textContent = new Date().getFullYear()));
