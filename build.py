@@ -14,7 +14,7 @@ import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).parent
-DIST = ROOT / ("dist-ribbons" if __import__("os").environ.get("HERO") == "ribbons" else "dist")
+DIST = ROOT / ("dist-lines" if __import__("os").environ.get("HERO") == "lines" else "dist")
 
 # ---------------------------------------------------------------- settings
 SITE_URL = "https://nexflo.cloud"
@@ -343,8 +343,8 @@ def nav_html(active):
         <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
       </ul>
       <div class="nav-actions">
-        <a class="btn btn-primary btn-sm arrow" href="demo.html">Talk to us</a>
-        <a class="btn btn-white btn-sm" href="early-access.html">Join early access</a>
+        <a class="nav-login" href="{PORTAL_URL}">Portal login</a>
+        <a class="btn btn-primary btn-sm" href="early-access.html">Join early access</a>
       </div>
     </div>
   </nav>
@@ -603,9 +603,9 @@ def hero_ribbons():
             f'<g class="hr-base">{"".join(base)}</g><g class="hr-pulse">{"".join(pulses)}</g></svg>')
 
 
-# Hero background: "lines" (fanning lines with pulses) or "ribbons" (flowing ribbon bundles).
-# HERO=ribbons python3 build.py builds the other one.
-HERO_STYLE = __import__("os").environ.get("HERO", "lines")
+# Hero background: "ribbons" (default, flowing ribbon bundles) or "lines" (fanning lines with pulses).
+# HERO=lines python3 build.py builds the lines version into dist-lines/.
+HERO_STYLE = __import__("os").environ.get("HERO", "ribbons")
 
 
 def hero_background():
@@ -687,14 +687,16 @@ def product_tiles():
     out = []
     for p in PRODUCTS:
         live = p["status"] == "live"
-        out.append(f'''<div class="tile">
+        out.append(f'''<a class="tile tile-box" href="{p["href"]}">
   {tile_art(p)}
-  <div class="tile-body"><h3>{p["name"]} {status_badge(p["status"])}</h3>
-  <p class="tile-sub">{p["sub"]}</p>
-  <p>{p["line"]}</p>
-  <p class="tile-for"><b>For</b> {p["for"]}</p>
-  <a class="link-arrow" href="{p["href"]}">{"Explore " + p["name"] if live else "Learn more"}</a></div>
-</div>''')
+  <div class="tile-body">
+    <div class="tile-head"><h3>{p["name"]}</h3>{status_badge(p["status"])}</div>
+    <p class="tile-sub">{p["sub"]}</p>
+    <p class="tile-desc">{p["line"]}</p>
+    <div class="tile-for"><span>Best for</span>{p["for"][0].upper() + p["for"][1:]}</div>
+    <span class="tile-cta">{"Explore " + p["name"] if live else "Learn more"} <i aria-hidden="true">→</i></span>
+  </div>
+</a>''')
     return f'<div class="tiles">{"".join(out)}</div>'
 
 
