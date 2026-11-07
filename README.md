@@ -37,18 +37,18 @@ Then run `npx vercel --prod` to publish to production.
 - Add `nexflo.cloud` and `www.nexflo.cloud`, then set the DNS records Vercel shows at your domain registrar.
 - Add `app.nexflo.cloud` to the same project. `vercel.json` already serves the "portal coming soon" page there. When the real portal exists, remove that domain and the rewrite, and set `PORTAL_URL` in `build.py`.
 
-## Dark and light mode
+## Design
 
-The site follows the visitor's browser or device setting (dark or light), and switches live if that setting changes. The sun/moon button in the header overrides it, and that choice is remembered. With no setting, it opens in dark mode. Dark styles live in `assets/theme-dark.css`.
+The site is dark-only. Decorative shapes are clouds (`assets/cloud-shape.svg`, `assets/cloud-wide.svg`, used as CSS masks so they take the brand blue). Orbit diagrams are driven by `assets/motion.js`, which moves labels by position only so they always stay upright, and pauses them when they're off screen. All motion respects the visitor's reduced-motion setting.
 
 ## Pricing
 
-Pricing isn't final, so the pricing page says "coming soon" and explains the package model (Starter, Growth and Enterprise, each including a set number of documents or transactions per month). The drafted plans are saved in `PLANS` in `build.py`. When they're confirmed, set `SHOW_PRICES = True` and rebuild to publish them. HealthFlo Growth and Enterprise show "Contact sales" until those prices are set.
+Pricing is package-based: each product has monthly Starter, Growth and Enterprise packages, each with a fixed allowance of documents or transactions. No prices or allowances are on the site or in the source yet. When they're approved, add them to `PACKAGES` in `build.py` (the pricing page cards read from it).
 
 ## Before launch
 
 - **Brand assets are in place.** `logo.png` is your wordmark with a transparent background. The hero art is the cloud and ribbon from the launch graphic, with the text removed. The favicons and the dark sign-up band's glow come from your cloud icons. `og-image.jpg` (1200×630) is the social sharing image. If you have a vector (SVG) logo, use it instead of `logo.png` for sharper edges.
-- **Forms.** Set `FORM_ENDPOINT` at the top of `assets/main.js`. A Power Automate "When an HTTP request is received" flow that emails your Microsoft 365 inbox works well; Formspree is another option. Each submission arrives as JSON with `form`, `to` (aadithbalaji@ for early access, pricing and demos; support@ for the contact form), `page` and `fields`. Until the endpoint is set, forms open a pre-filled email instead.
+- **Forms.** Set `FORM_ENDPOINT` at the top of `assets/main.js`. A Power Automate "When an HTTP request is received" flow that emails your Microsoft 365 inbox works well; Formspree is another option. Each submission arrives as JSON with `form`, `to` (aadithbalaji@ for early access, pricing and demos; support@ for the contact form), `page` and `fields`. Until the endpoint is set, forms check the fields but don't send; they tell the visitor to email instead. Success only shows after the endpoint confirms.
 - **Analytics.** Paste your snippet where the `<!-- Analytics -->` comment sits in `layout()` in `build.py`.
 - **Portal.** Deploy `dist/portal.html` as app.nexflo.cloud, then set `PORTAL_URL = "https://app.nexflo.cloud"` in `build.py`.
 - **Copy to fill in.** Confirm `LINKEDIN` and the TechDigital details on the About page ("since 2008", and add a link to its website if you want one).

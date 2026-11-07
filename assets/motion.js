@@ -15,7 +15,7 @@
   };
 
   /* ---- Reveal on scroll (home and inner pages) ---- */
-  const REVEAL = ".section-head, .frow-text, .vis, .card, .feature, .step, .pain, .price-card, .form-card, .doc, .tile, .scard, .faq, .prow, .fact, .orbit, .notice, .cta2-box, .meter-wrap";
+  const REVEAL = ".section-head, .how-head, .frow-text, .vis, .card, .feature, .step, .pain, .price-card, .form-card, .doc, .tile, .scard, .faq, .prow, .fact, .orbit-view, .notice, .cta2-box, .f4, .pkg-how li";
   if (!reduce && "IntersectionObserver" in window) {
     const els = [...document.querySelectorAll(REVEAL)].filter((e) => !e.closest(".hero-s, .page-hero, .dropdown") && !e.parentElement.closest(REVEAL));
     els.forEach((e) => {
@@ -27,29 +27,82 @@
       if (!en.isIntersecting) return;
       en.target.classList.add("in");
       io.unobserve(en.target);
-      setTimeout(() => { en.target.classList.remove("rv", "in"); en.target.style.removeProperty("--i"); }, 1400);
-    }), { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+      setTimeout(() => { en.target.classList.remove("rv", "in"); en.target.style.removeProperty("--i"); }, 2200);
+    }), { rootMargin: "0px 0px -6% 0px", threshold: 0.05 });
     els.forEach((e) => io.observe(e));
   }
 
-  /* ---- Brand circles grow as they scroll into view ---- */
-  const arcs = [...document.querySelectorAll("[data-arc]")];
+  /* ---- Cloud shapes ease up as they scroll into view (smoothed, so they never jump with the scroll) ---- */
+  const arcs = [...document.querySelectorAll("[data-arc]")].map((el) => ({ el, from: parseFloat(el.dataset.arc) || 0.7, cur: null, target: 1 }));
   if (arcs.length && !reduce) {
-    let ticking = false;
-    const update = () => {
+    let raf = 0;
+    const measure = () => {
       const vh = innerHeight;
       arcs.forEach((a) => {
-        const host = a.parentElement.getBoundingClientRect();
-        const p = Math.min(Math.max((vh - host.top) / (vh * 0.9), 0), 1);
-        const from = parseFloat(a.dataset.arc) || 0.7;
-        a.style.setProperty("--s", (from + (1 - from) * p).toFixed(4));
+        const r = a.el.parentElement.getBoundingClientRect();
+        const p = Math.min(Math.max((vh - r.top) / (vh * 1.1), 0), 1);
+        a.target = a.from + (1 - a.from) * p;
+        if (a.cur === null) a.cur = a.target;
       });
-      ticking = false;
     };
-    addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
-    addEventListener("resize", update);
-    update();
+    const tick = () => {
+      let moving = false;
+      arcs.forEach((a) => {
+        const d = a.target - a.cur;
+        if (Math.abs(d) > 0.0005) { a.cur += d * 0.06; moving = true; } else a.cur = a.target;
+        a.el.style.setProperty("--s", a.cur.toFixed(4));
+      });
+      raf = moving ? requestAnimationFrame(tick) : 0;
+    };
+    const kick = () => { measure(); if (!raf) raf = requestAnimationFrame(tick); };
+    addEventListener("scroll", kick, { passive: true });
+    addEventListener("resize", kick);
+    kick();
   }
+
+  /* ---- Orbits: labels travel along ellipses but never rotate (position only, via translate) ---- */
+  document.querySelectorAll("[data-orbit]").forEach((el) => {
+    const [vw, vh] = el.dataset.vb.split(" ").map(Number);
+    const orbits = JSON.parse(el.dataset.orbits);
+    const ellipses = [...el.querySelectorAll(".o-paths ellipse")];
+    const items = [...el.querySelectorAll("[data-o]")].map((n) => ({ n, o: +n.dataset.o, phase: +n.dataset.phase, speed: +n.dataset.speed }));
+    const narrowK = parseFloat(el.dataset.narrow) || 0.8;
+    let k = 1, scale = 1;
+    const resize = () => {
+      const w = el.clientWidth;
+      scale = w / vw;
+      k = w < 520 ? narrowK : 1;
+      ellipses.forEach((e, i) => e.setAttribute("rx", orbits[i][0] * k));
+    };
+    const place = (secs) => {
+      for (const it of items) {
+        const [rx, ry, tilt] = orbits[it.o];
+        const a = (it.phase + it.speed * secs) * Math.PI / 180, t = tilt * Math.PI / 180;
+        const x = rx * k * Math.cos(a), y = ry * Math.sin(a);
+        const X = x * Math.cos(t) - y * Math.sin(t), Y = x * Math.sin(t) + y * Math.cos(t);
+        const front = Math.sin(a) >= 0;
+        it.n.style.transform = `translate3d(${((vw / 2 + X) * scale).toFixed(1)}px, ${((vh / 2 + Y) * scale).toFixed(1)}px, 0) translate(-50%, -50%) scale(${front ? 1 : 0.92})`;
+        it.n.style.zIndex = front ? 3 : 1;
+        it.n.classList.toggle("back", !front);
+      }
+    };
+    resize();
+    addEventListener("resize", () => { resize(); if (reduce) place(0); });
+    place(0);
+    el.classList.add("ready");
+    if (reduce) return;
+    let visible = false, raf = 0, last = performance.now(), secs = 0;
+    const loop = (now) => {
+      secs += Math.min((now - last) / 1000, 0.1);
+      last = now;
+      place(secs);
+      raf = visible ? requestAnimationFrame(loop) : 0;
+    };
+    new IntersectionObserver((es) => es.forEach((e) => {
+      visible = e.isIntersecting;
+      if (visible && !raf) { last = performance.now(); raf = requestAnimationFrame(loop); }
+    })).observe(el);
+  });
 
   /* ---- Steps that light up in turn ---- */
   document.querySelectorAll("[data-cycle]").forEach((wrap) => {
@@ -58,7 +111,7 @@
     let i = 0;
     onVisible(wrap, () => {
       const go = () => { items.forEach((x, j) => { x.classList.toggle("active", j === i % items.length); x.classList.toggle("past", j < i % items.length); }); i++; };
-      go(); setInterval(go, 2200);
+      go(); setInterval(go, 2600);
     });
   });
 
@@ -71,7 +124,7 @@
     w.classList.add("is-animated");
     onVisible(w, async () => {
       await sleep(250);
-      for (const l of lines) { l.classList.add("on", "cur"); await sleep(70); l.classList.remove("cur"); }
+      for (const l of lines) { l.classList.add("on", "cur"); await sleep(95); l.classList.remove("cur"); }
     });
   });
 
@@ -229,9 +282,20 @@
   document.querySelectorAll("[data-tabs]").forEach((w) => {
     const tabs = [...w.querySelectorAll('[role="tab"]')];
     const panes = [...w.querySelectorAll('[role="tabpanel"]')];
-    tabs.forEach((b, k) => b.addEventListener("click", () => {
-      tabs.forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+    const select = (k) => {
+      tabs.forEach((x, j) => { x.setAttribute("aria-selected", String(j === k)); x.tabIndex = j === k ? 0 : -1; });
       panes.forEach((p, j) => { p.hidden = j !== k; });
-    }));
+    };
+    tabs.forEach((b, k) => {
+      b.addEventListener("click", () => select(k));
+      b.addEventListener("keydown", (e) => {
+        if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+        const n = (k + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+        select(n); tabs[n].focus();
+      });
+    });
+    const want = new URLSearchParams(location.search).get("product");
+    const idx = want ? tabs.findIndex((t) => t.textContent.trim().toLowerCase() === want.toLowerCase()) : -1;
+    select(idx > -1 ? idx : 0);
   });
 })();
