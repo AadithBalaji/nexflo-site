@@ -1256,8 +1256,13 @@ def flow_lines(tx, ty):
             f'<g class="flow-paths" stroke="url(#flg)">{"".join(paths)}</g>{"".join(dots)}</svg>')
 
 
-DARK_VISUAL = ('<div class="hero-visual glow-visual">' + flow_lines(500, 307) + '<img class="glow-aura" src="assets/cloud-glow.webp" alt="" width="960" height="640">'
+GLOW_VISUAL = ('<div class="hero-visual glow-visual">' + flow_lines(500, 307) + '<img class="glow-aura" src="assets/cloud-glow.webp" alt="" width="960" height="640">'
                '<img class="glow-icon" src="assets/cloud-icon.png" alt="NexFlo cloud" width="1106" height="689"></div>')
+GLASS_VISUAL = ('<div class="hero-visual glass-visual">' + flow_lines(500, 307) + '<div class="glass-ambient"></div>'
+                '<div class="glass-cloud" role="img" aria-label="NexFlo cloud in glass"><div class="gc-body"></div>'
+                '<div class="gc-light"></div><div class="gc-shine"></div></div></div>')
+# DARK_CLOUD=glow THEME=dark python3 build.py  ->  the earlier glowing cloud instead of the glass one
+DARK_VISUAL = GLOW_VISUAL if __import__("os").environ.get("DARK_CLOUD") == "glow" else GLASS_VISUAL
 
 
 def apply_dark(text):
