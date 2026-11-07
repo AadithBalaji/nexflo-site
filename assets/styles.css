@@ -582,3 +582,12 @@ a.card:hover, .card.hover:hover { border-color: rgba(0,107,253,.28); box-shadow:
 }
 @keyframes shimmer { 0% { background-position: 100% 0; } 60%, 100% { background-position: 0 0; } }
 @media (prefers-reduced-motion: reduce) { .flow-dot { display: none; } .hero-title .w.accent { animation: none; } }
+
+/* Header fit + mobile menu panel */
+.nav { gap: 20px; }
+.nav-link, .nav-login { white-space: nowrap; }
+.nav-link .chev { flex: none; }
+.nav-actions { gap: 8px; }
+@media (max-width: 1080px) {
+  .nav-panel { position: absolute; top: 100%; left: 0; right: 0; height: calc(100vh - 68px); height: calc(100dvh - 68px); inset: auto; top: 100%; left: 0; right: 0; background: #fff; border-top: 1px solid var(--line); }
+}

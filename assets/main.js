@@ -88,6 +88,18 @@ const FORM_ENDPOINT = "";
     });
   });
 
+  /* ---- Dark / light mode ---- */
+  document.querySelectorAll(".theme-toggle").forEach((b) => b.addEventListener("click", () => {
+    const root = document.documentElement;
+    const next = root.dataset.theme === "dark" ? "light" : "dark";
+    root.classList.add("theme-anim");
+    root.dataset.theme = next;
+    try { localStorage.setItem("nf-theme", next); } catch (e) {}
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = next === "dark" ? "#05081A" : "#F3F7FF";
+    setTimeout(() => root.classList.remove("theme-anim"), 450);
+  }));
+
   /* ---- Year ---- */
   document.querySelectorAll("[data-year]").forEach((el) => (el.textContent = new Date().getFullYear()));
 })();

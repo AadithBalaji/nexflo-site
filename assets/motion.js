@@ -49,15 +49,15 @@
 
   /* ---- Hero: gentle parallax ---- */
   const hero = document.querySelector(".hero");
-  const visual = document.querySelector(".hero-visual");
-  if (hero && visual && !reduce) {
+  const visuals = document.querySelectorAll(".hero-visual");
+  if (hero && visuals.length && !reduce) {
     hero.addEventListener("pointermove", (e) => {
       const r = hero.getBoundingClientRect();
       const x = (e.clientX - r.left) / r.width - 0.5;
       const y = (e.clientY - r.top) / r.height - 0.5;
-      visual.style.transform = `translate3d(${x * -14}px, ${y * -10}px, 0)`;
+      visuals.forEach((v) => (v.style.transform = `translate3d(${x * -14}px, ${y * -10}px, 0)`));
     });
-    hero.addEventListener("pointerleave", () => (visual.style.transform = ""));
+    hero.addEventListener("pointerleave", () => visuals.forEach((v) => (v.style.transform = "")));
   }
 
   /* ---- Hero: transaction toasts ---- */
