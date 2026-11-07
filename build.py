@@ -1439,9 +1439,14 @@ def build():
         shutil.rmtree(DIST)
     DIST.mkdir()
     shutil.copytree(ROOT / "assets", DIST / "assets")
+    # Fingerprint CSS/JS URLs so browsers fetch the new file whenever it changes, instead of a cached old one.
+    import hashlib
+    stamps = {name: hashlib.md5((ROOT / "assets" / name).read_bytes()).hexdigest()[:10] for name in ("styles.css", "main.js", "motion.js")}
     bare = {"portal.html"}
     for slug, (title, desc, active, fn) in PAGES.items():
         out = layout(title, desc, fn(), active, slug, bare=slug in bare)
+        for name, h in stamps.items():
+            out = out.replace(f'assets/{name}"', f'assets/{name}?v={h}"')
         out = out.replace(LOGO_IMG, LOGO_PAIR)
         if CLEAN_URLS:
             out = clean_links(out)
