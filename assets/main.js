@@ -107,6 +107,11 @@ const FORM_ENDPOINT = "";
     apply(mode, true);
   }));
   if (mq) mq.addEventListener("change", () => { if (!saved()) apply("system", true); });
+  document.querySelectorAll("[data-theme-toggle]").forEach((b) => b.addEventListener("click", () => {
+    const next = root.dataset.theme === "dark" ? "light" : "dark";
+    try { localStorage.setItem("nf-theme", next); } catch (e) {}
+    apply(next, true);
+  }));
 
   /* ---- Year ---- */
   document.querySelectorAll("[data-year]").forEach((el) => (el.textContent = new Date().getFullYear()));

@@ -677,3 +677,25 @@ img { height: auto; }
 .ring.r3 .node, .orbit-split .orbit .ring.r3 .node { --rad: calc(var(--ow) * .48); }
 @media (max-width: 640px) { .orbit-split .orbit { --ow: 72vw; margin-top: 24px; margin-bottom: 24px; } }
 @media (max-width: 640px) { .orbit-core { width: 16%; border-radius: 24%; } }
+
+/* How-it-works steps (inside a feature frame) */
+.flow4-wrap { max-width: 440px; margin: 0 auto; }
+.flow4 { list-style: none; margin: 0; padding: 18px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 30px 60px -30px rgba(0,10,40,.55); text-align: left; position: relative; }
+[data-theme="dark"] .flow4 { background: #0E1B3B; }
+.f4 { position: relative; display: grid; grid-template-columns: 36px 1fr; gap: 14px; padding: 12px 10px; border-radius: 12px; transition: background .4s; }
+.f4:not(:last-child)::after { content: ""; position: absolute; left: 27px; top: 46px; bottom: -10px; width: 2px; background: var(--line); }
+.f4-n { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-weight: 700; font-size: .9rem; background: var(--panel); color: var(--muted); transition: background .4s, color .4s, box-shadow .4s; position: relative; z-index: 1; }
+.f4 b { display: block; font-size: .98rem; color: var(--ink); }
+.f4 p { margin: 2px 0 0; font-size: .86rem; color: var(--ink2); line-height: 1.45; }
+.f4.past .f4-n { background: color-mix(in srgb, var(--blue) 18%, transparent); color: var(--link); }
+.f4.active { background: color-mix(in srgb, var(--blue) 10%, transparent); }
+.f4.active .f4-n { background: var(--blue); color: #fff; box-shadow: 0 0 0 5px color-mix(in srgb, var(--blue) 22%, transparent); }
+.flow4-note { margin: 12px 0 0; font-size: .78rem; color: var(--muted); text-align: center; }
+.tile-for { font-size: .9rem; color: var(--muted) !important; }
+.tile-for b { color: var(--ink); font-weight: 600; margin-right: 4px; }
+.chat-note { margin: 16px 0 0; font-size: .74rem; color: rgba(255,255,255,.7); text-align: right; }
+.price-block + .price-block { margin-top: 64px; }
+.frow-text .small { font-size: .9rem; color: var(--muted); }
+/* Header theme button: compact on desktop, labelled row in the mobile menu */
+.site-header .theme-toggle { width: 36px; height: 36px; }
+@media (max-width: 1080px) { .site-header .theme-toggle { width: 100%; height: 46px; } }
