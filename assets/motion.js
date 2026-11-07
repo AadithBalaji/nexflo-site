@@ -1,5 +1,7 @@
 /* NexFlo Cloud - animations: scroll reveals, growing circles, hero demo, typing code, chat, meter, dashboard, tabs */
 (function () {
+  /* Reduce Motion keeps things moving, just calmer: reveals fade without sliding (see styles.css),
+     orbits run at half speed, and clouds don't grow on scroll. Everything else runs as normal. */
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const onVisible = (el, fn) => {
@@ -16,7 +18,7 @@
 
   /* ---- Reveal on scroll (home and inner pages) ---- */
   const REVEAL = ".section-head, .how-head, .frow-text, .vis, .card, .feature, .step, .pain, .price-card, .form-card, .doc, .tile, .scard, .faq, .prow, .fact, .orbit-view, .notice, .cta2-box, .f4, .pkg-how li";
-  if (!reduce && "IntersectionObserver" in window) {
+  if ("IntersectionObserver" in window) {
     const els = [...document.querySelectorAll(REVEAL)].filter((e) => !e.closest(".hero-s, .page-hero, .dropdown") && !e.parentElement.closest(REVEAL));
     els.forEach((e) => {
       const sibs = [...e.parentElement.children].filter((c) => els.includes(c));
@@ -86,14 +88,14 @@
         it.n.classList.toggle("back", !front);
       }
     };
+    let visible = false, raf = 0, last = performance.now(), secs = 0;
+    const rate = reduce ? 0.5 : 1;
     resize();
-    addEventListener("resize", () => { resize(); if (reduce) place(0); });
+    addEventListener("resize", () => { resize(); place(secs); });
     place(0);
     el.classList.add("ready");
-    if (reduce) return;
-    let visible = false, raf = 0, last = performance.now(), secs = 0;
     const loop = (now) => {
-      secs += Math.min((now - last) / 1000, 0.1);
+      secs += Math.min((now - last) / 1000, 0.1) * rate;
       last = now;
       place(secs);
       raf = visible ? requestAnimationFrame(loop) : 0;
@@ -107,7 +109,7 @@
   /* ---- Steps that light up in turn ---- */
   document.querySelectorAll("[data-cycle]").forEach((wrap) => {
     const items = [...wrap.children];
-    if (reduce || !items.length) { items.forEach((x) => x.classList.add("active")); return; }
+    if (!items.length) return;
     let i = 0;
     onVisible(wrap, () => {
       const go = () => { items.forEach((x, j) => { x.classList.toggle("active", j === i % items.length); x.classList.toggle("past", j < i % items.length); }); i++; };
@@ -118,7 +120,6 @@
   /* ---- Code windows that type themselves out ---- */
   document.querySelectorAll("[data-type]").forEach((w) => {
     const lines = splitLines(w.querySelector("pre code"));
-    if (reduce) return;
     const r = w.getBoundingClientRect();
     if (r.top < innerHeight * 0.8) return;
     w.classList.add("is-animated");
@@ -132,7 +133,6 @@
   document.querySelectorAll("[data-chat]").forEach((c) => {
     const msgs = [...c.querySelectorAll(".msg")];
     const typing = c.querySelector(".typing");
-    if (reduce) { msgs.forEach((m) => m.classList.add("show")); if (typing) typing.hidden = true; return; }
     const loop = async () => {
       for (;;) {
         msgs.forEach((m) => m.classList.remove("show"));
@@ -157,7 +157,6 @@
     let value = parseInt(m.dataset.meter, 10) || 1000;
     const cap = value * 1.6;
     const show = () => { num.textContent = value.toLocaleString(); bar.style.setProperty("--w", `${Math.min(value / cap * 100, 100)}%`); };
-    if (reduce) return show();
     num.textContent = "0";
     onVisible(m, () => {
       const t0 = performance.now(), dur = 1300, end = value;
@@ -182,7 +181,6 @@
     const L = splitLines(inCode), R = splitLines(outCode);
     const steps = [...demo.querySelectorAll(".demo-steps li")];
     const stamp = (i, text) => { const s = steps[i].querySelector("span"); if (s) s.textContent = text; };
-    if (reduce) { steps.forEach((s) => s.classList.add("done")); return; }
     demo.classList.add("is-animated");
     const run = async () => {
       for (;;) {
@@ -211,7 +209,7 @@
   document.querySelectorAll(".translate[data-animate]").forEach((t) => {
     const codes = [...t.querySelectorAll("pre code")];
     const [L, R] = codes.map(splitLines);
-    if (reduce || codes.length < 2) return;
+    if (codes.length < 2) return;
     const status = t.querySelector(".translate-status");
     const say = (s) => status && (status.textContent = s);
     const done = t.dataset.done || "Delivered";
@@ -275,7 +273,7 @@
       docsEl && (docsEl.textContent = docs.toLocaleString());
     };
     for (let n = 0; n < 6; n++) add(true);
-    if (!reduce) onVisible(d, () => setInterval(() => add(false), 2300));
+    onVisible(d, () => setInterval(() => add(false), 2300));
   });
 
   /* ---- Code tabs ---- */
