@@ -549,7 +549,7 @@ def home():
       <p class="hero-note fade-up" style="--d:.8s">Founding customers lock in launch pricing. <a class="journey" href="{LINKEDIN}" target="_blank" rel="noopener">Follow our journey →</a></p>
     </div>
   </div>
-  <div class="hero-visual hv-dark">{flow_lines(650, 482)}<img class="glass-art" src="assets/glass-cloud-dark.webp" alt="A glass cloud wrapped in flowing blue ribbons" width="1000" height="757"></div>
+  <div class="hero-visual hv-dark">{flow_lines(650, 482)}<div class="glass-wrap"><img class="glass-art" src="assets/glass-cloud-dark.webp" alt="A glass cloud wrapped in flowing blue ribbons" width="1000" height="757"></div></div>
   <div class="hero-visual hv-light">{flow_lines(658, 360)}<img class="hero-art" src="assets/hero-cloud.jpg" alt="A glass cloud wrapped in flowing blue ribbons" width="1254" height="570"></div>
   {hero_toasts()}
 </section>

@@ -157,3 +157,14 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before { transition: back
   .theme-toggle::after { content: "Dark mode"; }
   [data-theme="dark"] .theme-toggle::after { content: "Light mode"; }
 }
+/* Cleaner dark glass: brighter, bluer, smaller, no floor */
+[data-theme="dark"] .hero-visual.hv-dark { width: min(50vw, 800px); bottom: 10px; }
+.hv-dark .glass-art { filter: brightness(1.22) saturate(1.35) contrast(1.06);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 30%), linear-gradient(180deg, #000 68%, transparent 92%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 30%), linear-gradient(180deg, #000 68%, transparent 92%); }
+/* Blue glass tint, moving with the cloud */
+.glass-wrap { position: relative; animation: float 8s ease-in-out infinite; isolation: isolate; }
+.hv-dark .glass-art { animation: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 30%), linear-gradient(180deg, transparent 0%, #000 12%, #000 68%, transparent 92%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 30%), linear-gradient(180deg, transparent 0%, #000 12%, #000 68%, transparent 92%); }
+@media (prefers-reduced-motion: reduce) { .glass-wrap { animation: none; } }
