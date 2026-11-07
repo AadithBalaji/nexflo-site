@@ -889,9 +889,16 @@ details.more p { margin-top: 10px; font-size: .95rem; color: var(--muted); }
 }
 @media (max-width: 640px) { .cta-in { padding-top: 120px; } .cta-in h2 { font-size: 2rem; } }
 @media (max-width: 640px) { .page-hero .ph-arc { width: 190px; right: -48px; top: 6px; opacity: .45; } }
-.hero-stage .hero-circle { -webkit-mask-image: url("cloud-hero.svg"); mask-image: url("cloud-hero.svg"); top: -140px; }
-@media (max-width: 960px) { .hero-stage .hero-circle { top: -120px; } }
-@media (max-width: 640px) { .hero-stage .hero-circle { top: -100px; } .hero-stage { margin-top: 84px; } }
+/* Hero cloud: the cloud keeps its shape at --cw, and on screens wider than that a low band of
+   puffs (cloud-band.svg, repeated sideways) carries it to both edges, so it never ends in a hard cut. */
+.hero-stage .hero-circle {
+  --cw: 1500px;
+  width: max(var(--cw), 100vw); height: var(--cw); top: -140px;
+  -webkit-mask: url("cloud-hero.svg") center top / calc(var(--cw) * 2) var(--cw) no-repeat, url("cloud-band.svg") center calc(var(--cw) * .3) / calc(var(--cw) * .6) calc(var(--cw) * .7) repeat-x;
+  mask: url("cloud-hero.svg") center top / calc(var(--cw) * 2) var(--cw) no-repeat, url("cloud-band.svg") center calc(var(--cw) * .3) / calc(var(--cw) * .6) calc(var(--cw) * .7) repeat-x;
+}
+@media (max-width: 960px) { .hero-stage .hero-circle { --cw: 1200px; top: -120px; } }
+@media (max-width: 640px) { .hero-stage .hero-circle { --cw: 980px; top: -100px; } .hero-stage { margin-top: 84px; } }
 
 /* Product boxes: one card per product, readable text */
 .tile-box { display: flex; flex-direction: column; background: var(--panel-2); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; color: var(--ink); transition: border-color .3s, transform .4s var(--ease), box-shadow .4s; box-shadow: 0 18px 40px -30px rgba(10,20,50,.45); }
