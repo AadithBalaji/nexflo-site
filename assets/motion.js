@@ -125,18 +125,18 @@
         [...L, ...R].forEach((l) => l.classList.remove("on"));
         t.classList.remove("done");
         say("Waiting for document…");
-        await sleep(700);
+        await sleep(350);
         say("Receiving…");
-        for (const l of L) { l.classList.add("on", "cur"); await sleep(150); l.classList.remove("cur"); }
+        for (const l of L) { l.classList.add("on", "cur"); await sleep(65); l.classList.remove("cur"); }
         t.classList.add("pulse");
         say("Validating…");
-        await sleep(800);
+        await sleep(380);
         t.classList.remove("pulse");
         say("Translating…");
-        for (const l of R) { l.classList.add("on"); await sleep(55); }
+        for (const l of R) { l.classList.add("on"); await sleep(22); }
         t.classList.add("done");
         say(done);
-        await sleep(5000);
+        await sleep(3400);
       }
     };
     onVisible(t, run, { threshold: 0.3 });

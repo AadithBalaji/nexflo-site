@@ -478,12 +478,12 @@ a.card:hover, .card.hover:hover { border-color: rgba(0,107,253,.28); box-shadow:
 .code-head > span:last-child { margin-left: auto; }
 .dots { display: inline-flex; gap: 6px; }
 .dots i { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.16); }
-.ln { display: block; transition: opacity .35s var(--ease), transform .35s var(--ease), background .3s; border-radius: 4px; margin: 0 -6px; padding: 0 6px; }
+.ln { display: block; transition: opacity .18s var(--ease), transform .18s var(--ease), background .15s; border-radius: 4px; margin: 0 -6px; padding: 0 6px; }
 .translate.is-animated .ln { opacity: 0; transform: translateX(-6px); }
 .translate.is-animated .ln.on { opacity: 1; transform: none; }
 .ln.cur { background: rgba(0,107,253,.32); }
 .translate-mid .pill i { transition: transform .4s var(--ease), background .4s; }
-.translate.pulse .pill i { animation: pulseRing 0.8s ease-out infinite; }
+.translate.pulse .pill i { animation: pulseRing .38s ease-out infinite; }
 .translate.done .pill i { background: var(--green); box-shadow: 0 0 0 8px rgba(14,159,110,.12); }
 @keyframes pulseRing { 0% { box-shadow: 0 0 0 0 rgba(0,107,253,.45); } 100% { box-shadow: 0 0 0 16px rgba(0,107,253,0); } }
 .translate-status { margin-top: 10px; min-height: 2.6em; max-width: 130px; text-align: center; font-size: .75rem; font-weight: 600; color: var(--muted); line-height: 1.3; }
