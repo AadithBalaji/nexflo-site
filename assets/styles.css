@@ -897,3 +897,21 @@ details.more p { margin-top: 10px; font-size: .95rem; color: var(--muted); }
 .hero-stage .hero-circle { -webkit-mask-image: url("cloud-hero.svg"); mask-image: url("cloud-hero.svg"); top: -140px; }
 @media (max-width: 960px) { .hero-stage .hero-circle { top: -120px; } }
 @media (max-width: 640px) { .hero-stage .hero-circle { top: -100px; } .hero-stage { margin-top: 84px; } }
+
+/* Product boxes: one card per product, readable text */
+.tile-box { display: flex; flex-direction: column; background: var(--panel-2); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; color: var(--ink); transition: border-color .3s, transform .4s var(--ease), box-shadow .4s; box-shadow: 0 18px 40px -30px rgba(10,20,50,.45); }
+.tile-box:hover { text-decoration: none; transform: translateY(-3px); border-color: color-mix(in srgb, var(--blue) 50%, transparent); box-shadow: 0 26px 50px -30px rgba(0,60,180,.45); }
+.s-light .tile-box { background: #fff; }
+.tile-box .t-art { margin: 0; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: var(--panel); }
+.tile-box .tile-body { display: flex; flex-direction: column; flex: 1; padding: 22px 24px 24px; }
+.tile-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.tile-head h3 { font-size: 1.45rem; margin: 0; }
+.tile-box .tile-sub { font-size: .95rem; font-weight: 600; color: var(--link) !important; margin: 4px 0 12px !important; }
+.tile-desc { font-size: 1.02rem; line-height: 1.6; color: var(--ink) !important; margin: 0 0 16px !important; }
+.tile-box .tile-for { font-size: .92rem; line-height: 1.5; color: var(--ink2); padding: 12px 14px; border-radius: 12px; background: var(--panel); margin-bottom: 18px; }
+.tile-box .tile-for span { display: block; font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 2px; }
+.tile-cta { margin-top: auto; font-weight: 600; color: var(--link); display: inline-flex; align-items: center; gap: 6px; }
+.tile-cta i { font-style: normal; transition: transform .3s var(--ease); }
+.tile-box:hover .tile-cta i { transform: translateX(4px); }
+@media (max-width: 640px) { .tile-box .tile-body { padding: 18px 18px 20px; } .tile-head h3 { font-size: 1.3rem; } .tiles { gap: 18px; } }
+.site-header, .site-header.scrolled { background: rgba(5, 11, 26, .97); }
