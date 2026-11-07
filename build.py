@@ -525,12 +525,12 @@ def page(slug, title, description, active=""):
     return deco
 
 
-def hub_hero():
-    """Hero visual, same in light and dark: a glass tile with the logo. Documents flow in (blue) and out as JSON (green)."""
-    return (f'<div class="hero-visual hub-visual">{flow_lines(500, 307, out=(3, 4))}'
-            '<div class="hub" role="img" aria-label="NexFlo translating documents"><span class="hub-ring"></span><span class="hub-ring"></span>'
-            '<div class="hub-tile"><img src="assets/cloud-icon.png" alt="" width="1106" height="689"></div>'
-            '<span class="hub-tag in">X12 850 in</span><span class="hub-tag out">JSON out</span></div></div>')
+def glass_hero():
+    """Hero visual: the launch-graphic glass cloud. Light and dark versions of the same artwork; CSS shows the one for the current mode."""
+    return (f'<div class="hero-visual hv-light">{flow_lines(658, 360)}'
+            '<img class="hero-art" src="assets/hero-cloud.jpg" alt="A glass cloud wrapped in flowing blue ribbons" width="1254" height="570"></div>'
+            f'<div class="hero-visual hv-dark">{flow_lines(660, 464)}'
+            '<img class="glass-art" src="assets/glass-cloud-dark.webp" alt="" width="1000" height="712"></div>')
 
 
 @page("index.html", "NexFlo Cloud — Less friction. More flow.",
@@ -557,7 +557,7 @@ def home():
       <p class="hero-note fade-up" style="--d:.8s">Founding customers lock in launch pricing. <a class="journey" href="{LINKEDIN}" target="_blank" rel="noopener">Follow our journey →</a></p>
     </div>
   </div>
-  {hub_hero()}
+  {glass_hero()}
   {hero_toasts()}
 </section>
 
