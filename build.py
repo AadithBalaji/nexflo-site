@@ -14,9 +14,7 @@ import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).parent
-# THEME=dark python3 build.py  ->  dark glass variant in ./dist-dark
-THEME = __import__("os").environ.get("THEME", "light")
-DIST = ROOT / ("dist-dark" if THEME == "dark" else "dist")
+DIST = ROOT / "dist"
 
 # ---------------------------------------------------------------- settings
 SITE_URL = "https://nexflo.cloud"
@@ -364,6 +362,10 @@ def nav_html(active):
           </div></li>
       </ul>
       <div class="nav-actions">
+        <button class="theme-toggle" type="button" aria-label="Switch between dark and light mode" title="Dark / light mode">
+          <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
         <a class="nav-login" href="{PORTAL_URL}">Portal login</a>
         <a class="btn btn-secondary btn-sm" href="demo.html">Book a demo</a>
         <a class="btn btn-primary btn-sm" href="early-access.html">Get early access</a>
@@ -410,7 +412,7 @@ def layout(title, description, body, active="", slug="", bare=False):
         '<img src="assets/logo.png" alt="NexFlo Cloud" width="154" height="46"></a>'
         '<div style="margin-left:auto"><a class="nav-login" href="index.html">← Back to nexflo.cloud</a></div></nav></header>')
     return f'''<!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -424,13 +426,15 @@ def layout(title, description, body, active="", slug="", bare=False):
 <meta property="og:url" content="{canonical}">
 <meta property="og:image" content="{SITE_URL}/assets/og-image.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#006BFD">
+<meta name="theme-color" content="#05081A">
+<script>try{{var t=localStorage.getItem("nf-theme");if(t)document.documentElement.dataset.theme=t;}}catch(e){{}}</script>
 <link rel="icon" href="assets/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="assets/theme-dark.css">
 <!-- Analytics: paste your snippet here (e.g. Plausible, GA4, Microsoft Clarity) -->
 </head>
 <body>
@@ -528,7 +532,7 @@ def home():
         ("tag", "Transparent pricing", "Usage-based plans you can understand, typically well below legacy EDI providers. No surprise fees."),
         ("rocket", "Simple onboarding", "We help connect your first trading partner and walk you through every step."),
         ("code", "Modern integrations", "Use a REST API with clean JSON, or keep it simple with SFTP. Your choice."),
-        ("chat", "A team that answers", "You talk directly to the people building the product. No ticket queues."),
+        ("chat", "A team that answers", "You talk directly to the person building the product. No ticket queues."),
     ]
     words = ["Less", "friction."]
     words2 = ["More", "flow."]
@@ -545,7 +549,8 @@ def home():
       <p class="hero-note fade-up" style="--d:.8s">Founding customers lock in launch pricing. <a class="journey" href="{LINKEDIN}" target="_blank" rel="noopener">Follow our journey →</a></p>
     </div>
   </div>
-  <div class="hero-visual">{flow_lines(658, 360)}<img class="hero-art" src="assets/hero-cloud.jpg" alt="A glass cloud wrapped in flowing blue ribbons" width="1254" height="570"></div>
+  <div class="hero-visual hv-dark">{flow_lines(650, 482)}<img class="glass-art" src="assets/glass-cloud-dark.webp" alt="A glass cloud wrapped in flowing blue ribbons" width="1000" height="757"></div>
+  <div class="hero-visual hv-light">{flow_lines(658, 360)}<img class="hero-art" src="assets/hero-cloud.jpg" alt="A glass cloud wrapped in flowing blue ribbons" width="1254" height="570"></div>
   {hero_toasts()}
 </section>
 
@@ -554,7 +559,7 @@ def home():
     <div class="stat"><b data-count="6">6</b><span>core X12 documents at launch</span></div>
     <div class="stat"><b>X12 + EDIFACT</b><span>retail and international standards</span></div>
     <div class="stat"><b>API + SFTP</b><span>connect with or without code</span></div>
-    <div class="stat"><b>1 day</b><span>response time, from a founder</span></div>
+    <div class="stat"><b>1 day</b><span>response time, from the founder</span></div>
   </div>
 </div></section>
 
@@ -617,25 +622,7 @@ def home():
   {marquee()}
 </section>
 
-<section><div class="container">
-  <div class="section-head"><span class="eyebrow">Who it's for</span>
-    <h2>Built for teams that trade data with bigger partners</h2></div>
-  <div class="grid grid-4">
-    {"".join(f'<a class="card" href="{s["href"]}">{icon(s["icon"])}<h3 class="mt-2">{s["name"]}</h3><p>{s["short"]}</p><span class="more arrow">{s["product"]}</span></a>' for s in SOLUTIONS)}
-  </div>
-</div></section>
 
-<section class="section-soft"><div class="container founders">
-  <div><span class="eyebrow">Founders</span>
-    <h2>A father-and-son team in Minnesota</h2>
-    <p class="lead">We started NexFlo because growing businesses deserve the same integration tools as big enterprises, without the price tag or the runaround.</p>
-    <blockquote class="mt-3">When you contact NexFlo, you talk to the people building the product.</blockquote>
-    <p class="mt-3"><a class="arrow" href="about.html">Read our story </a></p></div>
-  <div class="founder-cards">
-    <div class="founder"><div class="avatar">AB</div><h3>Aadith Balaji</h3><p>Co-founder</p></div>
-    <div class="founder"><div class="avatar">BT</div><h3>Balaji Thiagarajan</h3><p>Co-founder</p><p style="margin-top:6px;font-size:.8rem">Also leads TechDigital Corporation</p></div>
-  </div>
-</div></section>
 
 <div style="padding-top:96px">{cta_band("Get early access", "TradeFlo opens to founding customers first. Founding customers lock in launch pricing.", "home-cta")}</div>
 '''
@@ -853,7 +840,7 @@ for _s in SOLUTIONS:
 PRICING_FAQ = [
     ("Are there setup fees?", "Our goal is no surprise fees. Any onboarding cost is quoted upfront, in writing, before you sign anything."),
     ("How long are contracts?", "We plan to offer month-to-month and annual options. Founding customers won't be locked into multi-year terms."),
-    ("How fast will you respond to my request?", "Within one business day. You'll hear from a founder, not an automated sequence."),
+    ("How fast will you respond to my request?", "Within one business day. You'll hear from the founder, not an automated sequence."),
     ("What does early access mean?", "TradeFlo is opening to a small group of founding customers first. You get hands-on onboarding, direct access to the team, and a say in what we build next."),
     ("Do founding customers lock in launch pricing?", "Yes. Founding customers keep their launch pricing as the product grows."),
     ("When will prices be published?", "Once early access wraps up. Until then, every quote is tailored to your volume and partners."),
@@ -885,7 +872,7 @@ def pricing():
 <section class="section-soft" id="quote"><div class="container split top">
   <div><span class="eyebrow">Request pricing</span><h2>Get a quote</h2>
     <p class="lead">A few details help us size your plan accurately. We'll reply from {SALES} within one business day.</p>
-    <ul class="checks mt-4"><li>No obligation, no sales sequence</li><li>Founding customers lock in launch pricing</li><li>Talk directly to a founder</li></ul></div>
+    <ul class="checks mt-4"><li>No obligation, no sales sequence</li><li>Founding customers lock in launch pricing</li><li>Talk directly to the founder</li></ul></div>
   <form class="form-card" data-form="Pricing request" data-to="{SALES}">
     {HONEYPOT}
     <div class="form-body"><div class="form-grid">
@@ -915,7 +902,7 @@ GENERAL_FAQ = [
     ("Do I need developers to use NexFlo?", "No. You can exchange files over SFTP and use the dashboard. Teams with developers can use the REST API and JSON instead."),
     ("Is CareFlo a clearinghouse?", "No. CareFlo is planned as a translation and validation layer. Payer connectivity is arranged separately, through your existing clearinghouse or a partner."),
     ("Are you HIPAA certified?", "There is no official HIPAA certification, and we don't make compliance claims we can't back up. See our <a href=\"security.html\">Security page</a> for our plans, including signing a Business Associate Agreement where applicable."),
-    ("Where are you based?", "Minnesota. We're a father-and-son founding team, and you'll talk to us directly."),
+    ("Where are you based?", "Minnesota. NexFlo is founder-led, so you talk directly to the person building it."),
 ]
 
 GUIDES = [
@@ -1054,7 +1041,7 @@ def security():
 </div></section>'''
 
 
-@page("about.html", "About", "NexFlo Cloud is a father-and-son team in Minnesota building affordable, enterprise-grade integration for growing businesses.", "company")
+@page("about.html", "About", "NexFlo Cloud is a Minnesota company building affordable, enterprise-grade integration for growing businesses.", "company")
 def about():
     return page_hero("Enterprise-grade integration for growing businesses",
                      "NexFlo Cloud exists to make EDI and data integration affordable and simple for the businesses that big providers overlook.",
@@ -1062,24 +1049,14 @@ def about():
 <section><div class="container split top">
   <div><span class="eyebrow">Our mission</span><h2>Less friction. More flow.</h2>
     <p class="lead">Growing businesses shouldn't have to choose between expensive legacy EDI providers and doing everything by hand. We're building the middle path: modern, transparent and easy to start.</p></div>
-  <div><span class="eyebrow">Our story</span>
-    <p>NexFlo started as a father-and-son project in Minnesota. Between us, we saw the same pattern again and again: small manufacturers and suppliers paying enterprise prices for EDI they barely understood, and waiting days for help when something broke.</p>
-    <p>So we're building the product we wished existed. TradeFlo comes first, for suppliers and manufacturers trading with retailers. CareFlo and HealthFlo follow, bringing the same approach to healthcare data.</p>
-    <p class="mb-0">Balaji also leads TechDigital Corporation, an IT consulting and talent firm in Burnsville, Minnesota, that has helped companies with technology projects since 2008. NexFlo brings that experience to a product: integration that works, explained plainly, with people you can reach.</p></div>
-</div></section>
-<section class="section-soft"><div class="container founders">
-  <div><span class="eyebrow">The team</span><h2>Talk to the people building it</h2>
-    <p class="lead">We're a small team on purpose. When you email us, a founder answers.</p>
-    <div class="row mt-3"><a class="btn btn-primary" href="contact.html">Get in touch</a><a class="btn btn-secondary" href="demo.html">Book a demo</a></div></div>
-  <div class="founder-cards">
-    <div class="founder"><div class="avatar">AB</div><h3>Aadith Balaji</h3><p>Co-founder</p></div>
-    <div class="founder"><div class="avatar">BT</div><h3>Balaji Thiagarajan</h3><p>Co-founder</p><p style="margin-top:6px;font-size:.8rem">Also leads TechDigital Corporation</p></div>
-  </div>
-</div></section>
-<section><div class="container grid grid-3">
+  <div><span class="eyebrow">Why NexFlo exists</span>
+    <p>Small manufacturers and suppliers pay enterprise prices for EDI they barely understand, then wait days for help when something breaks.</p>
+    <p class="mb-0">NexFlo fixes that. TradeFlo comes first, for suppliers trading with retailers. CareFlo and HealthFlo bring the same approach to healthcare data in 2027.</p></div>
+</div>
+<div class="container grid grid-3 mt-6">
   <div class="card">{icon("map")}<h3 class="mt-2">Based in Minnesota</h3><p>Built in the Midwest, for businesses everywhere.</p></div>
   <div class="card">{icon("tag")}<h3 class="mt-2">Transparent by default</h3><p>Clear pricing and honest claims about what's built and what's planned.</p></div>
-  <div class="card">{icon("chat")}<h3 class="mt-2">Direct support</h3><p>No ticket queues. You get the people who wrote the code.</p></div>
+  <div class="card">{icon("chat")}<h3 class="mt-2">Direct support</h3><p>No ticket queues. You talk to the person who wrote the code.</p></div>
 </div></section>
 {cta_band(source="about")}'''
 
@@ -1110,7 +1087,7 @@ def contact():
 
 @page("demo.html", "Book a demo", "Book a demo of NexFlo Cloud and see how TradeFlo handles your EDI documents.")
 def demo():
-    return page_hero("Book a demo", "See TradeFlo with your own trading partners in mind. 30 minutes with a founder, no slides required.",
+    return page_hero("Book a demo", "See TradeFlo with your own trading partners in mind. 30 minutes with the founder, no slides required.",
                      "Demo", [("Home", "index.html"), ("Book a demo", None)]) + f'''
 <section><div class="container split top">
   <form class="form-card" data-form="Demo request" data-to="{SALES}">
@@ -1157,7 +1134,7 @@ def early_access():
   {early_access_form("early-access-page")}
   <div><h2>What founding customers get</h2>
     <ul class="checks mt-3"><li>Launch pricing, locked in</li><li>Hands-on onboarding for your first trading partner</li>
-      <li>A direct line to the founders</li><li>A real say in what we build next</li></ul>
+      <li>A direct line to the founder</li><li>A real say in what we build next</li></ul>
     <p class="mt-4 muted">Want numbers first? <a href="pricing.html#quote">Request pricing</a>.</p></div>
 </div></section>'''
 
@@ -1257,28 +1234,9 @@ def flow_lines(tx, ty, out=()):
             f'<g class="flow-paths" stroke="url(#flg)">{"".join(paths)}</g>{"".join(dots)}</svg>')
 
 
-GLOW_VISUAL = ('<div class="hero-visual glow-visual">' + flow_lines(500, 307) + '<img class="glow-aura" src="assets/cloud-glow.webp" alt="" width="960" height="640">'
-               '<img class="glow-icon" src="assets/cloud-icon.png" alt="NexFlo cloud" width="1106" height="689"></div>')
-GLASS_VISUAL = ('<div class="hero-visual glass-visual">' + flow_lines(500, 307) + '<div class="glass-ambient"></div>'
-                '<div class="glass-cloud" role="img" aria-label="NexFlo cloud in glass"><div class="gc-body"></div>'
-                '<div class="gc-light"></div><div class="gc-shine"></div></div></div>')
-# DARK_CLOUD=glow THEME=dark python3 build.py  ->  the earlier glowing cloud instead of the glass one
-HUB_VISUAL = ('<div class="hero-visual hub-visual">' + flow_lines(500, 307, out=(3, 4)) +
-              '<div class="hub" role="img" aria-label="NexFlo translating documents"><span class="hub-ring"></span><span class="hub-ring"></span>'
-              '<span class="hub-ring"></span><span class="hub-orbit"><i></i></span>'
-              '<div class="hub-tile"><img src="assets/cloud-icon.png" alt="" width="1106" height="689"></div>'
-              '<span class="hub-tag in">X12 850 in</span><span class="hub-tag out">JSON out</span></div></div>')
-# DARK_CLOUD=glass | glow  ->  earlier hero options; default is the glass hub
-DARK_VISUAL = {"glow": GLOW_VISUAL, "glass": GLASS_VISUAL}.get(__import__("os").environ.get("DARK_CLOUD"), HUB_VISUAL)
-
-
-def apply_dark(text):
-    text = text.replace('<html lang="en">', '<html lang="en" data-theme="dark">')
-    text = text.replace('<meta name="theme-color" content="#006BFD">', '<meta name="theme-color" content="#05081A">')
-    text = text.replace('<link rel="stylesheet" href="assets/styles.css">',
-                        '<link rel="stylesheet" href="assets/styles.css">\n<link rel="stylesheet" href="assets/theme-dark.css">')
-    text = text.replace("assets/logo.png", "assets/logo-dark.png")
-    return re.sub(r'<div class="hero-visual"><svg class="flow-lines".*?</svg><img class="hero-art"[^>]*></div>', lambda m: DARK_VISUAL, text, flags=re.S)
+LOGO_IMG = '<img src="assets/logo.png" alt="NexFlo Cloud" width="154" height="46">'
+LOGO_PAIR = ('<img class="logo-light" src="assets/logo.png" alt="NexFlo Cloud" width="154" height="46">'
+             '<img class="logo-dark" src="assets/logo-dark.png" alt="NexFlo Cloud" width="154" height="46">')
 
 
 def build():
@@ -1289,8 +1247,7 @@ def build():
     bare = {"portal.html"}
     for slug, (title, desc, active, fn) in PAGES.items():
         out = layout(title, desc, fn(), active, slug, bare=slug in bare)
-        if THEME == "dark":
-            out = apply_dark(out)
+        out = out.replace(LOGO_IMG, LOGO_PAIR)
         if CLEAN_URLS:
             out = clean_links(out)
         (DIST / slug).write_text(out, encoding="utf-8")

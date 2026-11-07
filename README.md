@@ -37,6 +37,10 @@ Then run `npx vercel --prod` to publish to production.
 - Add `nexflo.cloud` and `www.nexflo.cloud`, then set the DNS records Vercel shows at your domain registrar.
 - Add `app.nexflo.cloud` to the same project. `vercel.json` already serves the "portal coming soon" page there. When the real portal exists, remove that domain and the rewrite, and set `PORTAL_URL` in `build.py`.
 
+## Dark and light mode
+
+The site opens in dark mode. Visitors can switch with the sun/moon button in the header, and their choice is remembered. Dark styles live in `assets/theme-dark.css`. To open in light mode by default instead, change `data-theme="dark"` on the `<html>` tag in `layout()` in `build.py` to `data-theme="light"`.
+
 ## Before launch
 
 - **Brand assets are in place.** `logo.png` is your wordmark with a transparent background. The hero art is the cloud and ribbon from the launch graphic, with the text removed. The favicons and the dark sign-up band's glow come from your cloud icons. `og-image.jpg` (1200×630) is the social sharing image. If you have a vector (SVG) logo, use it instead of `logo.png` for sharper edges.
