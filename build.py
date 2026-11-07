@@ -659,7 +659,7 @@ def home():
   <div class="typing" hidden><i></i><i></i><i></i></div>
   <div class="msg"><span class="avatar">AB</span><div><b>Aadith, NexFlo</b><time>9:31 AM</time><p>The carton-level <code>SSCC-18</code> labels were missing. I've added them to your mapping, so the next ASN will pass.</p></div></div>
 </div>'''
-    docs = "".join(f'<div class="doc"><h3><code>{c}</code></h3><p><b style="color:var(--ink)">{n}.</b> {d}</p></div>' for c, n, d in DOCS)
+    docs = "".join(f'<div class="doc"><h3><code>{c}</code><span>{n}</span></h3><p>{d}</p></div>' for c, n, d in DOCS)
     return f'''
 <section class="hero-s">
   {hero_lines()}
@@ -707,16 +707,17 @@ def home():
   <div class="vis" style="background:var(--blue);border:0"><div class="arc" data-arc="0.6" style="background:rgba(255,255,255,.1)"></div>{chat}</div>
 </div></section>
 
-<section class="orbit-sec"><div class="container">
+<section class="orbit-sec"><div class="container orbit-split">
   {orbit()}
-  <div class="section-head center"><h2>One connection for every trading partner</h2>
-    <p class="lead">Retailers, distributors and 3PLs each send their own flavor of EDI. TradeFlo keeps every partner's IDs, specs and connections in one place, so adding the next one is routine.</p>
-    <a class="btn btn-primary mt-3" href="tradeflo.html">Explore TradeFlo</a></div>
+  <div class="frow-text"><span class="label">Trading partners</span><h2>One connection for every trading partner</h2>
+    <p>Retailers, distributors and 3PLs each send their own flavor of EDI. TradeFlo keeps every partner's IDs, specs and connections in one place, so adding the next one is routine.</p>
+    <a class="btn btn-primary mt-2" href="tradeflo.html">Explore TradeFlo</a></div>
 </div></section>
 
-<section><div class="container">
-  <div class="section-head center"><h2>Every core retail document</h2>
-    <p class="lead">The documents suppliers get asked for most, with healthcare transactions on the 2027 roadmap.</p></div>
+<section><div class="container doc-split">
+  <div class="doc-head"><h2>Every core retail document</h2>
+    <p class="lead">The documents suppliers get asked for most, with healthcare transactions on the 2027 roadmap.</p>
+    <a class="link-arrow" href="retail-edi-documents.html">Read the document guide</a></div>
   <div class="doclist">{docs}</div>
 </div></section>
 
