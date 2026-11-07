@@ -40,7 +40,7 @@ Then run `npx vercel --prod` to publish to production.
 ## Before launch
 
 - **Brand assets are in place.** `logo.png` is your wordmark with a transparent background. The hero art is the cloud and ribbon from the launch graphic, with the text removed. The favicons and the dark sign-up band's glow come from your cloud icons. `og-image.jpg` (1200×630) is the social sharing image. If you have a vector (SVG) logo, use it instead of `logo.png` for sharper edges.
-- **Forms.** Set `FORM_ENDPOINT` at the top of `assets/main.js`. A Power Automate "When an HTTP request is received" flow that emails your Microsoft 365 inbox works well; Formspree is another option. Each submission arrives as JSON with `form`, `to` (sales@ or info@), `page` and `fields`. Until the endpoint is set, forms open a pre-filled email instead.
+- **Forms.** Set `FORM_ENDPOINT` at the top of `assets/main.js`. A Power Automate "When an HTTP request is received" flow that emails your Microsoft 365 inbox works well; Formspree is another option. Each submission arrives as JSON with `form`, `to` (aadithbalaji@ for early access, pricing and demos; support@ for the contact form), `page` and `fields`. Until the endpoint is set, forms open a pre-filled email instead.
 - **Analytics.** Paste your snippet where the `<!-- Analytics -->` comment sits in `layout()` in `build.py`.
 - **Portal.** Deploy `dist/portal.html` as app.nexflo.cloud, then set `PORTAL_URL = "https://app.nexflo.cloud"` in `build.py`.
 - **Copy to fill in.** Confirm `LINKEDIN` and the TechDigital details on the About page ("since 2008", and add a link to its website if you want one).

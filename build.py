@@ -18,8 +18,8 @@ DIST = ROOT / "dist"
 
 # ---------------------------------------------------------------- settings
 SITE_URL = "https://nexflo.cloud"
-SALES = "sales@nexflo.cloud"
-INFO = "info@nexflo.cloud"
+SALES = "aadithbalaji@nexflo.cloud"  # early access, pricing and demo requests
+INFO = "support@nexflo.cloud"  # contact form, security, legal
 # Until app.nexflo.cloud exists, "Portal login" points at the local placeholder.
 # Deploy dist/portal.html as the index of app.nexflo.cloud, then set this to "https://app.nexflo.cloud".
 PORTAL_URL = "portal.html"
