@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dark Hero Options</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #05081A; --ink: #C3CDE6; --muted: #8692B2; --line: rgba(255,255,255,.1); --blue: #006BFD; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, system-ui, sans-serif; }
+  header { max-width: 1240px; margin: 0 auto; padding: 48px 16px 8px; }
+  h1 { font-family: Figtree, sans-serif; color: #fff; font-size: clamp(1.8rem, 4vw, 2.6rem); margin: 0 0 8px; letter-spacing: -.02em; }
+  header p { margin: 0; color: var(--muted); }
+  .grid { max-width: 1240px; margin: 0 auto; padding: 28px 16px 64px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .opt { border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: rgba(255,255,255,.03); }
+  .frame { position: relative; aspect-ratio: 1360 / 780; overflow: hidden; }
+  .frame iframe { position: absolute; top: 0; left: 0; width: 1360px; height: 780px; border: 0; transform-origin: 0 0; pointer-events: none; }
+  .meta { display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px 18px; border-top: 1px solid var(--line); }
+  .letter { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: rgba(0,107,253,.18); color: #8CC0FF; font: 800 1rem Figtree, sans-serif; }
+  .meta h2 { margin: 0 0 2px; font: 700 1.05rem Figtree, sans-serif; color: #fff; }
+  .meta p { margin: 0; font-size: .9rem; color: var(--muted); line-height: 1.45; }
+  .meta a { margin-left: auto; flex: none; color: #5AA2FF; font-size: .88rem; font-weight: 600; text-decoration: none; white-space: nowrap; }
+  .meta a:hover { text-decoration: underline; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } .meta { flex-wrap: wrap; } .meta a { margin-left: 48px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Pick a dark-mode hero</h1>
+  <p>Four takes on the cloud, each running live on the real homepage. Tell me the letter you want.</p>
+</header>
+<main class="grid">
+  <section class="opt"><div class="frame"><iframe src="index.html?theme=dark&amp;hero=a" title="Option A" loading="lazy"></iframe></div>
+    <div class="meta"><span class="letter">A</span><div><h2>Glass artwork</h2><p>Your launch-graphic glass cloud and ribbons, lifted onto the dark background.</p></div><a href="index.html?theme=dark&amp;hero=a" target="_blank">Open full</a></div></section>
+  <section class="opt"><div class="frame"><iframe src="index.html?theme=dark&amp;hero=b" title="Option B" loading="lazy"></iframe></div>
+    <div class="meta"><span class="letter">B</span><div><h2>Glass hub</h2><p>A frosted tile with your logo. Documents stream in blue, ripple, and leave green as JSON.</p></div><a href="index.html?theme=dark&amp;hero=b" target="_blank">Open full</a></div></section>
+  <section class="opt"><div class="frame"><iframe src="index.html?theme=dark&amp;hero=c" title="Option C" loading="lazy"></iframe></div>
+    <div class="meta"><span class="letter">C</span><div><h2>Line art</h2><p>Your logo as a thin blue line over frosted glass, with light running around the edge.</p></div><a href="index.html?theme=dark&amp;hero=c" target="_blank">Open full</a></div></section>
+  <section class="opt"><div class="frame"><iframe src="index.html?theme=dark&amp;hero=d" title="Option D" loading="lazy"></iframe></div>
+    <div class="meta"><span class="letter">D</span><div><h2>Particle cloud</h2><p>Your logo built from hundreds of twinkling data points, with streams flowing in.</p></div><a href="index.html?theme=dark&amp;hero=d" target="_blank">Open full</a></div></section>
+</main>
+<script>
+  const fit = () => document.querySelectorAll(".frame").forEach((f) => { f.querySelector("iframe").style.transform = `scale(${f.clientWidth / 1360})`; });
+  addEventListener("resize", fit); fit();
+</script>
+</body>
+</html>
