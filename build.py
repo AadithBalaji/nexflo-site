@@ -110,16 +110,129 @@ def hl_json(text):
 
 
 def code_block(title, tag, body):
-    return f'<div class="code"><div class="code-head"><b>{title}</b><span>{tag}</span></div><pre><code>{body}</code></pre></div>'
+    return (f'<div class="code"><div class="code-head"><span class="dots"><i></i><i></i><i></i></span><b>{title}</b>'
+            f'<span>{tag}</span></div><pre><code>{body}</code></pre></div>')
 
 
-def translate_demo(left_title, left_tag, left_raw, right_title, right_tag, right_raw, mid="Translate", left_kind="edi"):
+def translate_demo(left_title, left_tag, left_raw, right_title, right_tag, right_raw, mid="Translate", left_kind="edi",
+                   done="Delivered as JSON"):
     left = hl_edi(left_raw) if left_kind == "edi" else hl_json(left_raw)
-    return f'''<div class="translate">
+    return f'''<div class="translate" data-animate data-done="✓ {done}">
   {code_block(left_title, left_tag, left)}
-  <div class="translate-mid"><div class="pill"><i>→</i>{mid}</div></div>
+  <div class="translate-mid"><div class="pill"><i>→</i>{mid}</div><div class="translate-status" aria-live="off"></div></div>
   {code_block(right_title, right_tag, hl_json(right_raw))}
 </div>'''
+
+
+def hl_shell(text):
+    out = []
+    for line in text.strip("\n").split("\n"):
+        e = html.escape(line, quote=False)
+        if e.lstrip().startswith("#"):
+            out.append(f'<span class="c">{e}</span>')
+            continue
+        e = re.sub(r'"([^"]*)"', r'<span class="s">"\1"</span>', e)
+        e = re.sub(r"^(\$|sftp&gt;|POST|GET)", r'<span class="k">\1</span>', e)
+        e = re.sub(r"(\s)(-[A-Za-z])\b", r'\1<span class="k">\2</span>', e)
+        out.append(e)
+    return "\n".join(out)
+
+
+API_CURL = """
+# Send an invoice. NexFlo delivers it to Walmart as an X12 810.
+curl https://api.nexflo.cloud/v1/documents \\
+  -H "Authorization: Bearer $NEXFLO_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "partner": "walmart",
+    "type": "invoice",
+    "po_number": "4500018273",
+    "lines": [{ "upc": "012345678905", "qty": 240, "unit_price": 4.85 }]
+  }'
+
+# 202 Accepted  ->  translated, validated, sent as 810
+"""
+
+API_SFTP = """
+# No code? Drop files in a folder. We handle the EDI.
+$ sftp acme@sftp.nexflo.cloud
+sftp> put invoice_4500018273.csv /outbound/walmart/
+Uploading invoice_4500018273.csv  100%
+
+sftp> get /inbound/walmart/po_4500018274.json
+Fetching po_4500018274.json  100%
+
+# Every inbound order arrives as clean JSON or CSV.
+"""
+
+API_HOOK = """
+{
+  "event": "document.received",
+  "partner": "walmart",
+  "type": "purchase_order",
+  "standard": "X12 850",
+  "po_number": "4500018274",
+  "received_at": "2026-11-07T14:02:11Z",
+  "data_url": "https://api.nexflo.cloud/v1/documents/doc_8f2k"
+}
+"""
+
+
+def api_tabs():
+    panes = [("REST API", "curl", hl_shell(API_CURL)), ("SFTP", "shell", hl_shell(API_SFTP)),
+             ("Webhook", "POST /your-endpoint", hl_json(API_HOOK))]
+    tabs = "".join(f'<button class="tab" role="tab" aria-selected="{str(i == 0).lower()}">{t}</button>' for i, (t, _, _) in enumerate(panes))
+    bodies = "".join(f'<div role="tabpanel"{"" if i == 0 else " hidden"}><pre><code>{b}</code></pre></div>' for i, (_, _, b) in enumerate(panes))
+    return (f'<div class="code code-tabs" data-tabs><div class="code-head"><span class="dots"><i></i><i></i><i></i></span>'
+            f'<div role="tablist" aria-label="Connection options">{tabs}</div><span>TradeFlo</span></div>{bodies}'
+            f'<p class="api-note">API preview. Endpoint names may change before launch.</p></div>')
+
+
+def dashboard_mock():
+    return '''<div class="glass dash" data-dash aria-label="Illustrative dashboard preview">
+  <div class="dash-top"><span class="dots"><i></i><i></i><i></i></span><span>app.nexflo.cloud / transactions</span><span class="badge badge-blue">Illustrative preview</span></div>
+  <div class="dash-kpis">
+    <div><small>Documents today</small><b data-kpi="docs">1,284</b></div>
+    <div><small>Acknowledged</small><b>99.6%</b></div>
+    <div><small>Needs review</small><b data-kpi="err">1</b></div>
+  </div>
+  <div class="dash-row head"><span>Time</span><span>Partner</span><span>Document</span><span>Status</span></div>
+  <div data-rows></div>
+</div>'''
+
+
+TOASTS = [
+    ("↓", "", "Purchase order received", "Walmart · X12 850 · PO 4500018273"),
+    ("{ }", "", "Translated to JSON", "Validated and delivered to your ERP"),
+    ("✓", "ok", "Acknowledgment sent", "X12 997 · Accepted"),
+    ("→", "", "Ship notice sent", "X12 856 · 12 cartons"),
+    ("$", "ok", "Invoice delivered", "X12 810 · $1,164.00"),
+]
+
+
+def hero_toasts():
+    return '<div class="toasts" aria-hidden="true">' + "".join(
+        f'<div class="toast"><span class="ti {c}">{i}</span><span><b>{t}</b><small>{d}</small></span><time>now</time></div>'
+        for i, c, t, d in TOASTS) + "</div>"
+
+
+MARQUEE = [
+    [("850", "Purchase order", ""), ("855", "PO acknowledgment", ""), ("856", "Advance ship notice", ""), ("810", "Invoice", ""),
+     ("846", "Inventory advice", ""), ("997", "Functional ack", ""), ("ORDERS", "EDIFACT order", ""), ("INVOIC", "EDIFACT invoice", ""),
+     ("DESADV", "EDIFACT despatch advice", "")],
+    [("837", "Health care claim", "2027"), ("835", "Remittance advice", "2027"), ("270/271", "Eligibility", "2027"),
+     ("276/277", "Claim status", "2027"), ("278", "Prior authorization", "2027"), ("HL7 v2", "ADT · ORM · ORU", "2027"),
+     ("FHIR R4", "Patient · Encounter", "2027"), ("JSON", "Clean output", ""), ("CSV", "Spreadsheet-friendly", "")],
+]
+
+
+def marquee():
+    rows = []
+    for k, items in enumerate(MARQUEE):
+        one = "".join(f'<span class="m-item"><code>{c}</code>{n}{f"<small>{t}</small>" if t else ""}</span>' for c, n, t in items)
+        rows.append(f'<div class="marquee{" rev" if k else ""}"><div class="marquee-track"><div class="m-set">{one}</div>'
+                    f'<div class="m-set" aria-hidden="true">{one}</div></div></div>')
+    return '<div class="marquee-wrap">' + "".join(rows) + "</div>"
 
 
 PO_X12 = """
@@ -325,6 +438,7 @@ def layout(title, description, body, active="", slug="", bare=False):
 </main>
 {footer_html() if not bare else ""}
 <script src="assets/main.js" defer></script>
+<script src="assets/motion.js" defer></script>
 </body>
 </html>
 '''
@@ -414,65 +528,102 @@ def home():
         ("code", "Modern integrations", "Use a REST API with clean JSON, or keep it simple with SFTP. Your choice."),
         ("chat", "A team that answers", "You talk directly to the people building the product. No ticket queues."),
     ]
-    who = [s for s in SOLUTIONS]
-    standards = [("X12", "TradeFlo"), ("EDIFACT", "TradeFlo"), ("HIPAA X12", "Planned"), ("HL7 v2", "Planned"), ("FHIR", "Planned")]
+    words = ["Less", "friction."]
+    words2 = ["More", "flow."]
+    title = (" ".join(f'<span class="w" style="--i:{i}">{w}</span>' for i, w in enumerate(words)) + "<br>" +
+             " ".join(f'<span class="w accent" style="--i:{i + 2}">{w}</span>' for i, w in enumerate(words2)))
     return f'''
-<section class="hero"><div class="container hero-grid">
-  <div>
-    <span class="pill-label">Coming soon · Early access open</span>
-    <h1>Less friction.<br><span class="accent">More flow.</span></h1>
-    <p class="sub">Simpler EDI for growing businesses.</p>
-    {signup_inline("home-hero")}
-    <p class="hero-note">Founding customers lock in launch pricing. <a class="journey" href="{LINKEDIN}" target="_blank" rel="noopener">Follow our journey →</a></p>
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="live-pill"><i></i>Early access now open</span>
+      <h1 class="hero-title">{title}</h1>
+      <p class="sub fade-up" style="--d:.5s">Simpler EDI for growing businesses.</p>
+      <div class="fade-up" style="--d:.65s">{signup_inline("home-hero")}</div>
+      <p class="hero-note fade-up" style="--d:.8s">Founding customers lock in launch pricing. <a class="journey" href="{LINKEDIN}" target="_blank" rel="noopener">Follow our journey →</a></p>
+    </div>
   </div>
-  <img class="hero-art" src="assets/hero-cloud.jpg" alt="A glass cloud wrapped in flowing blue ribbons" width="1254" height="570">
+  <div class="hero-visual"><img class="hero-art" src="assets/hero-cloud.jpg" alt="A glass cloud wrapped in flowing blue ribbons" width="1254" height="570"></div>
+  {hero_toasts()}
+</section>
+
+<section class="stats-band"><div class="container">
+  <div class="glass stats">
+    <div class="stat"><b data-count="6">6</b><span>core X12 documents at launch</span></div>
+    <div class="stat"><b>X12 + EDIFACT</b><span>retail and international standards</span></div>
+    <div class="stat"><b>API + SFTP</b><span>connect with or without code</span></div>
+    <div class="stat"><b>1 day</b><span>response time, from a founder</span></div>
+  </div>
 </div></section>
 
-<section class="section-soft" id="products"><div class="container">
+<section id="products"><div class="container">
   <div class="section-head"><span class="eyebrow">What we do</span>
     <h2>One platform for the documents your business runs on</h2>
     <p class="lead">We start with retail and supply chain EDI, then extend the same translation engine to healthcare.</p></div>
   {product_cards()}
 </div></section>
 
-<section id="how-it-works"><div class="container">
+<section class="section-soft" id="how-it-works"><div class="container">
   <div class="section-head"><span class="eyebrow">How it works</span>
     <h2>From purchase order to payment, without the busywork</h2>
     <p class="lead">Say Walmart sends you a purchase order. Here's what happens with NexFlo.</p></div>
-  <div class="steps">
+  <div class="steps" data-cycle>
     <div class="step"><h3>Connect your systems</h3><p>Link your trading partners and your ERP, spreadsheet or storefront through SFTP or our API. We help set up the first connection.</p></div>
     <div class="step"><h3>We translate and exchange</h3><p>Walmart's 850 purchase order arrives and becomes clean JSON your systems can read. Your invoice goes back as a correct 810.</p></div>
     <div class="step"><h3>Track it in one dashboard</h3><p>See every document, acknowledgment and error in one place, with alerts when something needs your attention.</p></div>
   </div>
-  {translate_demo("Walmart purchase order", "X12 850", PO_X12, "What your system receives", "JSON", PO_JSON)}
+  {translate_demo("Walmart purchase order", "X12 850", PO_X12, "What your system receives", "JSON", PO_JSON, done="Validated · 997 sent")}
 </div></section>
 
-<section class="section-soft"><div class="container">
+<section><div class="container split">
+  <div><span class="eyebrow">One dashboard</span>
+    <h2>Every document, from received to acknowledged</h2>
+    <p class="lead">Know exactly where each order, ship notice and invoice stands, without logging into five partner portals.</p>
+    <ul class="checks mt-4">
+      <li>Live status for every transaction, with full history</li>
+      <li>Alerts on rejections and late acknowledgments, before they become chargebacks</li>
+      <li>Search by PO number, partner or document type</li>
+      <li>Trading partner settings in one place</li>
+    </ul></div>
+  {dashboard_mock()}
+</div></section>
+
+<section class="section-soft"><div class="container split">
+  {api_tabs()}
+  <div><span class="eyebrow">Connect your way</span>
+    <h2>API for developers. SFTP for everyone else.</h2>
+    <p class="lead">Send and receive documents as clean JSON over a REST API, or drop files in a secure SFTP folder. No proprietary software to install.</p>
+    <ul class="checks mt-4">
+      <li>REST API with JSON in, X12 or EDIFACT out</li>
+      <li>SFTP folders per trading partner, with CSV or JSON files</li>
+      <li>Webhooks when new documents arrive (planned)</li>
+    </ul></div>
+</div></section>
+
+<section><div class="container">
   <div class="section-head center"><span class="eyebrow">Why NexFlo</span>
     <h2>Enterprise-grade EDI, minus the enterprise overhead</h2></div>
-  <div class="feature-grid" style="grid-template-columns:repeat(4,1fr)">
+  <div class="feature-grid four">
     {"".join(f'<div class="feature">{icon(i)}<h3>{t}</h3><p>{d}</p></div>' for i, t, d in why)}
   </div>
 </div></section>
+
+<section class="section-soft" style="overflow:hidden">
+  <div class="container"><div class="section-head center"><span class="eyebrow">Standards</span>
+    <h2>Speak your partners' language</h2>
+    <p class="lead">Retail and supply chain standards first with TradeFlo. Healthcare standards are planned for CareFlo and HealthFlo in 2027.</p></div></div>
+  {marquee()}
+</section>
 
 <section><div class="container">
   <div class="section-head"><span class="eyebrow">Who it's for</span>
     <h2>Built for teams that trade data with bigger partners</h2></div>
   <div class="grid grid-4">
-    {"".join(f'<a class="card" href="{s["href"]}">{icon(s["icon"])}<h3 class="mt-2">{s["name"]}</h3><p>{s["short"]}</p><span class="more arrow">{s["product"]}</span></a>' for s in who)}
+    {"".join(f'<a class="card" href="{s["href"]}">{icon(s["icon"])}<h3 class="mt-2">{s["name"]}</h3><p>{s["short"]}</p><span class="more arrow">{s["product"]}</span></a>' for s in SOLUTIONS)}
   </div>
 </div></section>
 
-<section class="section-soft"><div class="container split">
-  <div><span class="eyebrow">Standards we support</span>
-    <h2>Speak your partners' language</h2>
-    <p class="lead">TradeFlo handles retail and supply chain standards first. Healthcare standards are planned for CareFlo and HealthFlo in 2027.</p></div>
-  <div class="chips">
-    {"".join(f'<span class="chip{" ready" if l == "TradeFlo" else ""}">{n}<small>{l}</small></span>' for n, l in standards)}
-  </div>
-</div></section>
-
-<section><div class="container founders">
+<section class="section-soft"><div class="container founders">
   <div><span class="eyebrow">Founders</span>
     <h2>A father-and-son team in Minnesota</h2>
     <p class="lead">We started NexFlo because growing businesses deserve the same integration tools as big enterprises, without the price tag or the runaround.</p>
@@ -484,7 +635,7 @@ def home():
   </div>
 </div></section>
 
-{cta_band("Get early access", "TradeFlo opens to founding customers first. Founding customers lock in launch pricing.", "home-cta")}
+<div style="padding-top:96px">{cta_band("Get early access", "TradeFlo opens to founding customers first. Founding customers lock in launch pricing.", "home-cta")}</div>
 '''
 
 
