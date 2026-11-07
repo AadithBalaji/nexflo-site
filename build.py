@@ -427,7 +427,7 @@ def layout(title, description, body, active="", slug="", bare=False):
 <meta property="og:image" content="{SITE_URL}/assets/og-image.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#05081A">
-<script>try{{var q=new URLSearchParams(location.search),d=document.documentElement,t=q.get("theme")||localStorage.getItem("nf-theme");if(t)d.dataset.theme=t;if(q.get("hero"))d.dataset.hero=q.get("hero");}}catch(e){{}}</script>
+<script>try{{var d=document.documentElement,t=new URLSearchParams(location.search).get("theme")||localStorage.getItem("nf-theme")||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");d.dataset.theme=t;}}catch(e){{}}</script>
 <link rel="icon" href="assets/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -525,22 +525,12 @@ def page(slug, title, description, active=""):
     return deco
 
 
-def dark_hero_options():
-    """Dark-mode hero designs. ?hero=a|b|c|d picks one in previews; DARK_HERO sets the default."""
-    import json
-    a = (f'<div class="hero-visual hv-dark hero-opt opt-a">{flow_lines(650, 482)}<div class="glass-wrap">'
-         f'<img class="glass-art" src="assets/glass-cloud-dark.webp" alt="A glass cloud wrapped in flowing blue ribbons" width="1000" height="757"></div></div>')
-    b = (f'<div class="hero-visual hv-dark hero-opt opt-b box-opt">{flow_lines(500, 307, out=(3, 4))}'
-         '<div class="hub" role="img" aria-label="NexFlo translating documents"><span class="hub-ring"></span><span class="hub-ring"></span>'
-         '<span class="hub-ring"></span><div class="hub-tile"><img src="assets/cloud-icon.png" alt="" width="1106" height="689"></div>'
-         '<span class="hub-tag in">X12 850 in</span><span class="hub-tag out">JSON out</span></div></div>')
-    c = (f'<div class="hero-visual hv-dark hero-opt opt-c box-opt">{flow_lines(500, 307)}'
-         '<div class="line-cloud" role="img" aria-label="NexFlo cloud"><span class="lc-fill"></span><span class="lc-line"></span><span class="lc-run"></span></div></div>')
-    data = json.loads((ROOT / "hero-particles.json").read_text())
-    dots = "".join(f'<circle cx="{x}" cy="{y}" r="{r}" style="--d:{d}s"/>' for x, y, r, d in data["pts"])
-    d = (f'<div class="hero-visual hv-dark hero-opt opt-d box-opt">{flow_lines(500, 307)}'
-         f'<svg class="particle-cloud" viewBox="0 0 {data["w"]} {data["h"]}" role="img" aria-label="NexFlo cloud made of data points">{dots}</svg></div>')
-    return a + b + c + d
+def dark_hero():
+    """Dark-mode hero: a frosted glass tile with the logo. Documents flow in (blue) and out as JSON (green)."""
+    return (f'<div class="hero-visual hv-dark box-opt opt-b">{flow_lines(500, 307, out=(3, 4))}'
+            '<div class="hub" role="img" aria-label="NexFlo translating documents"><span class="hub-ring"></span><span class="hub-ring"></span>'
+            '<span class="hub-ring"></span><div class="hub-tile"><img src="assets/cloud-icon.png" alt="" width="1106" height="689"></div>'
+            '<span class="hub-tag in">X12 850 in</span><span class="hub-tag out">JSON out</span></div></div>')
 
 
 @page("index.html", "NexFlo Cloud — Less friction. More flow.",
@@ -567,7 +557,7 @@ def home():
       <p class="hero-note fade-up" style="--d:.8s">Founding customers lock in launch pricing. <a class="journey" href="{LINKEDIN}" target="_blank" rel="noopener">Follow our journey →</a></p>
     </div>
   </div>
-  {dark_hero_options()}
+  {dark_hero()}
   <div class="hero-visual hv-light">{flow_lines(658, 360)}<img class="hero-art" src="assets/hero-cloud.jpg" alt="A glass cloud wrapped in flowing blue ribbons" width="1254" height="570"></div>
   {hero_toasts()}
 </section>
@@ -1269,7 +1259,6 @@ def build():
         if CLEAN_URLS:
             out = clean_links(out)
         (DIST / slug).write_text(out, encoding="utf-8")
-    (DIST / "hero-options.html").write_text((ROOT / "hero-options.html").read_text(), encoding="utf-8")
     urls = "".join(f"<url><loc>{SITE_URL}/{'' if s == 'index.html' else s.removesuffix('.html')}</loc></url>" for s in PAGES if s not in ("404.html", "portal.html"))
     (DIST / "sitemap.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>\n')
     (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n")

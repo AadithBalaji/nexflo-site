@@ -140,39 +140,14 @@
 html.theme-anim, html.theme-anim *, html.theme-anim *::before { transition: background-color .4s ease, color .4s ease, border-color .4s ease !important; }
 @media (max-width: 1080px) { .theme-toggle { width: 100%; border-radius: 12px; height: 44px; } }
 
-/* Dark hero: the launch-graphic glass cloud, lifted onto the dark background */
-.hv-dark .glass-art { width: 100%; height: auto; animation: float 8s ease-in-out infinite;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 30%), linear-gradient(180deg, #000 75%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(90deg, transparent 0%, #000 30%), linear-gradient(180deg, #000 75%, transparent 100%); mask-composite: intersect; }
-[data-theme="dark"] .hero-visual.hv-dark { width: min(56vw, 900px); bottom: -10px; }
 [data-theme="dark"] .flow-dot.ok { fill: #34D399; filter: drop-shadow(0 0 6px rgba(18,183,106,.9)); }
-@media (max-width: 960px) {
-  [data-theme="dark"] .hero-visual.hv-dark { width: 100%; bottom: auto; }
-  .hv-dark .glass-art { -webkit-mask-image: linear-gradient(180deg, transparent, #000 20%, #000 80%, transparent); mask-image: linear-gradient(180deg, transparent, #000 20%, #000 80%, transparent); }
-}
 .brand { flex: none; }
 @media (max-width: 1080px) {
   .theme-toggle { display: flex; align-items: center; justify-content: center; gap: 10px; font: 600 .95rem "Inter", sans-serif; }
   .theme-toggle::after { content: "Dark mode"; }
   [data-theme="dark"] .theme-toggle::after { content: "Light mode"; }
 }
-/* Cleaner dark glass: brighter, bluer, smaller, no floor */
-[data-theme="dark"] .hero-visual.hv-dark { width: min(50vw, 800px); bottom: 10px; }
-.hv-dark .glass-art { filter: brightness(1.22) saturate(1.35) contrast(1.06);
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 30%), linear-gradient(180deg, #000 68%, transparent 92%);
-  mask-image: linear-gradient(90deg, transparent 0%, #000 30%), linear-gradient(180deg, #000 68%, transparent 92%); }
-/* Blue glass tint, moving with the cloud */
-.glass-wrap { position: relative; animation: float 8s ease-in-out infinite; isolation: isolate; }
-.hv-dark .glass-art { animation: none;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 30%), linear-gradient(180deg, transparent 0%, #000 12%, #000 68%, transparent 92%);
-  mask-image: linear-gradient(90deg, transparent 0%, #000 30%), linear-gradient(180deg, transparent 0%, #000 12%, #000 68%, transparent 92%); }
-@media (prefers-reduced-motion: reduce) { .glass-wrap { animation: none; } }
 
-/* ===== Dark hero options (A–D). ?hero=a|b|c|d in previews ===== */
-[data-theme="dark"] .hero-opt { display: none; }
-[data-theme="dark"]:not([data-hero]) .opt-a, [data-theme="dark"][data-hero="a"] .opt-a, [data-theme="dark"][data-hero="b"] .opt-b,
-[data-theme="dark"][data-hero="c"] .opt-c, [data-theme="dark"][data-hero="d"] .opt-d { display: block; }
 [data-theme="dark"] .hero-visual.box-opt { right: max(0px, calc((100vw - 1260px) / 2)); bottom: 70px; width: min(44vw, 620px); aspect-ratio: 1000 / 600; }
 .box-opt .flow-lines { -webkit-mask: radial-gradient(circle at 50% 50.33%, transparent 0, transparent var(--hole, 0px), #000 calc(var(--hole, 0px) + 18px)) center / 300% 300% no-repeat;
   mask: radial-gradient(circle at 50% 50.33%, transparent 0, transparent var(--hole, 0px), #000 calc(var(--hole, 0px) + 18px)) center / 300% 300% no-repeat; }
@@ -194,23 +169,5 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before { transition: back
 .hub-tag.in { right: calc(100% + 18%); transform: translateY(-260%); color: #8CC0FF; }
 .hub-tag.out { left: calc(100% + 18%); transform: translateY(180%); color: #34D399; }
 
-/* C — line art over frosted glass */
-.opt-c { --hole: min(9vw, 120px); }
-.line-cloud { position: absolute; left: 12%; top: 15%; width: 76%; aspect-ratio: 1106 / 689; animation: float 8s ease-in-out infinite; }
-.line-cloud span { position: absolute; inset: 0; -webkit-mask: url("cloud-outline.png") center / 100% 100% no-repeat; mask: url("cloud-outline.png") center / 100% 100% no-repeat; }
-.line-cloud .lc-fill { -webkit-mask-image: url("cloud-icon.png"); mask-image: url("cloud-icon.png"); background: linear-gradient(160deg, rgba(255,255,255,.12), rgba(0,107,253,.14)); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-.line-cloud .lc-line { background: linear-gradient(135deg, #9CCBFF, #1C7DFF 50%, #5AA2FF); }
-.line-cloud .lc-run { background: linear-gradient(110deg, transparent 42%, #fff 50%, transparent 58%); background-size: 300% 100%; animation: sweep 3.6s linear infinite; }
-
-/* D — particle cloud */
-.particle-cloud { position: absolute; left: 10%; top: 13%; width: 80%; height: auto; overflow: visible; animation: float 9s ease-in-out infinite; }
-.particle-cloud circle { fill: #3C8DFF; transform-box: fill-box; transform-origin: center; animation: twinkle 4s ease-in-out infinite; animation-delay: calc(var(--d) * -1); }
-.particle-cloud circle:nth-child(5n) { fill: #9CCBFF; }
-.particle-cloud circle:nth-child(11n) { fill: #fff; }
-@keyframes twinkle { 0%, 100% { opacity: .35; transform: scale(.7); } 50% { opacity: 1; transform: scale(1.15); } }
-
-@media (max-width: 960px) { [data-theme="dark"] .hero-visual.box-opt { position: relative; right: auto; bottom: auto; width: 92%; margin: 40px auto 0; } .opt-b { --hole: calc(92vw * .17); } .opt-c { --hole: calc(92vw * .2); } }
-@media (prefers-reduced-motion: reduce) { .hub-tile, .hub-tile::before, .hub-ring, .line-cloud, .lc-run, .particle-cloud, .particle-cloud circle { animation: none; } }
-.line-cloud { left: 19%; top: 16%; width: 62%; }
-.particle-cloud { left: 15%; top: 12%; width: 70%; }
-.opt-c { --hole: min(7.5vw, 100px); }
+@media (max-width: 960px) { [data-theme="dark"] .hero-visual.box-opt { position: relative; right: auto; bottom: auto; width: 92%; margin: 40px auto 0; } .opt-b { --hole: calc(92vw * .17); } }
+@media (prefers-reduced-motion: reduce) { .hub-tile, .hub-tile::before, .hub-ring { animation: none; } }
