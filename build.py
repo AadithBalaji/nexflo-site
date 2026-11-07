@@ -358,7 +358,10 @@ def footer_html():
         ("Resources", [("EDI guides", "resources.html"), ("What is EDI?", "what-is-edi.html"), ("837 and 835 explained", "837-835-transactions.html"), ("Security", "security.html"), ("FAQ", "resources.html#faq")]),
         ("Company", [("About", "about.html"), ("Contact", "contact.html"), ("Talk to us", "demo.html"), ("Join early access", "early-access.html")]),
     ]
-    col_html = "".join(f'<div class="foot-col"><h4>{h}</h4><ul>{"".join(f'<li><a href="{u}">{t}</a></li>' for t, u in links)}</ul></div>' for h, links in cols)
+    def col(h, links):
+        items = "".join('<li><a href="%s">%s</a></li>' % (u, t) for t, u in links)
+        return '<div class="foot-col"><h4>%s</h4><ul>%s</ul></div>' % (h, items)
+    col_html = "".join(col(h, links) for h, links in cols)
     return f'''<footer class="site-footer">
   <div class="container">
     <div class="foot-grid">
