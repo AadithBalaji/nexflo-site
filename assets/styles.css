@@ -721,8 +721,11 @@ img { height: auto; }
 .hero-stage { margin-top: 72px; animation: rise 1.3s var(--ease) both 1s; }
 .hero-strip { padding: 34px 0 30px; }
 .hero-strip p { margin-bottom: 16px; }
-.hero-ribbons { position: absolute; left: 50%; top: 0; width: 1600px; height: 900px; transform: translateX(-50%); pointer-events: none;
-  -webkit-mask-image: radial-gradient(ellipse 34% 30% at 50% 30%, transparent 40%, #000 100%); mask-image: radial-gradient(ellipse 34% 30% at 50% 30%, transparent 40%, #000 100%); }
+/* The ribbons SVG is wider than any screen; the box is the screen width (never under 1600px) and the
+   SVG is cropped to it, centred. The clear area behind the headline is sized in px so it stays the same. */
+.hero-ribbons { position: absolute; left: 50%; top: 0; width: max(1600px, 100vw); height: 900px; transform: translateX(-50%); pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse 544px 270px at 50% 270px, transparent 40%, #000 100%); mask-image: radial-gradient(ellipse 544px 270px at 50% 270px, transparent 40%, #000 100%); }
+@media (max-width: 640px) { .hero-ribbons { -webkit-mask-image: radial-gradient(ellipse 374px 270px at 50% 270px, transparent 40%, #000 100%); mask-image: radial-gradient(ellipse 374px 270px at 50% 270px, transparent 40%, #000 100%); } }
 .hr-base path { fill: none; stroke: var(--link); stroke-opacity: .16; stroke-width: 1.2; }
 .hr-pulse path { fill: none; stroke: #6FA8FF; stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 70 2100; stroke-dashoffset: 70; animation: ribbonFlow var(--t, 6s) linear infinite; animation-delay: var(--dl, 0s); }
 .hr-pulse path.rev { animation-direction: reverse; }
