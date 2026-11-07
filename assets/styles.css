@@ -566,3 +566,19 @@ a.card:hover, .card.hover:hover { border-color: rgba(0,107,253,.28); box-shadow:
   .reveal { opacity: 1; transform: none; }
 }
 .translate-mid { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+/* Hero data streams + shimmer */
+.flow-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; z-index: -1; pointer-events: none; }
+.flow-paths path { fill: none; stroke-width: 1.4; vector-effect: non-scaling-stroke; }
+.fl-s0 { stop-color: #006BFD; stop-opacity: 0; }
+.fl-s1 { stop-color: #006BFD; stop-opacity: .3; }
+.flow-dot { fill: #1C7DFF; filter: drop-shadow(0 0 5px rgba(0,107,253,.9)); }
+.flow-dot.ok { fill: #12B76A; filter: drop-shadow(0 0 5px rgba(18,183,106,.9)); }
+.hero-title .w.accent {
+  background: linear-gradient(100deg, #006BFD 0%, #006BFD 40%, #7FB8FF 50%, #006BFD 60%, #006BFD 100%);
+  background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: rise .9s var(--ease) both, shimmer 5s ease-in-out 1.4s infinite;
+  animation-delay: calc(var(--i) * 90ms + 120ms), 1.6s;
+}
+@keyframes shimmer { 0% { background-position: 100% 0; } 60%, 100% { background-position: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .flow-dot { display: none; } .hero-title .w.accent { animation: none; } }
