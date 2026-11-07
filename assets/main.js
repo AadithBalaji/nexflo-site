@@ -96,7 +96,7 @@ const FORM_ENDPOINT = "";
     root.dataset.theme = next;
     try { localStorage.setItem("nf-theme", next); } catch (e) {}
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.content = next === "dark" ? "#05081A" : "#F3F7FF";
+    if (meta) meta.content = next === "dark" ? "#0C0F17" : "#F3F1EC";
     setTimeout(() => root.classList.remove("theme-anim"), 450);
   }));
 
