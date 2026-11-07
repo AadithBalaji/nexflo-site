@@ -1234,7 +1234,7 @@ def clean_links(text):
 
 
 
-def flow_lines(tx, ty):
+def flow_lines(tx, ty, out=()):
     """Curved data streams flowing into the cloud at (tx, ty), with dots travelling along them."""
     starts = [(-900, ty - 260, -300, ty - 230), (-900, ty + 230, -250, ty + 200), (tx - 420, 900, tx - 260, 640),
               (tx + 700, -260, tx + 520, ty - 300), (tx + 760, ty + 420, tx + 540, ty + 300), (-600, ty - 20, -100, ty + 40)]
@@ -1244,10 +1244,11 @@ def flow_lines(tx, ty):
         paths.append(f'<path id="fl{k}" d="{d}"/>')
         for j in range(2):
             dur = 4.2 + k * 0.45
-            green = " ok" if (k + j) % 5 == 2 else ""
+            outgoing = k in out
+            green = " ok" if outgoing or (not out and (k + j) % 5 == 2) else ""
             begin = f"{-j * dur / 2 - k * 0.7:.2f}s"
             dots.append(f'<circle class="flow-dot{green}" r="3.6"><animateMotion dur="{dur:.2f}s" begin="{begin}" '
-                        f'repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines=".4 0 .6 1">'
+                        f'repeatCount="indefinite" keyPoints="{"1;0" if outgoing else "0;1"}" keyTimes="0;1" calcMode="spline" keySplines=".4 0 .6 1">'
                         f'<mpath href="#fl{k}"/></animateMotion><animate attributeName="opacity" values="0;0;1;1;0" '
                         f'keyTimes="0;.3;.55;.92;1" dur="{dur:.2f}s" begin="{begin}" repeatCount="indefinite"/></circle>')
     return (f'<svg class="flow-lines" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet" aria-hidden="true">'
@@ -1262,7 +1263,13 @@ GLASS_VISUAL = ('<div class="hero-visual glass-visual">' + flow_lines(500, 307) 
                 '<div class="glass-cloud" role="img" aria-label="NexFlo cloud in glass"><div class="gc-body"></div>'
                 '<div class="gc-light"></div><div class="gc-shine"></div></div></div>')
 # DARK_CLOUD=glow THEME=dark python3 build.py  ->  the earlier glowing cloud instead of the glass one
-DARK_VISUAL = GLOW_VISUAL if __import__("os").environ.get("DARK_CLOUD") == "glow" else GLASS_VISUAL
+HUB_VISUAL = ('<div class="hero-visual hub-visual">' + flow_lines(500, 307, out=(3, 4)) +
+              '<div class="hub" role="img" aria-label="NexFlo translating documents"><span class="hub-ring"></span><span class="hub-ring"></span>'
+              '<span class="hub-ring"></span><span class="hub-orbit"><i></i></span>'
+              '<div class="hub-tile"><img src="assets/cloud-icon.png" alt="" width="1106" height="689"></div>'
+              '<span class="hub-tag in">X12 850 in</span><span class="hub-tag out">JSON out</span></div></div>')
+# DARK_CLOUD=glass | glow  ->  earlier hero options; default is the glass hub
+DARK_VISUAL = {"glow": GLOW_VISUAL, "glass": GLASS_VISUAL}.get(__import__("os").environ.get("DARK_CLOUD"), HUB_VISUAL)
 
 
 def apply_dark(text):
