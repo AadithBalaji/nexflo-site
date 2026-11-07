@@ -525,11 +525,11 @@ def page(slug, title, description, active=""):
     return deco
 
 
-def dark_hero():
-    """Dark-mode hero: a frosted glass tile with the logo. Documents flow in (blue) and out as JSON (green)."""
-    return (f'<div class="hero-visual hv-dark box-opt opt-b">{flow_lines(500, 307, out=(3, 4))}'
+def hub_hero():
+    """Hero visual, same in light and dark: a glass tile with the logo. Documents flow in (blue) and out as JSON (green)."""
+    return (f'<div class="hero-visual hub-visual">{flow_lines(500, 307, out=(3, 4))}'
             '<div class="hub" role="img" aria-label="NexFlo translating documents"><span class="hub-ring"></span><span class="hub-ring"></span>'
-            '<span class="hub-ring"></span><div class="hub-tile"><img src="assets/cloud-icon.png" alt="" width="1106" height="689"></div>'
+            '<div class="hub-tile"><img src="assets/cloud-icon.png" alt="" width="1106" height="689"></div>'
             '<span class="hub-tag in">X12 850 in</span><span class="hub-tag out">JSON out</span></div></div>')
 
 
@@ -557,8 +557,7 @@ def home():
       <p class="hero-note fade-up" style="--d:.8s">Founding customers lock in launch pricing. <a class="journey" href="{LINKEDIN}" target="_blank" rel="noopener">Follow our journey →</a></p>
     </div>
   </div>
-  {dark_hero()}
-  <div class="hero-visual hv-light">{flow_lines(658, 360)}<img class="hero-art" src="assets/hero-cloud.jpg" alt="A glass cloud wrapped in flowing blue ribbons" width="1254" height="570"></div>
+  {hub_hero()}
   {hero_toasts()}
 </section>
 
