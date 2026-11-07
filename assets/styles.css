@@ -601,11 +601,6 @@ table.article { width: 100%; max-width: none; border-collapse: collapse; }
   .cta-s { padding-top: 110px; }
   .cta-circle { width: 1300px; height: 1300px; }
 }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; }
-  .rv { opacity: 1; transform: none; }
-  .is-animated .ln { opacity: 1; }
-}
 
 /* Theme switch (footer) */
 .theme-switch { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 999px; }
@@ -915,3 +910,22 @@ details.more p { margin-top: 10px; font-size: .95rem; color: var(--muted); }
 .tile-box:hover .tile-cta i { transform: translateX(4px); }
 @media (max-width: 640px) { .tile-box .tile-body { padding: 18px 18px 20px; } .tile-head h3 { font-size: 1.3rem; } .tiles { gap: 18px; } }
 .site-header, .site-header.scrolled { background: rgba(5, 11, 26, .97); }
+
+/* Reduce Motion: calmer, not frozen. Nothing slides, zooms or grows; things fade in where they are,
+   orbits and flowing lines run at half speed, and content that changes in place (the order demo, typing,
+   chat, dashboard) runs as normal. Kept last so these keyframes replace the ones above. */
+@media (prefers-reduced-motion: reduce) {
+  @keyframes rise { from { opacity: 0; } }
+  @keyframes circleIn { from { opacity: 0; } }
+  @keyframes phIn { from { opacity: 0; } }
+  @keyframes rowIn { from { opacity: 0; background: color-mix(in srgb, var(--blue) 12%, transparent); } }
+  .rv { transform: none; transition: opacity 1.1s var(--ease); transition-delay: calc(var(--i, 0) * 120ms); }
+  .t-orb, .t-orb span { animation-duration: 28s; }
+  .ring, .node-in { animation-duration: calc(var(--d) * 2); }
+  .hr-pulse path { animation-duration: calc(var(--t, 6s) * 2); }
+  .hl-pulse path { animation-duration: calc(var(--t, 4.5s) * 2); }
+  .ticker-track { animation-duration: 180s; }
+  .flow4-row::after { animation-duration: 20.8s; }
+  .o-halo, .orbit-core::after { animation: none; }
+  .tile-box:hover, .tile-box:hover .tile-cta i { transform: none; }
+}
