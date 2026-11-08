@@ -51,6 +51,9 @@ ICONS = {
     "shield": '<path d="M12 2l8 3v6c0 5-3.5 9.5-8 11-4.5-1.5-8-6-8-11V5z"/>',
     "map": '<path d="M9 3L3 6v15l6-3 6 3 6-3V3l-6 3zM9 3v15M15 6v15"/>',
     "check": '<path d="M20 6L9 17l-5-5"/>',
+    "folder": '<path d="M3 6a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><rect x="9.5" y="12" width="5" height="4" rx=".5"/><path d="M10.5 12v-1a1.5 1.5 0 0 1 3 0v1"/>',
+    "sliders": '<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+    "cloud": '<path d="M7 18h10a4 4 0 0 0 .6-8A6 6 0 0 0 6.2 9.4 4.3 4.3 0 0 0 7 18z"/>',
 }
 
 
@@ -873,7 +876,69 @@ def products():
 {cta_band(source="products")}'''
 
 
-def product_page(name, mark, status, lead, who, example_intro, demo, features, standards_label, standards, cta, notice="", product=""):
+# ---------------------------------------------------------------- TradeFlo: how it works diagram
+TF_FORMATS = [  # key, tag, name, detail
+    ("edi", "EDI", "EDI", "X12 · EDIFACT"),
+    ("xml", "&lt;/&gt;", "XML", "Any schema"),
+    ("json", "{ }", "JSON", "Clean, documented"),
+    ("csv", "CSV", "CSV", "Spreadsheet rows"),
+    ("flat", "TXT", "Flat files", "Delimited · fixed width"),
+]
+TF_CONNS = [("folder", "SFTP", "Secure file transfer"), ("plug", "API", "REST or SOAP")]
+# Examples the diagram cycles through: from format, to format, connection in, connection out, caption.
+TF_EXAMPLES = [
+    ("edi", "json", 0, 1, "A purchase order arrives as EDI. Your system gets clean JSON."),
+    ("csv", "edi", 1, 0, "Your invoice leaves as a spreadsheet. Your partner gets EDI."),
+    ("xml", "edi", 1, 0, "Your warehouse sends a shipping notice in XML. It goes out as EDI."),
+    ("edi", "flat", 0, 0, "An inventory request arrives as EDI. Your older system gets a flat file."),
+    ("json", "edi", 1, 1, "Your store confirms an order in JSON. Your partner gets EDI."),
+]
+TF_FEATURES = [
+    ("swap", "Many formats", "EDI, XML, JSON, CSV and flat files, in and out."),
+    ("users", "Partner setup", "Each partner's IDs and connection details in one place."),
+    ("shield", "Secure exchange", "SFTP and encrypted API connections, with a record of every file."),
+    ("sliders", "Flexible mapping", "Reshape, check and fill in fields to match each partner."),
+    ("cloud", "Runs in the cloud", "Nothing to install or keep running on your side."),
+]
+
+
+def tradeflo_flow():
+    """Partners -> TradeFlo (formats in, translate, formats out) -> your systems or partners.
+    motion.js (data-tf) steps through TF_EXAMPLES, lighting up the matching connection and formats."""
+    import json
+    conns = lambda: "".join(f'<li class="tf-conn">{icon(i, "tf-ico")}<span><b>{n}</b><small>{d}</small></span></li>' for i, n, d in TF_CONNS)
+    fmts = lambda: "".join(f'<li data-k="{k}"><span class="tf-tag">{t}</span><span><b>{n}</b><small>{d}</small></span></li>' for k, t, n, d in TF_FORMATS)
+    wire = '<div class="tf-wire" aria-hidden="true"><span class="tf-line"></span><i></i><i></i><i></i></div>'
+    feats = "".join(f'<li>{icon(i, "tf-fico")}<b>{t}</b><span>{d}</span></li>' for i, t, d in TF_FEATURES)
+    ex = json.dumps([list(e) for e in TF_EXAMPLES]).replace("'", "&#39;")
+    first = TF_EXAMPLES[0]
+    return f'''
+<section class="s-light tf-sec"><div class="container">
+  <div class="section-head center"><span class="eyebrow">How it works</span><h2>Every document, in the format each side needs</h2>
+    <p class="lead">TradeFlo picks up documents from your partners, translates them, and hands them to your systems, or sends your replies back in the format each partner expects.</p></div>
+  <div class="tf" data-tf data-ex='{ex}'>
+    <div class="tf-side tf-in"><h3>From your partners</h3><ul>{conns()}</ul></div>
+    {wire}
+    <div class="tf-engine">
+      <div class="tf-cloud" aria-hidden="true"></div>
+      <div class="tf-head"><b>Trade<span>Flo</span></b><small>Translation engine</small></div>
+      <div class="tf-grid">
+        <div class="tf-list tf-from"><p class="tf-cap">Comes in as</p><ul>{fmts()}</ul></div>
+        <div class="tf-core"><div class="tf-disc"><span class="tf-ring"></span>{icon("swap", "tf-cico")}</div>
+          <span class="tf-pair"><b data-a>EDI</b><i>→</i><b data-b>JSON</b></span></div>
+        <div class="tf-list tf-to"><p class="tf-cap">Goes out as</p><ul>{fmts()}</ul></div>
+      </div>
+      <p class="tf-say" aria-live="polite">{first[4]}</p>
+    </div>
+    {wire}
+    <div class="tf-side tf-out"><h3>To your systems or partners</h3><ul>{conns()}</ul></div>
+  </div>
+  <ul class="tf-feats">{feats}</ul>
+  <p class="tf-note">Illustration of how TradeFlo is designed to work. TradeFlo is in development.</p>
+</div></section>'''
+
+
+def product_page(name, mark, status, lead, who, example_intro, demo, features, standards_label, standards, cta, notice="", product="", flow=""):
     badge = status_badge(status)
     is_live = status == "live"
     actions = (f'<a class="btn btn-primary btn-lg" href="early-access.html?product={name}">Join early access</a>'
@@ -890,7 +955,7 @@ def product_page(name, mark, status, lead, who, example_intro, demo, features, s
 <section><div class="container split top">
   <div><span class="eyebrow">What it does</span><h2>{example_intro[0]}</h2><p class="lead">{example_intro[1]}</p>{notice}</div>
   <div class="card"><h3>Who it's for</h3><ul class="checks mt-2">{who_html}</ul></div>
-</div></section>
+</div></section>{flow}
 <section class="section-soft"><div class="container">
   <div class="section-head"><span class="eyebrow">Example</span><h2>{demo[0]}</h2><p class="lead">{demo[1]}</p></div>
   {demo[2]}
@@ -934,6 +999,7 @@ def tradeflo():
         [("850", "Purchase order"), ("855", "Purchase order acknowledgment"), ("856", "Advance ship notice (ASN)"),
          ("810", "Invoice"), ("846", "Inventory inquiry / advice"), ("997", "Functional acknowledgment")],
         ("Get early access to TradeFlo", "Founding customers lock in launch pricing and help shape the product.", "tradeflo"),
+        flow=tradeflo_flow(),
     )
 
 

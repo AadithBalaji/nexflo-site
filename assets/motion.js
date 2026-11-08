@@ -17,7 +17,7 @@
   };
 
   /* ---- Reveal on scroll (home and inner pages) ---- */
-  const REVEAL = ".section-head, .how-head, .frow-text, .vis, .card, .feature, .step, .pain, .price-card, .form-card, .doc, .tile, .scard, .faq, .prow, .fact, .orbit-view, .notice, .cta2-box, .f4, .pkg-how li";
+  const REVEAL = ".section-head, .how-head, .frow-text, .vis, .card, .feature, .step, .pain, .price-card, .form-card, .doc, .tile, .scard, .faq, .prow, .fact, .orbit-view, .notice, .cta2-box, .f4, .pkg-how li, .tf-side, .tf-engine, .tf-feats";
   if ("IntersectionObserver" in window) {
     const els = [...document.querySelectorAll(REVEAL)].filter((e) => !e.closest(".hero-s, .page-hero, .dropdown") && !e.parentElement.closest(REVEAL));
     els.forEach((e) => {
@@ -274,6 +274,30 @@
     };
     for (let n = 0; n < 6; n++) add(true);
     onVisible(d, () => setInterval(() => add(false), 2300));
+  });
+
+  /* ---- TradeFlo diagram: step through examples, lighting the connection and formats each one uses ---- */
+  document.querySelectorAll("[data-tf]").forEach((tf) => {
+    const ex = JSON.parse(tf.dataset.ex);
+    const [inConns, outConns] = [".tf-in", ".tf-out"].map((s) => [...tf.querySelectorAll(`${s} .tf-conn`)]);
+    const [fromList, toList] = [".tf-from", ".tf-to"].map((s) => tf.querySelector(s));
+    const a = tf.querySelector("[data-a]"), b = tf.querySelector("[data-b]"), say = tf.querySelector(".tf-say");
+    const name = (k) => fromList.querySelector(`[data-k="${k}"] b`).textContent;
+    const clear = () => tf.querySelectorAll(".on").forEach((x) => x.classList.remove("on"));
+    const show = ([from, to, ci, co, text], animate) => {
+      clear();
+      inConns[ci].classList.add("on");
+      fromList.querySelector(`[data-k="${from}"]`).classList.add("on");
+      const label = () => { a.textContent = name(from); b.textContent = name(to); say.textContent = text; };
+      const finish = () => { toList.querySelector(`[data-k="${to}"]`).classList.add("on"); outConns[co].classList.add("on"); };
+      if (!animate) { label(); return finish(); }
+      say.classList.add("fade");
+      setTimeout(() => { tf.classList.remove("go"); void tf.offsetWidth; tf.classList.add("go"); label(); say.classList.remove("fade"); }, 600);
+      setTimeout(finish, 1300);
+    };
+    show(ex[0], false);
+    let i = 0;
+    onVisible(tf, () => setInterval(() => show(ex[++i % ex.length], true), 4200));
   });
 
   /* ---- Code tabs ---- */
