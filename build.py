@@ -860,8 +860,8 @@ def home():
   <div class="scards">
     <div class="scard"><h3>Your data is encrypted</h3><p>Planned from day one: encryption for every connection and every stored document.</p></div>
     <div class="scard"><h3>Only the right people get in</h3><p>Planned for every account: individual logins, two-step sign-in and permissions.</p></div>
-    <div class="scard"><h3>Ready for healthcare rules</h3><p>For healthcare customers, we're prepared to sign a Business Associate Agreement (BAA) where required.</p></div>
-    <div class="scard"><h3>No claims we can't back up</h3><p>We don't claim HIPAA certification or a SOC 2 report today. They'll be on our <a href="security.html" style="text-decoration:underline">Security page</a> once independently verified.</p></div>
+    <div class="scard"><h3>Built for HIPAA</h3><p>CareFlo and HealthFlo are being built to meet HIPAA requirements, and we'll sign a Business Associate Agreement (BAA) with every customer who needs one.</p></div>
+    <div class="scard"><h3>Verified before we say it</h3><p>Claims like HIPAA compliance or a SOC 2 report go on our <a href="security.html" style="text-decoration:underline">Security page</a> once an independent review confirms them.</p></div>
   </div>
 </div></section>
 
@@ -1322,7 +1322,7 @@ GENERAL_FAQ = [
     ("When can I start using TradeFlo?", "TradeFlo is opening to founding customers through early access. Join the list and we'll reach out to schedule onboarding."),
     ("Do I need developers to use NexFlo?", "No. You can exchange files over SFTP and use the dashboard. Teams with developers can use the REST API and JSON instead."),
     ("Is CareFlo a clearinghouse?", "No. CareFlo is planned as a translation and validation layer. Payer connectivity is arranged separately, through your existing clearinghouse or a partner."),
-    ("Are you HIPAA certified?", "There is no official HIPAA certification, and we don't make compliance claims we can't back up. See our <a href=\"security.html\">Security page</a> for our plans, including signing a Business Associate Agreement where applicable."),
+    ("Are you HIPAA compliant?", "CareFlo and HealthFlo are being built to meet HIPAA requirements, and we'll sign a Business Associate Agreement (BAA) with every customer who needs one. There's no official HIPAA certification, so we'll only say we're compliant once an independent review confirms it. See our <a href=\"security.html\">Security page</a> for details."),
     ("Where are you based?", "Minnesota. NexFlo is a small team, so you talk directly to the people building it."),
 ]
 
@@ -1452,9 +1452,9 @@ def security():
   <div class="feature-grid">{"".join(f'<div class="feature">{icon(i)}<h3>{t}</h3><p>{d}</p></div>' for i, t, d in items)}</div>
 </div></section>
 <section class="section-soft"><div class="container split top">
-  <div><span class="eyebrow">Healthcare</span><h2>Business Associate Agreements</h2>
-    <p class="lead">For CareFlo and HealthFlo customers handling protected health information, we're prepared to sign a Business Associate Agreement (BAA) where applicable.</p></div>
-  <div class="notice"><div><strong>What we don't claim.</strong> We don't claim HIPAA compliance certification or a SOC 2 report today. We'll only publish compliance claims once they're true and independently verified, and we'll list them here.</div></div>
+  <div><span class="eyebrow">Healthcare</span><h2>Built for HIPAA</h2>
+    <p class="lead">CareFlo and HealthFlo are being built to meet HIPAA requirements, and we'll sign a Business Associate Agreement (BAA) with every customer who handles protected health information.</p></div>
+  <div class="notice"><div><strong>Verified before we say it.</strong> Claims like HIPAA compliance or a SOC 2 report will be listed here once an independent review confirms them.</div></div>
 </div></section>
 <section><div class="container narrow center">
   <h2>Security questions?</h2><p class="lead">Ask us directly, or report a vulnerability, at <a href="mailto:{INFO}">{INFO}</a>.</p>
