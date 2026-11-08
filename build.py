@@ -469,12 +469,12 @@ def page_hero(title, lead, eyebrow="", crumbs=None, actions="", badge=""):
 
 
 def cta_band(title="Join early access", text="Founding customers keep their launch pricing. Join the list and the NexFlo team will reach out personally.",
-             source="cta", product="", secondary=True):
+             source="cta", product="", secondary=True, button="Get early access"):
     sec = (f'<p class="small">Have questions first? <a href="demo.html">Talk to us</a> '
            f'or <a href="pricing.html#quote">ask about pricing</a>.</p>') if secondary else ""
     return f'''<section class="cta2"><div class="container"><div class="cta2-box"><div class="arc"></div>
   <div><h2>{title}</h2><p>{text}</p></div>
-  <div>{signup_inline(source, product=product)}{sec}</div>
+  <div>{signup_inline(source, button=button, product=product)}{sec}</div>
 </div></div></section>'''
 
 
@@ -725,7 +725,7 @@ DOCS = [
     ("855", "Order confirmation", "Your reply saying you accept the order, or which items you can't fill."),
     ("846", "Inventory update", "How much stock you have, so partners don't order what you can't send."),
     ("ORDERS · INVOIC · DESADV", "International (EDIFACT)", "The same orders, invoices and shipping notices, in the format used outside North America."),
-    ("837 · 835 · 270/271", "Healthcare (coming 2027)", "Claims, payments and insurance eligibility checks, handled by CareFlo."),
+    ("837 · 835 · 270/271 · 834", "Healthcare (coming 2027)", "Claims, payments, insurance eligibility checks and enrollment, handled by CareFlo."),
 ]
 
 TILE_ICONS = {
@@ -1010,9 +1010,9 @@ def careflo_flow():
                 "A benefits administrator sends new members as a spreadsheet. The health plan gets an 834.", m=["txn-834"]),
     ]
     feats = [
-        ("shield", "Careful with health data", "Encrypted connections, and a BAA where required."),
-        ("swap", "X12 translation", "Claims, payments, eligibility and enrollment, checked before they're sent."),
-        ("route", "End-to-end tracking", "Follow a claim from sent to paid in one place."),
+        ("shield", "Built for HIPAA", "Being built to meet HIPAA requirements, with a BAA for every customer who needs one."),
+        ("swap", "X12 5010 translation", "Every transaction checked against the X12 5010 rules before it's sent."),
+        ("route", "End-to-end workflows", "Claims, eligibility, enrollment and payments in one place."),
         ("bell", "Status and alerts", "Receipts, rejections and errors, so nothing gets lost."),
         ("cloud", "Runs in the cloud", "Nothing to install or keep running on your side."),
     ]
@@ -1038,7 +1038,7 @@ def product_page(name, mark, status, lead, who, example_intro, demo, features, s
     std_html = "".join(f'<span class="doc-chip" title="{d}">{c}</span>' for c, d in standards)
     std_rows = "".join(f'<tr><td><span class="doc-chip">{c}</span></td><td>{d}</td></tr>' for c, d in standards)
     title_html = wordmark(name)
-    cta_html = cta_band(*cta, product=name, secondary=is_live)
+    cta_html = cta_band(*cta, product=name, secondary=is_live, button="Get early access" if is_live else "Join the waitlist")
     sub = next(p["sub"] for p in PRODUCTS if p["name"] == name)
     return f'<div class="p-scope {tone(name)}">' + page_hero(title_html, lead, sub, [("Products", "products.html"), (name, None)], actions, badge) + f'''
 <section><div class="container split top">
@@ -1093,7 +1093,7 @@ def tradeflo():
 
 
 @page("careflo.html", "CareFlo | Healthcare claims and eligibility translation",
-      "CareFlo is a planned HIPAA X12 translation layer for claims, eligibility, claim status and remittance. Coming 2027.", "products")
+      "CareFlo is a planned HIPAA X12 translation layer for claims, eligibility, claim status, remittance and enrollment. Coming 2027.", "products")
 def careflo():
     notice = ('<div class="notice mt-3"><div><strong>Integration and translation come first.</strong> CareFlo is the layer that '
               'translates and validates your HIPAA X12 transactions. Payer connectivity is arranged separately, through your '
@@ -1102,22 +1102,26 @@ def careflo():
         "CareFlo", "Care", "soon",
         "Simplify how healthcare businesses exchange claims, billing information, and insurance-related documents. CareFlo is in development and planned for 2027.",
         ["Medical billing companies", "Revenue cycle management (RCM) teams", "Practice management software vendors",
-         "Clinics that manage their own billing"],
+         "Clinics that manage their own billing", "Health plans and benefits administrators"],
         ("Claims and eligibility data, in a format your team can work with",
-         "CareFlo is built to translate HIPAA X12 transactions into clean JSON and back, validate them before they go out, and track each one through its lifecycle."),
+         "CareFlo is built to translate HIPAA X12 transactions to and from the formats your systems use (JSON, XML, CSV or flat files), validate them before they go out, and track each one through its lifecycle."),
         ("A clinic claim, translated",
          "A clinic's 837P professional claim becomes structured data your billing system can read, validate and monitor.",
          translate_demo("Clinic claim", "X12 837P", CLAIM_X12, "Structured claim", "JSON", CLAIM_JSON)),
         [("swap", "HIPAA X12 translation", "Planned support for the 5010 transaction sets billing teams use daily."),
-         ("doc", "Claims", "Build and read 837 professional and institutional claims."),
+         ("doc", "Claims", "Build and read 837 professional, institutional and dental claims."),
          ("check", "Eligibility", "Translate 270/271 eligibility requests and responses."),
-         ("eye", "Claim status", "Read 276/277 claim status updates in plain fields."),
+         ("eye", "Claim status", "Read 276/277 claim status updates and 999 acknowledgments in plain fields."),
          ("chart", "Remittance", "Turn 835 remittance advice into data you can reconcile against."),
-         ("bell", "Validation and monitoring", "Catch errors before submission and get alerted when something stalls.")],
+         ("users", "Enrollment", "Send and read 834 enrollment files to add, change or end members."),
+         ("clipboard", "Prior authorization", "Send and read 278 prior authorization and referral requests."),
+         ("bell", "Validation and monitoring", "Catch errors before submission and get alerted when something stalls."),
+         ("shield", "Built for HIPAA", "CareFlo is being built to meet HIPAA requirements, and we'll sign a Business Associate Agreement (BAA) with every customer who needs one.")],
         "HIPAA X12 · planned",
-        [("837", "Health care claim (professional / institutional)"), ("835", "Claim payment / remittance advice"),
+        [("837", "Health care claim (professional / institutional / dental)"), ("835", "Claim payment / remittance advice"),
          ("270/271", "Eligibility inquiry and response"), ("276/277", "Claim status request and response"),
-         ("278", "Prior authorization / referral")],
+         ("278", "Prior authorization / referral"), ("834", "Benefit enrollment and maintenance"),
+         ("999", "Acknowledgment that a file was received and checked")],
         ("Join the CareFlo waitlist", "We'll let you know as soon as CareFlo opens, and early waitlist members get first access.", "careflo"),
         notice=notice,
         flow=careflo_flow(),
@@ -1183,7 +1187,7 @@ SOLUTION_CONTENT = {
         pains=[("Every payer behaves differently", "Companion guides, edits and responses vary from one payer to the next."),
                ("Raw X12 is hard to work with", "837s, 835s and 271s are dense and hard to debug without specialist tools."),
                ("Errors surface too late", "Rejections show up days later, after the claim has already left your hands.")],
-        how="CareFlo is planned as a translation and validation layer for HIPAA X12 transactions, turning them into clean JSON and catching errors early. Payer connectivity is arranged separately through your clearinghouse.",
+        how="CareFlo is planned as a translation and validation layer for HIPAA X12 transactions, turning them into JSON, CSV or other formats your systems use and catching errors early. Payer connectivity is arranged separately through your clearinghouse.",
         product="careflo"),
     "health-tech": dict(
         title="Connect systems that format data differently",
