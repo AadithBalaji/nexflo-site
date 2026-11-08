@@ -503,7 +503,7 @@ table.article { width: 100%; max-width: none; border-collapse: collapse; }
 
 /* ---------- Footer ---------- */
 .site-footer { padding: 72px 0 36px; font-size: .95rem; background: var(--bg); color: var(--ink); }
-.foot-grid { display: grid; grid-template-columns: 1.4fr repeat(4, 1fr); gap: 32px; }
+.foot-grid { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: 32px; }
 .foot-brand img { height: 40px; width: auto; margin-bottom: 18px; }
 .foot-brand p { color: var(--ink2); margin: 0 0 6px; }
 .foot-social { display: flex; gap: 12px; margin-top: 18px; }
@@ -1094,10 +1094,9 @@ details.more p { margin-top: 10px; font-size: .95rem; color: var(--muted); }
 .tile-box[class*="p-"] .o-paths ellipse { stroke: color-mix(in srgb, var(--ps) 38%, transparent); }
 .tile-box[class*="p-"] .o-dot, .tile-box[class*="p-"] .o-dot.ok { background: var(--ps); box-shadow: 0 0 0 4px color-mix(in srgb, var(--ps) 20%, transparent); }
 
-/* Products page rows and solution page product card */
+/* Products page rows */
 .prow[class*="p-"]:hover { border-color: color-mix(in srgb, var(--ps) 55%, transparent); }
 .prow[class*="p-"]:hover .prow-go { color: var(--pc); }
-.card.featured[class*="p-"] .more { color: var(--pc); }
 
 /* Product pages: feature icons take the product colour */
 .p-scope .feature .icon { background: var(--ps); }
