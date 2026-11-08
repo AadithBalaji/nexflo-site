@@ -681,21 +681,22 @@ def orbit_view(vb, orbits, items, core, cls, label, narrow=0.8):
 
 def orbit():
     items = [
-        dict(o=0, phase=200, speed=4.5, text="Retail partners", glyph=True),
-        dict(o=0, phase=20, speed=4.5, code="850", text="Purchase order"),
-        dict(o=0, phase=110, speed=4.5, text="Your ERP", glyph=True),
-        dict(o=1, phase=320, speed=-3.6, text="Distributors", glyph=True),
-        dict(o=1, phase=150, speed=-3.6, code="810", text="Invoice"),
-        dict(o=1, phase=60, speed=-3.6, code="856", text="Shipping notice"),
-        dict(o=2, phase=250, speed=6, text="Shared folder", glyph=True),
-        dict(o=2, phase=70, speed=6, text="API", glyph=True),
+        dict(o=0, phase=200, speed=4.5, text="Inbound partners", glyph=True),
+        dict(o=0, phase=20, speed=4.5, code="EDI", text="X12 / EDIFACT"),
+        dict(o=0, phase=110, speed=4.5, text="SFTP", glyph=True),
+        dict(o=1, phase=320, speed=-3.6, text="Outbound partners", glyph=True),
+        dict(o=1, phase=150, speed=-3.6, code="&lt;/&gt;", text="XML"),
+        dict(o=1, phase=60, speed=-3.6, code="{ }", text="JSON"),
+        dict(o=2, phase=250, speed=6, text="API", glyph=True),
+        dict(o=2, phase=10, speed=6, code="CSV", text="Spreadsheets"),
+        dict(o=2, phase=130, speed=6, text="Flat files"),
         dict(o=0, phase=0, speed=16, dot="in"), dict(o=0, phase=180, speed=16, dot="in"),
         dict(o=1, phase=90, speed=-14, dot="ok"), dict(o=2, phase=160, speed=22, dot="ok"),
     ]
     core = ('<div class="o-core"><span class="o-halo"></span><div class="o-plate">'
             '<img src="assets/cloud-icon.png" alt="" width="1106" height="689"></div></div>')
     return orbit_view((1000, 620), [[450, 118, -14], [410, 150, 16], [330, 200, 4]], items, core, "o-home",
-                      "Documents moving between your trading partners and your systems through NexFlo")
+                      "Messages in EDI, XML, JSON, CSV and flat files arriving over SFTP or API, translated by TradeFlo and sent on to your partners")
 
 
 DOCS = [
@@ -816,8 +817,9 @@ def home():
 
 <section class="orbit-sec sec-tight"><div class="container orbit-split">
   {orbit()}
-  <div class="frow-text"><span class="label">Trading partners</span><h2>One hub for all your trading partners</h2>
-    <p>Every retailer, distributor and shipper does EDI a little differently. NexFlo is being built to keep each partner's rules in one place, so adding a new one doesn't mean starting over.</p>
+  <div class="frow-text"><span class="label">Translation engine</span><h2>Any format in. The right format out.</h2>
+    <p>Your partners send EDI (X12 or EDIFACT), XML, JSON, CSV or flat files, over SFTP or an API. TradeFlo is being built to check each message, translate it into the format the other side needs, and send it on.</p>
+    <p>Each partner's rules live in one place, so adding a new one doesn't mean starting over.</p>
     <a class="btn btn-primary mt-2" href="tradeflo.html">Explore TradeFlo</a></div>
 </div></section>
 
