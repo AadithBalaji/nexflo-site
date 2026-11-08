@@ -1062,40 +1062,40 @@ details.more p { margin-top: 10px; font-size: .95rem; color: var(--muted); }
 }
 
 /* ---------- Product colours ----------
-   --c-*: text colour, tuned per surface (deep on light surfaces, bright on dark ones) so it stays readable.
-   --s-*: solid fill for icons with a white glyph on top; the same on every surface.
-   .p-trade / .p-care / .p-health set --pc (text) and --ps (solid) for everything inside them. */
-:root, .s-light { --c-trade: #047857; --c-care: #0369A1; --c-health: #E11D48; }
-[data-theme="dark"] { --c-trade: #34D399; --c-care: #38BDF8; --c-health: #FF5A79; }
-.s-light, [data-theme="dark"] .s-light { --c-trade: #047857; --c-care: #0369A1; --c-health: #E11D48; }
-:root { --s-trade: #059669; --s-care: #0284C7; --s-health: #E8264D; }
+   Each product has one vivid brand colour, as strong as the logo blue (#006BFD):
+   TradeFlo green, CareFlo blue (the logo blue itself), HealthFlo red (inspired by Apple Health).
+   --s-*: the brand colour. Used for "Flo" in the product name and for icons and illustrations,
+          like "Flo" in the NexFlo logo. The green is one step deeper on light surfaces so it doesn't wash out.
+   --c-*: the same hue for small text (subtitles, links). Slightly deeper on light surfaces and
+          brighter on dark ones, so it stays readable.
+   .p-trade / .p-care / .p-health set --ps (brand) and --pc (small text) for everything inside them. */
+:root, .s-light { --s-trade: #00A85C; --s-care: #006BFD; --s-health: #FF2D55; --c-trade: #008443; --c-care: #006BFD; --c-health: #E0103A; }
+[data-theme="dark"] { --s-trade: #00C26A; --s-care: #006BFD; --s-health: #FF2D55; --c-trade: #00D46F; --c-care: #2F86FF; --c-health: #FF2D55; }
+.s-light, [data-theme="dark"] .s-light { --s-trade: #00A85C; --s-care: #006BFD; --s-health: #FF2D55; --c-trade: #008443; --c-care: #006BFD; --c-health: #E0103A; }
 .p-trade { --pc: var(--c-trade); --ps: var(--s-trade); }
 .p-care { --pc: var(--c-care); --ps: var(--s-care); }
 .p-health { --pc: var(--c-health); --ps: var(--s-health); }
 
-/* Wordmark. Version 1 (default): "Flo" in colour. Version 2: the first part in colour.
-   The uncoloured part inherits the surrounding text colour: near-black in headings on light surfaces,
-   white on dark ones, and the normal body colour inside sentences. */
+/* Product names: "Flo" in the product colour, the first part in the surrounding text colour
+   (near-black on light surfaces, white on dark ones). */
 .pname { white-space: nowrap; }
 .pname .pn-a { color: inherit; }
-.pname .pn-b { color: var(--pc); }
-[data-pv="2"] .pname .pn-a { color: var(--pc); }
-[data-pv="2"] .pname .pn-b { color: inherit; }
-/* On blue surfaces a coloured part would clash or vanish, so the name stays one colour there. */
+.pname .pn-b { color: var(--ps); }
+/* On blue surfaces a coloured "Flo" would clash or vanish, so the name stays one colour there. */
 .hero-strip .pname span, .cta-in .pname span, .s-accent .pname span, .cta2-box .pname span, .tf-say .pname span,
 .vis-blue .pname span, .btn .pname span, .ptab[aria-selected="true"] .pname span { color: inherit !important; }
 
 /* Homepage product cards */
 .tile-box .tile-sub { color: var(--pc, var(--link)) !important; }
 .tile-cta { color: var(--pc, var(--link)); }
-.tile-box[class*="p-"]:hover { border-color: color-mix(in srgb, var(--pc) 45%, transparent); box-shadow: 0 26px 50px -30px color-mix(in srgb, var(--ps) 55%, transparent); }
+.tile-box[class*="p-"]:hover { border-color: color-mix(in srgb, var(--ps) 45%, transparent); box-shadow: 0 26px 50px -30px color-mix(in srgb, var(--ps) 55%, transparent); }
 .tile-box[class*="p-"] .t-cloud, .tile-box[class*="p-"] .t-art.soon .t-cloud { background: var(--ps); }
-.tile-box[class*="p-"] .t-node, .tile-box[class*="p-"] .t-art.soon .t-node { filter: drop-shadow(0 12px 20px color-mix(in srgb, var(--ps) 38%, transparent)); }
-.tile-box[class*="p-"] .o-paths ellipse { stroke: color-mix(in srgb, var(--ps) 34%, transparent); }
+.tile-box[class*="p-"] .t-node, .tile-box[class*="p-"] .t-art.soon .t-node { filter: drop-shadow(0 12px 20px color-mix(in srgb, var(--ps) 42%, transparent)); }
+.tile-box[class*="p-"] .o-paths ellipse { stroke: color-mix(in srgb, var(--ps) 38%, transparent); }
 .tile-box[class*="p-"] .o-dot, .tile-box[class*="p-"] .o-dot.ok { background: var(--ps); box-shadow: 0 0 0 4px color-mix(in srgb, var(--ps) 20%, transparent); }
 
 /* Products page rows and solution page product card */
-.prow[class*="p-"]:hover { border-color: color-mix(in srgb, var(--pc) 55%, transparent); }
+.prow[class*="p-"]:hover { border-color: color-mix(in srgb, var(--ps) 55%, transparent); }
 .prow[class*="p-"]:hover .prow-go { color: var(--pc); }
 .card.featured[class*="p-"] .more { color: var(--pc); }
 
@@ -1103,22 +1103,8 @@ details.more p { margin-top: 10px; font-size: .95rem; color: var(--muted); }
 .p-scope .feature .icon { background: var(--ps); }
 
 /* Diagrams: the name sits on a white chip on the blue cloud */
-.tf-head .tf-mark { display: inline-block; padding: 5px 16px 6px; border-radius: 999px; background: #fff; color: #0A1122; box-shadow: 0 12px 26px -14px rgba(0,20,80,.6);
-  --c-trade: #047857; --c-care: #0369A1; --c-health: #E11D48; }
+.tf-head .tf-mark { display: inline-block; padding: 5px 16px 6px; border-radius: 999px; background: #fff; color: #0A1122; box-shadow: 0 12px 26px -14px rgba(0,20,80,.6); --s-trade: #00A85C; }
 .tf-head small { margin-top: 8px; }
-
-/* TEMPORARY design preview switch (remove with PV_PREVIEW in build.py) */
-.pv-toggle { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; width: fit-content; max-width: 100%; margin: 0 auto 28px; padding: 5px; border-radius: 14px; background: var(--panel-2); border: 1px dashed color-mix(in srgb, var(--blue) 45%, transparent); }
-.pv-label { font-family: var(--mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); padding: 0 8px 0 10px; }
-.pv-toggle button { border: 0; background: none; color: var(--ink2); font: 600 .88rem var(--font); padding: 9px 14px; border-radius: 10px; cursor: pointer; min-height: 40px; transition: background .2s, color .2s; }
-.pv-toggle button:hover { color: var(--ink); }
-.pv-toggle button[aria-pressed="true"] { background: var(--blue); color: #fff; }
-.pv-toggle button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-@media (max-width: 640px) {
-  .pv-toggle { width: 100%; margin-bottom: 20px; }
-  .pv-label { width: 100%; text-align: center; padding: 4px 0 2px; }
-  .pv-toggle button { flex: 1 1 0; font-size: .8rem; padding: 8px 8px; }
-}
 
 /* Reduce Motion: calmer, not frozen. Nothing slides, zooms or grows; things fade in where they are,
    orbits and flowing lines run at half speed, and content that changes in place (the order demo, typing,
