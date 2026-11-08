@@ -690,25 +690,28 @@ def home():
   <p class="chat-note">Example conversation</p>
 </div>'''
     return f'''
-<section class="hero-s">
+<section class="hero-s edge-bottom">
   {hero_background()}
   <div class="container">
     <h1>{title}</h1>
     <p class="sub">NexFlo Cloud helps businesses connect their software, exchange important documents, and reduce manual work.</p>
     {signup_inline("home-hero", button="Join early access")}
     <p class="hero-note">New to EDI? It's the standard way companies send orders, invoices and claims to each other. NexFlo handles it for you. <a href="what-is-edi.html">Learn more</a></p>
-    <div class="hero-stage"><div class="arc hero-circle"></div>{hero_demo()}</div>
+    <div class="hero-stage products-stage" id="products"><div class="arc hero-circle"></div>
+      <div class="section-head center s-accent"><h2>Three products for three kinds of businesses</h2>
+        <p class="lead">Pick the one that matches what you do. All three are in development and run on the same NexFlo platform.</p></div>
+      <div class="s-light">{product_tiles()}</div>
+    </div>
   </div>
   <div class="hero-strip"><div class="container"><p>TradeFlo early access is open · CareFlo and HealthFlo are coming in 2027</p></div>{ticker()}</div>
 </section>
 
-<section class="s-light sec-tight" id="products"><div class="container">
-  <div class="section-head"><span class="label">Products</span><h2>Three products for three kinds of businesses</h2>
-    <p class="lead">Pick the one that matches what you do. All three are in development and run on the same NexFlo platform.</p></div>
-  {product_tiles()}
+<section class="demo-s sec-tight"><div class="container">
+  <div class="section-head center"><span class="label">Example</span><h2>A Walmart order, in plain data</h2></div>
+  <div class="demo-stage">{hero_demo()}</div>
 </div></section>
 
-<section class="orbit-sec sec-tight"><div class="container orbit-split">
+<section class="orbit-sec sec-tight edge-bottom edge-to-light"><div class="container orbit-split">
   {orbit()}
   <div class="frow-text"><span class="label">Translation engine</span><h2>Any format in. The right format out.</h2>
     <p>TradeFlo is being built to support every EDI document, in X12 and EDIFACT, plus XML, JSON, CSV and flat files, over SFTP or an API. It checks each message, translates it into the format the other side needs, and sends it on.</p>
@@ -716,14 +719,14 @@ def home():
     <a class="btn btn-primary mt-2" href="tradeflo.html">Explore TradeFlo</a></div>
 </div></section>
 
-<section class="s-light sec-tight"><div class="container split">
+<section class="s-light sec-tight edge-bottom edge-to-dark"><div class="container split">
   <div class="frow-text"><span class="label">Support</span><h2>Real people, quick answers</h2>
     <p>Email the NexFlo team and get a reply within one business day, plus hands-on help connecting your first trading partner.</p>
     <a class="link-arrow" href="contact.html">Contact us</a></div>
   <div class="vis vis-blue"><div class="arc" data-arc="0.6"></div>{chat}</div>
 </div></section>
 
-<section class="s-accent sec-tight"><div class="container">
+<section class="sec-tight"><div class="container"><div class="s-accent sec-panel">
   <div class="section-head center"><span class="label">Security</span><h2>Built carefully, claimed honestly</h2></div>
   <div class="scards">
     <div class="scard"><h3>Your data is encrypted</h3><p>Planned from day one: encryption for every connection and every stored document.</p></div>
@@ -731,9 +734,9 @@ def home():
     <div class="scard"><h3>Built for HIPAA</h3><p>CareFlo and HealthFlo are being built to meet HIPAA requirements, and we'll sign a Business Associate Agreement (BAA) with every customer who needs one.</p></div>
     <div class="scard"><h3>Verified before we say it</h3><p>Claims like HIPAA compliance or a SOC 2 report go on our <a href="security.html" style="text-decoration:underline">Security page</a> once an independent review confirms them.</p></div>
   </div>
-</div></section>
+</div></div></section>
 
-<section class="cta-s">
+<section class="cta-s edge-bottom">
   <div class="arc cta-circle" data-arc="0.8"></div>
   <div class="container cta-in">
     <h2>Ready to simplify your integrations?</h2>

@@ -724,6 +724,34 @@ img { height: auto; }
 .hero-ribbons { position: absolute; left: 50%; top: 0; width: max(1600px, 100vw); height: 900px; transform: translateX(-50%); pointer-events: none;
   -webkit-mask-image: radial-gradient(ellipse 544px 270px at 50% 270px, transparent 40%, #000 100%); mask-image: radial-gradient(ellipse 544px 270px at 50% 270px, transparent 40%, #000 100%); }
 @media (max-width: 640px) { .hero-ribbons { -webkit-mask-image: radial-gradient(ellipse 374px 270px at 50% 270px, transparent 40%, #000 100%); mask-image: radial-gradient(ellipse 374px 270px at 50% 270px, transparent 40%, #000 100%); } }
+/* Homepage flow: the product cards sit on the hero cloud, and below it the page is one dark canvas.
+   Where blue meets the dark canvas it ends in a line of clouds (the band the hero cloud uses), not a straight cut. */
+.hero-stage.products-stage { max-width: none; }
+.hero-stage.products-stage .hero-circle { height: auto; bottom: -420px;
+  -webkit-mask: url("cloud-hero.svg") center top / calc(var(--cw) * 2) var(--cw) no-repeat, url("cloud-band.svg") center calc(var(--cw) * .3) / calc(var(--cw) * .6) calc(var(--cw) * .7) repeat-x, linear-gradient(#000, #000) center calc(var(--cw) * .6) / 100% 100% no-repeat;
+  mask: url("cloud-hero.svg") center top / calc(var(--cw) * 2) var(--cw) no-repeat, url("cloud-band.svg") center calc(var(--cw) * .3) / calc(var(--cw) * .6) calc(var(--cw) * .7) repeat-x, linear-gradient(#000, #000) center calc(var(--cw) * .6) / 100% 100% no-repeat; }
+.products-stage .section-head { position: relative; max-width: 640px; }
+.products-stage .s-light { position: relative; }
+.edge-bottom { --edge-w: 480px; --edge-h: 104px; }
+.edge-bottom::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; z-index: 3; height: var(--edge-h); background: var(--edge-c, var(--bg)); pointer-events: none;
+  -webkit-mask: url("cloud-band.svg") center top / var(--edge-w) calc(var(--edge-w) * 1.1667) repeat-x; mask: url("cloud-band.svg") center top / var(--edge-w) calc(var(--edge-w) * 1.1667) repeat-x; }
+.hero-s.edge-bottom { padding-bottom: 72px; }
+/* Support is the one light-gray section: it breaks up the dark run, and clouds carry the colour in and out. */
+.edge-to-light { --edge-c: #F4F6F9; }
+.edge-to-dark { --edge-c: #050B1A; }
+main section.sec-tight.edge-bottom { padding-bottom: 140px; }
+.cta-in { padding-bottom: 140px; }
+.demo-s { overflow: hidden; }
+.demo-stage { position: relative; max-width: 960px; margin: 0 auto; }
+.demo-stage::before { content: ""; position: absolute; left: 50%; top: 50%; width: 130%; height: 170%; transform: translate(-50%, -50%); background: radial-gradient(closest-side, color-mix(in srgb, var(--blue) 18%, transparent), transparent); pointer-events: none; }
+.demo-stage .demo { position: relative; }
+.sec-panel { padding: 56px 48px; border-radius: 28px; background: var(--bg); color: var(--ink); }
+@media (max-width: 640px) {
+  .edge-bottom { --edge-w: 260px; --edge-h: 58px; }
+  .hero-s.edge-bottom { padding-bottom: 44px; }
+  main section.sec-tight.edge-bottom { padding-bottom: 88px; }
+  .sec-panel { padding: 36px 20px; border-radius: 22px; }
+}
 .hr-base path { fill: none; stroke: var(--link); stroke-opacity: .16; stroke-width: 1.2; }
 .hr-pulse path { fill: none; stroke: #6FA8FF; stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 70 2100; stroke-dashoffset: 70; animation: ribbonFlow var(--t, 6s) linear infinite; animation-delay: var(--dl, 0s); }
 .hr-pulse path.rev { animation-direction: reverse; }
