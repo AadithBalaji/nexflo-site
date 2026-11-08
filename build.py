@@ -54,6 +54,9 @@ ICONS = {
     "folder": '<path d="M3 6a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><rect x="9.5" y="12" width="5" height="4" rx=".5"/><path d="M10.5 12v-1a1.5 1.5 0 0 1 3 0v1"/>',
     "sliders": '<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
     "cloud": '<path d="M7 18h10a4 4 0 0 0 .6-8A6 6 0 0 0 6.2 9.4 4.3 4.3 0 0 0 7 18z"/>',
+    "building": '<path d="M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17M3 21h18M9 7h.01M15 7h.01M9 11h.01M15 11h.01M9 15h.01M15 15h.01M10 21v-3h4v3"/>',
+    "hospital": '<path d="M4 21V8l8-5 8 5v13M2 21h20M12 8v6M9 11h6M10 21v-3h4v3"/>',
+    "shieldplus": '<path d="M12 2l8 3v6c0 5-3.5 9.5-8 11-4.5-1.5-8-6-8-11V5z"/><path d="M12 8v6M9 11h6"/>',
 }
 
 
@@ -876,66 +879,140 @@ def products():
 {cta_band(source="products")}'''
 
 
-# ---------------------------------------------------------------- TradeFlo: how it works diagram
-TF_FORMATS = [  # key, tag, name, detail
-    ("edi", "EDI", "EDI", "X12 · EDIFACT"),
-    ("xml", "&lt;/&gt;", "XML", "Any schema"),
-    ("json", "{ }", "JSON", "Clean, documented"),
-    ("csv", "CSV", "CSV", "Spreadsheet rows"),
-    ("flat", "TXT", "Flat files", "Delimited · fixed width"),
-]
-TF_CONNS = [("folder", "SFTP", "Secure file transfer"), ("plug", "API", "REST or SOAP")]
-# Examples the diagram cycles through: from format, to format, connection in, connection out, caption.
-TF_EXAMPLES = [
-    ("edi", "json", 0, 1, "A purchase order arrives as EDI. Your system gets clean JSON."),
-    ("csv", "edi", 1, 0, "Your invoice leaves as a spreadsheet. Your partner gets EDI."),
-    ("xml", "edi", 1, 0, "Your warehouse sends a shipping notice in XML. It goes out as EDI."),
-    ("edi", "flat", 0, 0, "An inventory request arrives as EDI. Your older system gets a flat file."),
-    ("json", "edi", 1, 1, "Your store confirms an order in JSON. Your partner gets EDI."),
-]
-TF_FEATURES = [
-    ("swap", "Many formats", "EDI, XML, JSON, CSV and flat files, in and out."),
-    ("users", "Partner setup", "Each partner's IDs and connection details in one place."),
-    ("shield", "Secure exchange", "SFTP and encrypted API connections, with a record of every file."),
-    ("sliders", "Flexible mapping", "Reshape, check and fill in fields to match each partner."),
-    ("cloud", "Runs in the cloud", "Nothing to install or keep running on your side."),
-]
+# ---------------------------------------------------------------- "How it works" diagrams (TradeFlo, CareFlo)
+# Shared parts: partners on the left -> the product's engine on a blue cloud -> partners/systems on the right.
+# Every part that can light up has data-on="<key>". Each example lists the keys to light in three beats:
+# "a" (where it comes from), "m" (the middle, with the pair label and caption), "b" (where it goes).
+# motion.js ([data-tf]) steps through the examples.
+FLOW_CONNS = [("sftp", "folder", "SFTP", "Secure file transfer"), ("api", "plug", "API", "REST or SOAP")]
+FLOW_FORMATS = {  # key: (tag, name, detail)
+    "edi": ("EDI", "EDI", "X12 · EDIFACT"),
+    "x12": ("X12", "X12", "HIPAA formats"),
+    "xml": ("&lt;/&gt;", "XML", "Any schema"),
+    "json": ("{ }", "JSON", "Clean, documented"),
+    "csv": ("CSV", "CSV", "Spreadsheet rows"),
+    "flat": ("TXT", "Flat files", "Delimited · fixed width"),
+}
 
 
-def tradeflo_flow():
-    """Partners -> TradeFlo (formats in, translate, formats out) -> your systems or partners.
-    motion.js (data-tf) steps through TF_EXAMPLES, lighting up the matching connection and formats."""
+def flow_ex(a, b, say, m=()):
+    return {"a": list(a), "m": list(m), "b": list(b), "say": say}
+
+
+def flow_side(side, title, partners=()):
+    conns = "".join(f'<li class="tf-conn" data-on="{side}-{k}">{icon(i, "tf-ico")}<span><b>{n}</b><small>{d}</small></span></li>'
+                    for k, i, n, d in FLOW_CONNS)
+    parts = "".join(f'<li data-on="{side}-{k}">{icon(i, "tf-pico")}<span>{n}</span></li>' for k, i, n in partners)
+    parts = f'<p class="tf-cap">Partners</p><ul class="tf-parts">{parts}</ul>' if partners else ""
+    return f'<div class="tf-side tf-{side}"><h3>{title}</h3><ul class="tf-conns">{conns}</ul>{parts}</div>'
+
+
+def flow_formats(side, keys, compact=False):
+    def row(k):
+        tag, name, detail = FLOW_FORMATS[k]
+        return f'<li data-on="{side}-{k}"><span class="tf-tag">{tag}</span><span><b>{name}</b>{"" if compact else f"<small>{detail}</small>"}</span></li>'
+    cap = "Comes in as" if side == "from" else "Goes out as"
+    return f'<div class="tf-list tf-{side}{" tf-compact" if compact else ""}"><p class="tf-cap">{cap}</p><ul>{"".join(row(k) for k in keys)}</ul></div>'
+
+
+def flow_section(eyebrow, heading, lead, label, mark, engine, side_in, side_out, middle, examples, feats, note, cls=""):
     import json
-    conns = lambda: "".join(f'<li class="tf-conn">{icon(i, "tf-ico")}<span><b>{n}</b><small>{d}</small></span></li>' for i, n, d in TF_CONNS)
-    fmts = lambda: "".join(f'<li data-k="{k}"><span class="tf-tag">{t}</span><span><b>{n}</b><small>{d}</small></span></li>' for k, t, n, d in TF_FORMATS)
+    for e in examples:  # the pair label in the middle comes from the first lit format on each side
+        e["pair"] = [FLOW_FORMATS[next(k for k in e["a"] if k.startswith("from-"))[5:]][1],
+                     FLOW_FORMATS[next(k for k in e["b"] if k.startswith("to-"))[3:]][1]]
     wire = '<div class="tf-wire" aria-hidden="true"><span class="tf-line"></span><i></i><i></i><i></i></div>'
-    feats = "".join(f'<li>{icon(i, "tf-fico")}<b>{t}</b><span>{d}</span></li>' for i, t, d in TF_FEATURES)
-    ex = json.dumps([list(e) for e in TF_EXAMPLES]).replace("'", "&#39;")
-    first = TF_EXAMPLES[0]
+    feats_html = "".join(f'<li>{icon(i, "tf-fico")}<b>{t}</b><span>{d}</span></li>' for i, t, d in feats)
+    ex = json.dumps(examples).replace("'", "&#39;")
+    first = examples[0]
     return f'''
 <section class="s-light tf-sec"><div class="container">
-  <div class="section-head center"><span class="eyebrow">How it works</span><h2>Every document, in the format each side needs</h2>
-    <p class="lead">TradeFlo picks up documents from your partners, translates them, and hands them to your systems, or sends your replies back in the format each partner expects.</p></div>
-  <div class="tf" data-tf data-ex='{ex}'>
-    <div class="tf-side tf-in"><h3>From your partners</h3><ul>{conns()}</ul></div>
+  <div class="section-head center"><span class="eyebrow">{eyebrow}</span><h2>{heading}</h2><p class="lead">{lead}</p></div>
+  <div class="tf{cls}" data-tf data-ex='{ex}'>
+    {side_in}
     {wire}
     <div class="tf-engine">
       <div class="tf-cloud" aria-hidden="true"></div>
-      <div class="tf-head"><b>Trade<span>Flo</span></b><small>Translation engine</small></div>
+      <div class="tf-head"><b>{mark}<span>Flo</span></b><small>{engine}</small></div>
+      {middle}
       <div class="tf-grid">
-        <div class="tf-list tf-from"><p class="tf-cap">Comes in as</p><ul>{fmts()}</ul></div>
+        {{from_list}}
         <div class="tf-core"><div class="tf-disc"><span class="tf-ring"></span>{icon("swap", "tf-cico")}</div>
-          <span class="tf-pair"><b data-a>EDI</b><i>→</i><b data-b>JSON</b></span></div>
-        <div class="tf-list tf-to"><p class="tf-cap">Goes out as</p><ul>{fmts()}</ul></div>
+          <span class="tf-pair"><b data-a>{first["pair"][0]}</b><i>→</i><b data-b>{first["pair"][1]}</b></span></div>
+        {{to_list}}
       </div>
-      <p class="tf-say" aria-live="polite">{first[4]}</p>
+      <p class="tf-say" aria-live="polite">{first["say"]}</p>
     </div>
     {wire}
-    <div class="tf-side tf-out"><h3>To your systems or partners</h3><ul>{conns()}</ul></div>
+    {side_out}
   </div>
-  <ul class="tf-feats">{feats}</ul>
-  <p class="tf-note">Illustration of how TradeFlo is designed to work. TradeFlo is in development.</p>
+  <ul class="tf-feats">{feats_html}</ul>
+  <p class="tf-note">{note}</p>
 </div></section>'''
+
+
+def tradeflo_flow():
+    keys = ["edi", "xml", "json", "csv", "flat"]
+    examples = [
+        flow_ex(["in-sftp", "from-edi"], ["to-json", "out-api"], "A purchase order arrives as EDI. Your system gets clean JSON."),
+        flow_ex(["in-api", "from-csv"], ["to-edi", "out-sftp"], "Your invoice leaves as a spreadsheet. Your partner gets EDI."),
+        flow_ex(["in-api", "from-xml"], ["to-edi", "out-sftp"], "Your warehouse sends a shipping notice in XML. It goes out as EDI."),
+        flow_ex(["in-sftp", "from-edi"], ["to-flat", "out-sftp"], "An inventory request arrives as EDI. Your older system gets a flat file."),
+        flow_ex(["in-api", "from-json"], ["to-edi", "out-api"], "Your store confirms an order in JSON. Your partner gets EDI."),
+    ]
+    feats = [
+        ("swap", "Many formats", "EDI, XML, JSON, CSV and flat files, in and out."),
+        ("users", "Partner setup", "Each partner's IDs and connection details in one place."),
+        ("shield", "Secure exchange", "SFTP and encrypted API connections, with a record of every file."),
+        ("sliders", "Flexible mapping", "Reshape, check and fill in fields to match each partner."),
+        ("cloud", "Runs in the cloud", "Nothing to install or keep running on your side."),
+    ]
+    return flow_section(
+        "How it works", "Every document, in the format each side needs",
+        "TradeFlo picks up documents from your partners, translates them, and hands them to your systems, or sends your replies back in the format each partner expects.",
+        "How TradeFlo moves documents between your partners and your systems", "Trade", "Translation engine",
+        flow_side("in", "From your partners"), flow_side("out", "To your systems or partners"), "",
+        examples, feats, "Illustration of how TradeFlo is designed to work. TradeFlo is in development.",
+    ).replace("{from_list}", flow_formats("from", keys)).replace("{to_list}", flow_formats("to", keys))
+
+
+CARE_PARTNERS = [("payers", "building", "Payers"), ("providers", "hospital", "Providers"),
+                 ("plans", "shieldplus", "Health plans"), ("tpas", "users", "TPAs and clearinghouses")]
+CARE_TXNS = [("837", "Claim", "Professional, institutional, dental"), ("835", "Payment", "Remittance advice"),
+             ("270", "Eligibility check", "Is this patient covered?"), ("271", "Eligibility answer", "Benefit details"),
+             ("834", "Enrollment", "Add, change or end members")]
+
+
+def careflo_flow():
+    keys = ["x12", "xml", "json", "csv", "flat"]
+    txns = "".join(f'<div class="tf-txn" data-on="txn-{c}"><b>{c}</b><span>{n}</span><small>{d}</small></div>' for c, n, d in CARE_TXNS)
+    examples = [
+        flow_ex(["in-api", "in-providers", "from-json"], ["to-x12", "out-sftp", "out-tpas"],
+                "Your billing system sends a claim as JSON. It goes to your clearinghouse as an 837.", m=["txn-837"]),
+        flow_ex(["in-sftp", "in-tpas", "from-x12"], ["to-csv", "out-api", "out-providers"],
+                "A payment report (835) comes back from your clearinghouse. Your billing team gets a spreadsheet.", m=["txn-835"]),
+        flow_ex(["in-api", "in-providers", "from-json"], ["to-x12", "out-sftp", "out-tpas", "out-payers"],
+                "Your front desk checks a patient's coverage. A 270 goes to the insurer through your clearinghouse.", m=["txn-270"]),
+        flow_ex(["in-sftp", "in-payers", "in-tpas", "from-x12"], ["to-json", "out-api", "out-providers"],
+                "The insurer's answer (271) comes back through your clearinghouse. Your system gets clean JSON.", m=["txn-271"]),
+        flow_ex(["in-sftp", "in-tpas", "from-csv"], ["to-x12", "out-sftp", "out-plans"],
+                "A benefits administrator sends new members as a spreadsheet. The health plan gets an 834.", m=["txn-834"]),
+    ]
+    feats = [
+        ("shield", "Careful with health data", "Encrypted connections, and a BAA where required."),
+        ("swap", "X12 translation", "Claims, payments, eligibility and enrollment, checked before they're sent."),
+        ("route", "End-to-end tracking", "Follow a claim from sent to paid in one place."),
+        ("bell", "Status and alerts", "Receipts, rejections and errors, so nothing gets lost."),
+        ("cloud", "Runs in the cloud", "Nothing to install or keep running on your side."),
+    ]
+    return flow_section(
+        "How it will work", "Claims, payments and coverage checks, in the right format",
+        "CareFlo is being built to take claims, payment reports, eligibility checks and enrollment files, translate them between your systems' formats and the HIPAA X12 standard, and send them on.",
+        "How CareFlo is designed to move healthcare transactions between your systems and your partners", "Care", "Healthcare claims engine",
+        flow_side("in", "From healthcare partners", CARE_PARTNERS), flow_side("out", "To your systems or partners", CARE_PARTNERS),
+        f'<div class="tf-txns">{txns}</div>', examples, feats,
+        "Illustration of how CareFlo is designed to work. CareFlo is planned for 2027. It is not a clearinghouse: connections to insurers go through your clearinghouse or a partner we help you set up.",
+        cls=" tf-care",
+    ).replace("{from_list}", flow_formats("from", keys, compact=True)).replace("{to_list}", flow_formats("to", keys, compact=True))
 
 
 def product_page(name, mark, status, lead, who, example_intro, demo, features, standards_label, standards, cta, notice="", product="", flow=""):
@@ -1031,6 +1108,7 @@ def careflo():
          ("278", "Prior authorization / referral")],
         ("Join the CareFlo waitlist", "We'll let you know as soon as CareFlo opens, and early waitlist members get first access.", "careflo"),
         notice=notice,
+        flow=careflo_flow(),
     )
 
 
