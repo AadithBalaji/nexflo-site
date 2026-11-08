@@ -1030,6 +1030,40 @@ details.more p { margin-top: 10px; font-size: .95rem; color: var(--muted); }
   .tf-feats b { margin: 0 0 2px; }
 }
 
+/* CareFlo diagram extras: partner lists, transaction tiles, compact format lists */
+.tf-side .tf-cap { margin: 16px 4px 6px; }
+.tf-side .tf-parts { gap: 2px; }
+.tf-parts li { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 10px; font-size: .88rem; font-weight: 600; line-height: 1.25; transition: background .5s var(--ease); }
+.tf-pico { flex: none; width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; color: var(--link); background: color-mix(in srgb, var(--blue) 10%, transparent); transition: background .5s var(--ease), color .15s; }
+.tf-pico svg { width: 16px; height: 16px; }
+.tf-parts li.on { background: color-mix(in srgb, var(--blue) 9%, #fff); }
+.tf-parts li.on .tf-pico { background: var(--blue); color: #fff; }
+.tf-txns { position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+.tf-txn { text-align: center; padding: 12px 8px; border-radius: 14px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.24); transition: background .5s var(--ease), border-color .5s var(--ease), box-shadow .5s var(--ease), color .15s; }
+.tf-txn b { display: block; font-family: var(--mono); font-size: 1.35rem; font-weight: 700; line-height: 1.1; transition: color .15s; }
+.tf-txn span { display: block; font-size: .8rem; font-weight: 600; margin-top: 5px; line-height: 1.25; }
+.tf .tf-txn small { color: rgba(255,255,255,.75); font-size: .7rem; margin-top: 3px; }
+.tf-txn.on { background: #fff; border-color: #fff; color: #0A1122; box-shadow: 0 16px 30px -14px rgba(0,20,80,.6); }
+.tf-txn.on b { color: var(--blue); }
+.tf .tf-txn.on small { color: #6B7488; }
+.tf-compact ul { grid-template-columns: 1fr 1fr; }
+.tf-compact li { padding: 6px; gap: 8px; }
+.tf-compact .tf-tag { min-width: 38px; }
+.tf-compact li:last-child:nth-child(odd) { grid-column: 1 / -1; }
+@media (max-width: 1180px) and (min-width: 1081px) { .tf .tf-txn small { display: none; } }
+@media (max-width: 640px) {
+  .tf-txns { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 12px; }
+  .tf-txn { flex: 0 0 calc((100% - 12px) / 3); padding: 8px 4px; border-radius: 12px; }
+  .tf .tf-txn small { display: none; }
+  .tf-txn b { font-size: 1.05rem; }
+  .tf-txn span { font-size: .7rem; margin-top: 3px; }
+  .tf-compact ul { grid-template-columns: 1fr; }
+  .tf-side .tf-cap { margin: 12px 2px 4px; }
+  .tf-parts li { font-size: .78rem; gap: 8px; padding: 5px 6px; }
+  .tf-pico { width: 24px; height: 24px; }
+  .tf-pico svg { width: 14px; height: 14px; }
+}
+
 /* Reduce Motion: calmer, not frozen. Nothing slides, zooms or grows; things fade in where they are,
    orbits and flowing lines run at half speed, and content that changes in place (the order demo, typing,
    chat, dashboard) runs as normal. Kept last so these keyframes replace the ones above. */

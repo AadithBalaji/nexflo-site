@@ -276,24 +276,20 @@
     onVisible(d, () => setInterval(() => add(false), 2300));
   });
 
-  /* ---- TradeFlo diagram: step through examples, lighting the connection and formats each one uses ---- */
+  /* ---- "How it works" diagrams (TradeFlo, CareFlo): step through examples. Each example lights parts by
+     their data-on key in three beats: where it comes from (a), the middle with its label (m), where it goes (b). ---- */
   document.querySelectorAll("[data-tf]").forEach((tf) => {
     const ex = JSON.parse(tf.dataset.ex);
-    const [inConns, outConns] = [".tf-in", ".tf-out"].map((s) => [...tf.querySelectorAll(`${s} .tf-conn`)]);
-    const [fromList, toList] = [".tf-from", ".tf-to"].map((s) => tf.querySelector(s));
     const a = tf.querySelector("[data-a]"), b = tf.querySelector("[data-b]"), say = tf.querySelector(".tf-say");
-    const name = (k) => fromList.querySelector(`[data-k="${k}"] b`).textContent;
-    const clear = () => tf.querySelectorAll(".on").forEach((x) => x.classList.remove("on"));
-    const show = ([from, to, ci, co, text], animate) => {
-      clear();
-      inConns[ci].classList.add("on");
-      fromList.querySelector(`[data-k="${from}"]`).classList.add("on");
-      const label = () => { a.textContent = name(from); b.textContent = name(to); say.textContent = text; };
-      const finish = () => { toList.querySelector(`[data-k="${to}"]`).classList.add("on"); outConns[co].classList.add("on"); };
-      if (!animate) { label(); return finish(); }
+    const light = (keys) => keys.forEach((k) => tf.querySelectorAll(`[data-on="${k}"]`).forEach((x) => x.classList.add("on")));
+    const show = (e, animate) => {
+      tf.querySelectorAll(".on").forEach((x) => x.classList.remove("on"));
+      light(e.a);
+      const middle = () => { a.textContent = e.pair[0]; b.textContent = e.pair[1]; say.textContent = e.say; light(e.m); };
+      if (!animate) { middle(); return light(e.b); }
       say.classList.add("fade");
-      setTimeout(() => { tf.classList.remove("go"); void tf.offsetWidth; tf.classList.add("go"); label(); say.classList.remove("fade"); }, 600);
-      setTimeout(finish, 1300);
+      setTimeout(() => { tf.classList.remove("go"); void tf.offsetWidth; tf.classList.add("go"); middle(); say.classList.remove("fade"); }, 600);
+      setTimeout(() => light(e.b), 1300);
     };
     show(ex[0], false);
     let i = 0;
