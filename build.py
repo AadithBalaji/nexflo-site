@@ -81,6 +81,34 @@ PRODUCTS = [
          **{"for": "hospitals, clinics, EHR vendors and digital health companies"}),
 ]
 
+# Product colours. Each product name is a two-part wordmark ("Trade" + "Flo"); one part takes the product colour.
+PTONE = {"TradeFlo": ("Trade", "trade"), "CareFlo": ("Care", "care"), "HealthFlo": ("Health", "health")}
+
+# TEMPORARY design preview: Version 1 colours "Flo", Version 2 colours the first part. A switch above the product
+# cards flips between them (and remembers the choice in the browser). Once a version is chosen, set PV_DEFAULT
+# to it and PV_PREVIEW to False: the switch disappears and every page uses that version.
+PV_PREVIEW = True
+PV_DEFAULT = "1"
+
+
+def wordmark(name):
+    mark, tone = PTONE[name]
+    return f'<span class="pname p-{tone}"><span class="pn-a">{mark}</span><span class="pn-b">Flo</span></span>'
+
+
+def tone(name):
+    return "p-" + PTONE[name][1]
+
+
+def pv_toggle():
+    if not PV_PREVIEW:
+        return ""
+    return ('<div class="pv-toggle" role="group" aria-label="Design preview: product name colours">'
+            '<span class="pv-label">Design preview</span>'
+            '<button type="button" data-pv="1" aria-pressed="true">Version 1: Colored Flo</button>'
+            '<button type="button" data-pv="2" aria-pressed="false">Version 2: Colored Product Name</button></div>')
+
+
 SOLUTIONS = [
     dict(key="manufacturers", name="Manufacturers and suppliers", href="manufacturers.html", icon="factory", product="TradeFlo",
          short="Meet retailer EDI requirements without the legacy price tag."),
@@ -415,6 +443,7 @@ def layout(title, description, body, active="", slug="", bare=False):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
+{pv_head()}
 <!-- Analytics: paste your snippet here (e.g. Plausible, GA4, Microsoft Clarity) -->
 </head>
 <body>
@@ -428,6 +457,13 @@ def layout(title, description, body, active="", slug="", bare=False):
 </body>
 </html>
 '''
+
+
+def pv_head():
+    if not PV_PREVIEW:
+        return f'<script>document.documentElement.dataset.pv="{PV_DEFAULT}"</script>'
+    return ('<script>(function(){var v="' + PV_DEFAULT + '";try{v=new URLSearchParams(location.search).get("pv")||'
+            'localStorage.getItem("nf-pv")||v}catch(e){}document.documentElement.dataset.pv=v==="2"?"2":"1"})()</script>')
 
 
 HONEYPOT = '<div class="hp" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>'
@@ -468,7 +504,7 @@ def cta_band(title="Join early access", text="Founding customers keep their laun
 
 def product_cards(link_label="Learn more"):
     rows = "".join(
-        f'<a class="prow" href="{p["href"]}"><span class="prow-num">0{i}</span><span class="prow-name">{p["mark"]}<span>Flo</span></span>'
+        f'<a class="prow {tone(p["name"])}" href="{p["href"]}"><span class="prow-num">0{i}</span><span class="prow-name">{wordmark(p["name"])}</span>'
         f'<span class="prow-desc">{p["line"]}</span><span class="prow-status">{status_badge(p["status"])}</span>'
         f'<span class="prow-go" aria-hidden="true">→</span></a>' for i, p in enumerate(PRODUCTS, 1))
     return f'<div class="rows">{rows}</div>'
@@ -740,14 +776,14 @@ def product_tiles():
     out = []
     for p in PRODUCTS:
         live = p["status"] == "live"
-        out.append(f'''<a class="tile tile-box" href="{p["href"]}">
+        out.append(f'''<a class="tile tile-box {tone(p["name"])}" href="{p["href"]}">
   {tile_art(p)}
   <div class="tile-body">
     <div class="tile-head"><h3>{p["name"]}</h3>{status_badge(p["status"])}</div>
     <p class="tile-sub">{p["sub"]}</p>
     <p class="tile-desc">{p["line"]}</p>
     <div class="tile-for"><span>Best for</span>{p["for"][0].upper() + p["for"][1:]}</div>
-    <span class="tile-cta">{"Explore " + p["name"] if live else "Learn more"} <i aria-hidden="true">→</i></span>
+    <span class="tile-cta"><span>{"Explore " + p["name"] if live else "Learn more"}</span> <i aria-hidden="true">→</i></span>
   </div>
 </a>''')
     return f'<div class="tiles">{"".join(out)}</div>'
@@ -796,7 +832,7 @@ def home():
 <section class="s-light sec-tight" id="products"><div class="container">
   <div class="section-head"><span class="label">Products</span><h2>Three products for three kinds of businesses</h2>
     <p class="lead">Pick the one that matches what you do. All three are in development and run on the same NexFlo platform.</p></div>
-  {product_tiles()}
+  {pv_toggle()}{product_tiles()}
 </div></section>
 
 <section class="sec-tight" id="how-it-works"><div class="container">
@@ -868,7 +904,7 @@ def home():
 def products():
     return page_hero("Products", "One translation engine, three products. TradeFlo is first to launch; CareFlo and HealthFlo follow in 2027.",
                      "NexFlo Cloud", [("Home", "index.html"), ("Products", None)]) + f'''
-<section><div class="container">{product_cards("See product")}</div></section>
+<section><div class="container">{pv_toggle()}{product_cards("See product")}</div></section>
 <section class="section-soft"><div class="container split">
   <div><h2>Shared by every product</h2><p class="lead">Each product runs on the same core, so what you learn in one carries over.</p></div>
   <ul class="checks">
@@ -932,7 +968,7 @@ def flow_section(eyebrow, heading, lead, label, mark, engine, side_in, side_out,
     {wire}
     <div class="tf-engine">
       <div class="tf-cloud" aria-hidden="true"></div>
-      <div class="tf-head"><b>{mark}<span>Flo</span></b><small>{engine}</small></div>
+      <div class="tf-head"><b class="tf-mark">{wordmark(mark + "Flo")}</b><small>{engine}</small></div>
       {middle}
       <div class="tf-grid">
         {{from_list}}
@@ -1025,10 +1061,10 @@ def product_page(name, mark, status, lead, who, example_intro, demo, features, s
     who_html = "".join(f"<li>{w}</li>" for w in who)
     std_html = "".join(f'<span class="doc-chip" title="{d}">{c}</span>' for c, d in standards)
     std_rows = "".join(f'<tr><td><span class="doc-chip">{c}</span></td><td>{d}</td></tr>' for c, d in standards)
-    title_html = f'{mark}<span style="color:var(--blue)">Flo</span>'
+    title_html = wordmark(name)
     cta_html = cta_band(*cta, product=name, secondary=is_live)
     sub = next(p["sub"] for p in PRODUCTS if p["name"] == name)
-    return page_hero(title_html, lead, sub, [("Products", "products.html"), (name, None)], actions, badge) + f'''
+    return f'<div class="p-scope {tone(name)}">' + page_hero(title_html, lead, sub, [("Products", "products.html"), (name, None)], actions, badge) + f'''
 <section><div class="container split top">
   <div><span class="eyebrow">What it does</span><h2>{example_intro[0]}</h2><p class="lead">{example_intro[1]}</p>{notice}</div>
   <div class="card"><h3>Who it's for</h3><ul class="checks mt-2">{who_html}</ul></div>
@@ -1047,7 +1083,7 @@ def product_page(name, mark, status, lead, who, example_intro, demo, features, s
   <div class="card table-wrap"><table class="article" style="margin:0;max-width:none"><tbody>{std_rows}</tbody></table></div>
 </div></section>
 <div id="waitlist"></div>
-{cta_html}'''
+{cta_html}</div>'''
 
 
 @page("tradeflo.html", "TradeFlo | EDI for suppliers and manufacturers",
@@ -1200,7 +1236,7 @@ def solution_page(key):
   <div><span class="eyebrow">The fit</span><h2>{p["name"]} {status_badge(p["status"])}</h2><p class="lead">{c["how"]}</p>
     <div class="row mt-3"><a class="btn btn-secondary" href="{p["href"]}">Explore {p["name"]}</a>
     {f'<a class="btn btn-ghost arrow" href="pricing.html?product={p["name"]}#quote">Request pricing </a>' if live else ""}</div></div>
-  <a class="card featured" href="{p["href"]}"><div class="card-top"><div class="product-mark">{p["mark"]}<span>Flo</span></div>{status_badge(p["status"])}</div><p>{p["line"]}</p><span class="more arrow">Learn more</span></a>
+  <a class="card featured {tone(p["name"])}" href="{p["href"]}"><div class="card-top"><div class="product-mark">{wordmark(p["name"])}</div>{status_badge(p["status"])}</div><p>{p["line"]}</p><span class="more arrow">Learn more</span></a>
 </div></section>
 {cta_band("Get early access" if live else f"Join the {p['name']} waitlist",
           "Founding customers lock in launch pricing." if live else "Be first to know when it opens in 2027.",
@@ -1612,6 +1648,37 @@ def not_found():
 CLEAN_URLS = os.environ.get("VERCEL") == "1" or os.environ.get("CLEAN_URLS") == "1"
 
 
+_SKIP = {"head", "title", "script", "style", "option", "textarea", "pre", "code"}
+_VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
+
+
+def brand_names(page):
+    """Wrap product names in page text (not attributes, code, form options or buttons) with the wordmark."""
+    parts = re.split(r"(<[^>]+>)", page)
+    skip_tag, depth = None, 0
+    for i, part in enumerate(parts):
+        if part.startswith("<"):
+            m = re.match(r"<(/?)([a-zA-Z0-9]+)", part)
+            if not m:
+                continue
+            closing, tag = m.group(1) == "/", m.group(2).lower()
+            if skip_tag:
+                if tag == skip_tag and tag not in _VOID and not part.endswith("/>"):
+                    depth += -1 if closing else 1
+                    if depth == 0:
+                        skip_tag = None
+                continue
+            if closing or tag in _VOID:
+                continue
+            cls = re.search(r'class="([^"]*)"', part)
+            classes = cls.group(1).split() if cls else []
+            if tag in _SKIP or "btn" in classes or "pname" in classes:
+                skip_tag, depth = tag, 1
+        elif not skip_tag and "Flo" in part:
+            parts[i] = re.sub(r"\b(TradeFlo|CareFlo|HealthFlo)\b", lambda mm: wordmark(mm.group(1)), part)
+    return "".join(parts)
+
+
 def clean_links(text):
     text = re.sub(r'(href|src)="assets/', r'\1="/assets/', text)
     text = re.sub(r'href="index\.html([#?][^"]*)?"', lambda m: f'href="/{m.group(1) or ""}"', text)
@@ -1637,6 +1704,7 @@ def build():
         for name, h in stamps.items():
             out = out.replace(f'assets/{name}"', f'assets/{name}?v={h}"')
         out = out.replace(LOGO_IMG, LOGO_PAIR)
+        out = brand_names(out)
         if CLEAN_URLS:
             out = clean_links(out)
         (DIST / slug).write_text(out, encoding="utf-8")
