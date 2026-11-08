@@ -81,15 +81,8 @@ PRODUCTS = [
          **{"for": "hospitals, clinics, EHR vendors and digital health companies"}),
 ]
 
-# Product colours. Each product name is a two-part wordmark ("Trade" + "Flo"); one part takes the product colour.
+# Product colours. Each product name is a two-part wordmark ("Trade" + "Flo"); "Flo" takes the product colour, like the logo.
 PTONE = {"TradeFlo": ("Trade", "trade"), "CareFlo": ("Care", "care"), "HealthFlo": ("Health", "health")}
-
-# TEMPORARY design preview: Version 1 colours "Flo", Version 2 colours the first part. A switch above the product
-# cards flips between them (and remembers the choice in the browser). Once a version is chosen, set PV_DEFAULT
-# to it and PV_PREVIEW to False: the switch disappears and every page uses that version.
-PV_PREVIEW = True
-PV_DEFAULT = "1"
-
 
 def wordmark(name):
     mark, tone = PTONE[name]
@@ -98,15 +91,6 @@ def wordmark(name):
 
 def tone(name):
     return "p-" + PTONE[name][1]
-
-
-def pv_toggle():
-    if not PV_PREVIEW:
-        return ""
-    return ('<div class="pv-toggle" role="group" aria-label="Design preview: product name colours">'
-            '<span class="pv-label">Design preview</span>'
-            '<button type="button" data-pv="1" aria-pressed="true">Version 1: Colored Flo</button>'
-            '<button type="button" data-pv="2" aria-pressed="false">Version 2: Colored Product Name</button></div>')
 
 
 SOLUTIONS = [
@@ -443,7 +427,6 @@ def layout(title, description, body, active="", slug="", bare=False):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
-{pv_head()}
 <!-- Analytics: paste your snippet here (e.g. Plausible, GA4, Microsoft Clarity) -->
 </head>
 <body>
@@ -457,13 +440,6 @@ def layout(title, description, body, active="", slug="", bare=False):
 </body>
 </html>
 '''
-
-
-def pv_head():
-    if not PV_PREVIEW:
-        return f'<script>document.documentElement.dataset.pv="{PV_DEFAULT}"</script>'
-    return ('<script>(function(){var v="' + PV_DEFAULT + '";try{v=new URLSearchParams(location.search).get("pv")||'
-            'localStorage.getItem("nf-pv")||v}catch(e){}document.documentElement.dataset.pv=v==="2"?"2":"1"})()</script>')
 
 
 HONEYPOT = '<div class="hp" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>'
@@ -832,7 +808,7 @@ def home():
 <section class="s-light sec-tight" id="products"><div class="container">
   <div class="section-head"><span class="label">Products</span><h2>Three products for three kinds of businesses</h2>
     <p class="lead">Pick the one that matches what you do. All three are in development and run on the same NexFlo platform.</p></div>
-  {pv_toggle()}{product_tiles()}
+  {product_tiles()}
 </div></section>
 
 <section class="sec-tight" id="how-it-works"><div class="container">
@@ -904,7 +880,7 @@ def home():
 def products():
     return page_hero("Products", "One translation engine, three products. TradeFlo is first to launch; CareFlo and HealthFlo follow in 2027.",
                      "NexFlo Cloud", [("Home", "index.html"), ("Products", None)]) + f'''
-<section><div class="container">{pv_toggle()}{product_cards("See product")}</div></section>
+<section><div class="container">{product_cards("See product")}</div></section>
 <section class="section-soft"><div class="container split">
   <div><h2>Shared by every product</h2><p class="lead">Each product runs on the same core, so what you learn in one carries over.</p></div>
   <ul class="checks">
