@@ -68,10 +68,10 @@ def icon(name, cls="icon"):
 CHEV = '<svg class="chev" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'
 LINKEDIN_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.4 2H3.6A1.6 1.6 0 0 0 2 3.6v16.8A1.6 1.6 0 0 0 3.6 22h16.8a1.6 1.6 0 0 0 1.6-1.6V3.6A1.6 1.6 0 0 0 20.4 2zM8 19H5V9h3zM6.5 7.7a1.7 1.7 0 1 1 0-3.4 1.7 1.7 0 0 1 0 3.4zM19 19h-3v-4.9c0-1.2 0-2.7-1.6-2.7S12.5 12.7 12.5 14v5h-3V9h2.9v1.4c.4-.8 1.4-1.6 2.9-1.6 3.1 0 3.7 2 3.7 4.7z"/></svg>'
 
-# ---------------------------------------------------------------- products & solutions data
+# ---------------------------------------------------------------- products data
 PRODUCTS = [
     dict(key="tradeflo", name="TradeFlo", mark="Trade", href="tradeflo.html", status="live", sub="Business document exchange",
-         line="Make it easier to send and receive purchase orders, invoices, and shipping information between your business and its partners.",
+         line="Built to send and receive every EDI document, from purchase orders and invoices to shipping notices, between your business and its partners.",
          **{"for": "manufacturers, distributors, retail suppliers and e-commerce sellers"}),
     dict(key="careflo", name="CareFlo", mark="Care", href="careflo.html", status="soon", sub="Healthcare billing and claims",
          line="Simplify how healthcare businesses exchange claims, billing information, and insurance-related documents.",
@@ -91,18 +91,6 @@ def wordmark(name):
 
 def tone(name):
     return "p-" + PTONE[name][1]
-
-
-SOLUTIONS = [
-    dict(key="manufacturers", name="Manufacturers and suppliers", href="manufacturers.html", icon="factory", product="TradeFlo",
-         short="Meet retailer EDI requirements without the legacy price tag."),
-    dict(key="logistics", name="Logistics and distribution", href="logistics.html", icon="truck", product="TradeFlo",
-         short="Many trading partners, one place to manage every document."),
-    dict(key="medical-billing", name="Medical billing and RCM", href="medical-billing.html", icon="clipboard", product="CareFlo",
-         short="Claims and eligibility transactions across payers, in one format."),
-    dict(key="health-tech", name="Health tech and EHR teams", href="health-tech.html", icon="pulse", product="HealthFlo",
-         short="Connect systems that format clinical data differently."),
-]
 
 
 def status_badge(status):
@@ -208,19 +196,6 @@ def api_tabs():
     return (f'<div class="code code-tabs" data-tabs><div class="code-head"><span class="dots"><i></i><i></i><i></i></span>'
             f'<div role="tablist" aria-label="Connection options">{tabs}</div><span>TradeFlo</span></div>{bodies}'
             f'<p class="api-note">API preview. Endpoint names may change before launch.</p></div>')
-
-
-def dashboard_mock():
-    return '''<div class="dash" data-dash aria-label="Dashboard preview with sample data">
-  <div class="dash-top"><span class="dots"><i></i><i></i><i></i></span><span>app.nexflo.cloud / transactions</span><span class="badge">Illustration</span></div>
-  <div class="dash-kpis">
-    <div><small>Documents today</small><b data-kpi="docs">1,284</b></div>
-    <div><small>Acknowledged</small><b>99.6%</b></div>
-    <div><small>Needs review</small><b data-kpi="err">1</b></div>
-  </div>
-  <div class="dash-row head"><span>Time</span><span>Partner</span><span>Document</span><span>Status</span></div>
-  <div data-rows></div>
-</div>'''
 
 
 TICKER = [
@@ -336,9 +311,6 @@ def nav_html(active):
     products_dd = "".join(
         f'<a href="{p["href"]}"><span class="d-icon">{p["name"][0]}F</span><span><span class="d-title">{p["name"]} '
         f'{status_badge(p["status"])}</span><span class="d-desc">{p["line"]}</span></span></a>' for p in PRODUCTS)
-    solutions_dd = "".join(
-        f'<a href="{s["href"]}">{icon(s["icon"], "d-icon")}<span><span class="d-title">{s["name"]}</span>'
-        f'<span class="d-desc">{s["short"]}</span></span></a>' for s in SOLUTIONS)
     return f'''<header class="site-header">
   <a class="skip" href="#main">Skip to content</a>
   <nav class="container nav" aria-label="Main">
@@ -348,8 +320,6 @@ def nav_html(active):
       <ul class="nav-menu">
         <li class="nav-item has-dd"><button class="nav-link{act("products")}" aria-expanded="false">Products {CHEV}</button>
           <div class="dropdown">{products_dd}<div class="d-foot"><a href="products.html">All products →</a></div></div></li>
-        <li class="nav-item has-dd"><button class="nav-link{act("solutions")}" aria-expanded="false">Solutions {CHEV}</button>
-          <div class="dropdown">{solutions_dd}<div class="d-foot"><a href="solutions.html">Solutions overview →</a></div></div></li>
         <li class="nav-item"><a class="nav-link{act("pricing")}" href="pricing.html">Pricing</a></li>
         <li class="nav-item has-dd"><button class="nav-link{act("resources")}" aria-expanded="false">Resources {CHEV}</button>
           <div class="dropdown">
@@ -372,7 +342,6 @@ def nav_html(active):
 def footer_html():
     cols = [
         ("Products", [("TradeFlo", "tradeflo.html"), ("CareFlo", "careflo.html"), ("HealthFlo", "healthflo.html"), ("Pricing", "pricing.html"), ("Portal login", PORTAL_URL)]),
-        ("Solutions", [(s["name"], s["href"]) for s in SOLUTIONS]),
         ("Resources", [("EDI guides", "resources.html"), ("What is EDI?", "what-is-edi.html"), ("837 and 835 explained", "837-835-transactions.html"), ("Security", "security.html"), ("FAQ", "resources.html#faq")]),
         ("Company", [("About", "about.html"), ("Contact", "contact.html"), ("Talk to us", "demo.html"), ("Join early access", "early-access.html")]),
     ]
@@ -526,43 +495,6 @@ HERO_JSON = """
 }
 """
 
-API_JS = """// Send an invoice. Walmart receives a valid X12 810.
-const res = await fetch("https://api.nexflo.cloud/v1/documents", {
-  method: "POST",
-  headers: { Authorization: `Bearer ${NEXFLO_API_KEY}` },
-  body: JSON.stringify({
-    partner: "walmart",
-    type: "invoice",
-    po_number: "4500018273",
-    lines: [{ upc: "012345678905", qty: 240, unit_price: 4.85 }],
-  }),
-});
-// 202 Accepted: checked, translated, sent as an 810"""
-
-SFTP_SESSION = """$ sftp acme@sftp.nexflo.cloud
-sftp> put invoice_4500018273.csv /outbound/walmart/
-Uploading invoice_4500018273.csv          100%
-sftp> ls /inbound/walmart/
-po_4500018274.csv    po_4500018275.csv
-sftp> get /inbound/walmart/po_4500018274.csv
-Fetching po_4500018274.csv                100%
-sftp> bye"""
-
-
-def hl_js(text):
-    out = []
-    for line in text.split("\n"):
-        e = html.escape(line, quote=False)
-        if e.lstrip().startswith("//"):
-            out.append(f'<span class="c">{e}</span>')
-            continue
-        e = re.sub(r'("[^"]*"|`[^`]*`)', r'<span class="s">\1</span>', e)
-        e = re.sub(r'\b(const|await|fetch|method|headers|body)\b', r'<span class="k">\1</span>', e)
-        e = re.sub(r'(?<![\w">])(\d+(?:\.\d+)?)(?![\w"<])', r'<span class="n">\1</span>', e)
-        out.append(e)
-    return "\n".join(out)
-
-
 def _lines(body):
     return "".join(f'<span class="ln">{l or " "}</span>' for l in body.split("\n"))
 
@@ -571,14 +503,6 @@ def win(name, meta, body, typing=False):
     """Code window with a filename tab and line numbers."""
     return (f'<div class="win"><div class="win-bar"><span class="tab-name">{name}</span>'
             f'<span class="win-meta">{meta}</span></div><div{" data-type" if typing else ""}><pre><code>{_lines(body)}</code></pre></div></div>')
-
-
-def win_tabs(panes, note=""):
-    """Code window with tabs. The first pane types itself out when scrolled into view."""
-    tabs = "".join(f'<button class="win-tab" role="tab" aria-selected="{str(i == 0).lower()}">{t}</button>' for i, (t, _, _) in enumerate(panes))
-    bodies = "".join(f'<div role="tabpanel"{" data-type" if i == 0 else " hidden"}><pre><code>{_lines(b)}</code></pre></div>' for i, (_, _, b) in enumerate(panes))
-    foot = f'<p class="win-note">{note}</p>' if note else ""
-    return f'<div class="win" data-tabs><div class="win-bar" role="tablist" aria-label="Ways to connect">{tabs}</div>{bodies}{foot}</div>'
 
 
 def hero_demo():
@@ -717,17 +641,6 @@ def orbit():
                       "Messages in EDI, XML, JSON, CSV and flat files arriving over SFTP or API, translated by TradeFlo and sent on to your partners")
 
 
-DOCS = [
-    ("850", "Purchase order", "A customer's order: what they want, how many, and where to ship it."),
-    ("856", "Shipping notice", "What's in each box and pallet, sent before the truck arrives. Late or wrong ones often lead to fines."),
-    ("810", "Invoice", "Your bill for the order, matched to what you shipped so you get paid on time."),
-    ("997", "Receipt", "An automatic note confirming a file arrived. NexFlo sends and tracks these for you."),
-    ("855", "Order confirmation", "Your reply saying you accept the order, or which items you can't fill."),
-    ("846", "Inventory update", "How much stock you have, so partners don't order what you can't send."),
-    ("ORDERS · INVOIC · DESADV", "International (EDIFACT)", "The same orders, invoices and shipping notices, in the format used outside North America."),
-    ("837 · 835 · 270/271 · 834", "Healthcare (coming 2027)", "Claims, payments, insurance eligibility checks and enrollment, handled by CareFlo."),
-]
-
 TILE_ICONS = {
     "tradeflo": '<path d="M3 7.5l9-4.5 9 4.5-9 4.5-9-4.5zM3 7.5v9l9 4.5 9-4.5v-9M12 12v9"/>',
     "careflo": '<path d="M9 3h6v3H9zM6 5H4v16h16V5h-2M8 12h8M8 16h5"/>',
@@ -765,19 +678,6 @@ def product_tiles():
     return f'<div class="tiles">{"".join(out)}</div>'
 
 
-FLOW_STEPS = [
-    ("Connect your systems", "Connect the business software and platforms that need to exchange information."),
-    ("Set up your connections", "Configure how information moves between systems."),
-    ("Exchange information", "Send and receive business documents through automated workflows."),
-    ("Track everything", "Monitor document activity, transaction statuses and potential issues."),
-]
-
-
-def flow_steps():
-    items = "".join(f'<li class="f4"><span class="f4-n">{i}</span><div><b>{t}</b><p>{d}</p></div></li>' for i, (t, d) in enumerate(FLOW_STEPS, 1))
-    return f'<ol class="flow4 flow4-row" data-cycle>{items}</ol>'
-
-
 @page("index.html", "NexFlo Cloud | Business data, flowing better",
       "NexFlo Cloud helps businesses connect their software, exchange important documents like orders, invoices and claims, and reduce manual work.")
 def home():
@@ -789,9 +689,6 @@ def home():
   <div class="msg"><span class="avatar">NF</span><div><b>NexFlo team</b><time>9:31 AM</time><p>Walmart needs a label number on every box. We've added it to your setup, so the next one will go through.</p></div></div>
   <p class="chat-note">Example conversation</p>
 </div>'''
-    row = lambda c, n, d: f'<div class="doc"><h3><code>{c}</code><span>{n}</span></h3><p>{d}</p></div>'
-    docs_main = "".join(row(*x) for x in DOCS[:4])
-    docs_more = "".join(row(*x) for x in DOCS[4:])
     return f'''
 <section class="hero-s">
   {hero_background()}
@@ -811,41 +708,12 @@ def home():
   {product_tiles()}
 </div></section>
 
-<section class="sec-tight" id="how-it-works"><div class="container">
-  <div class="how-head"><div><span class="label">How it works</span><h2>Set it up once. Then it runs on its own.</h2></div>
-    <p>No retyping orders from emails or portals. Once your systems and partners are connected, documents move back and forth automatically.</p></div>
-  {flow_steps()}
-  <p class="flow4-note">This is how the NexFlo platform is being built to work. It's in development and not live yet.</p>
-</div></section>
-
-<section class="sec-tight"><div class="container frows">
-  <div class="frow">
-    <div class="frow-text"><span class="label">Works with what you have</span><h2>Use a spreadsheet, or connect your software</h2>
-      <p>No tech team? Save a spreadsheet into a secure shared folder and NexFlo turns it into the format your partner needs. Have developers? They can connect your systems directly.</p>
-      <details class="more"><summary>The technical details</summary><p>The shared folder uses SFTP, a secure way for companies to swap files. The API accepts and returns JSON, the format most modern software uses. The API is in development and may change before launch.</p></details></div>
-    <div class="vis"><div class="arc" data-arc="0.6"></div>{win_tabs([("Shared folder", "", hl_shell(SFTP_SESSION)), ("API", "", hl_js(API_JS))], "Illustration")}</div>
-  </div>
-  <div class="frow flip">
-    <div class="frow-text"><span class="label">One dashboard</span><h2>See every order and invoice in one place</h2>
-      <p>Know what arrived, what was sent and what needs attention, before a small mistake turns into a fine from your retailer.</p>
-      <p class="small">Illustration of the planned dashboard with sample data. Not a live product screenshot.</p></div>
-    <div class="vis tall"><div class="arc" data-arc="0.6"></div>{dashboard_mock()}</div>
-  </div>
-</div></section>
-
 <section class="orbit-sec sec-tight"><div class="container orbit-split">
   {orbit()}
   <div class="frow-text"><span class="label">Translation engine</span><h2>Any format in. The right format out.</h2>
-    <p>Your partners send EDI (X12 or EDIFACT), XML, JSON, CSV or flat files, over SFTP or an API. TradeFlo is being built to check each message, translate it into the format the other side needs, and send it on.</p>
+    <p>TradeFlo is being built to support every EDI document, in X12 and EDIFACT, plus XML, JSON, CSV and flat files, over SFTP or an API. It checks each message, translates it into the format the other side needs, and sends it on.</p>
     <p>Each partner's rules live in one place, so adding a new one doesn't mean starting over.</p>
     <a class="btn btn-primary mt-2" href="tradeflo.html">Explore TradeFlo</a></div>
-</div></section>
-
-<section class="sec-tight"><div class="container doc-split">
-  <div class="doc-head"><h2>The documents your partners will ask for</h2>
-    <p class="lead">In EDI, every type of document has a number. Here's what the common ones mean.</p>
-    <a class="link-arrow" href="retail-edi-documents.html">Read the full guide</a></div>
-  <div class="doclist">{docs_main}<details class="doc-more"><summary>Show 4 more</summary>{docs_more}</details></div>
 </div></section>
 
 <section class="s-light sec-tight"><div class="container split">
@@ -859,7 +727,7 @@ def home():
   <div class="section-head center"><span class="label">Security</span><h2>Built carefully, claimed honestly</h2></div>
   <div class="scards">
     <div class="scard"><h3>Your data is encrypted</h3><p>Planned from day one: encryption for every connection and every stored document.</p></div>
-    <div class="scard"><h3>Only the right people get in</h3><p>Planned for every account: individual logins, two-step sign-in and permissions.</p></div>
+    <div class="scard"><h3>Only the right people get in</h3><p>Planned for every account: individual logins, multi-factor authentication (MFA) and permissions.</p></div>
     <div class="scard"><h3>Built for HIPAA</h3><p>CareFlo and HealthFlo are being built to meet HIPAA requirements, and we'll sign a Business Associate Agreement (BAA) with every customer who needs one.</p></div>
     <div class="scard"><h3>Verified before we say it</h3><p>Claims like HIPAA compliance or a SOC 2 report go on our <a href="security.html" style="text-decoration:underline">Security page</a> once an independent review confirms them.</p></div>
   </div>
@@ -972,7 +840,7 @@ def tradeflo_flow():
         flow_ex(["in-api", "from-json"], ["to-edi", "out-api"], "Your store confirms an order in JSON. Your partner gets EDI."),
     ]
     feats = [
-        ("swap", "Many formats", "EDI, XML, JSON, CSV and flat files, in and out."),
+        ("swap", "Every EDI document", "Any X12 or EDIFACT document, plus XML, JSON, CSV and flat files, in and out."),
         ("users", "Partner setup", "Each partner's IDs and connection details in one place."),
         ("shield", "Secure exchange", "SFTP and encrypted API connections, with a record of every file."),
         ("sliders", "Flexible mapping", "Reshape, check and fill in fields to match each partner."),
@@ -1040,6 +908,17 @@ def product_page(name, mark, status, lead, who, example_intro, demo, features, s
     title_html = wordmark(name)
     cta_html = cta_band(*cta, product=name, secondary=is_live, button="Get early access" if is_live else "Join the waitlist")
     sub = next(p["sub"] for p in PRODUCTS if p["name"] == name)
+    features_html = f'''
+<section><div class="container">
+  <div class="section-head"><span class="eyebrow">Features</span><h2>What we're building</h2></div>
+  <div class="feature-grid">{feat_html}</div>
+</div></section>''' if features else ""
+    standards_html = f'''
+<section class="section-soft"><div class="container split top">
+  <div><span class="eyebrow">{standards_label}</span><h2>Supported {"standards" if name == "HealthFlo" else "transactions"}</h2>
+    <p class="lead">Planned for launch in 2027.</p><div class="chips">{std_html}</div></div>
+  <div class="card table-wrap"><table class="article" style="margin:0;max-width:none"><tbody>{std_rows}</tbody></table></div>
+</div></section>''' if standards else ""
     return f'<div class="p-scope {tone(name)}">' + page_hero(title_html, lead, sub, [("Products", "products.html"), (name, None)], actions, badge) + f'''
 <section><div class="container split top">
   <div><span class="eyebrow">What it does</span><h2>{example_intro[0]}</h2><p class="lead">{example_intro[1]}</p>{notice}</div>
@@ -1048,45 +927,25 @@ def product_page(name, mark, status, lead, who, example_intro, demo, features, s
 <section class="section-soft"><div class="container">
   <div class="section-head"><span class="eyebrow">Example</span><h2>{demo[0]}</h2><p class="lead">{demo[1]}</p></div>
   {demo[2]}
-</div></section>
-<section><div class="container">
-  <div class="section-head"><span class="eyebrow">Features</span><h2>{"What's included" if is_live else "What we're building"}</h2></div>
-  <div class="feature-grid">{feat_html}</div>
-</div></section>
-<section class="section-soft"><div class="container split top">
-  <div><span class="eyebrow">{standards_label}</span><h2>Supported {"documents" if name == "TradeFlo" else "standards" if name == "HealthFlo" else "transactions"}</h2>
-    <p class="lead">{"" if is_live else "Planned for launch in 2027."}</p><div class="chips">{std_html}</div></div>
-  <div class="card table-wrap"><table class="article" style="margin:0;max-width:none"><tbody>{std_rows}</tbody></table></div>
-</div></section>
+</div></section>{features_html}{standards_html}
 <div id="waitlist"></div>
 {cta_html}</div>'''
 
 
 @page("tradeflo.html", "TradeFlo | EDI for suppliers and manufacturers",
-      "TradeFlo translates X12 and EDIFACT documents like 850, 810 and 856 into clean JSON, with SFTP, API and transaction tracking.", "products")
+      "TradeFlo is being built to translate every X12 and EDIFACT document into clean data your systems can use, over SFTP or an API.", "products")
 def tradeflo():
     return product_page(
         "TradeFlo", "Trade", "live",
-        "Make it easier to send and receive purchase orders, invoices, and shipping information between your business and its partners. TradeFlo is in development, with early access open now.",
+        "Built to send and receive every EDI document, from purchase orders and invoices to shipping notices, between your business and its partners. TradeFlo is in development, with early access open now.",
         ["Manufacturers selling to big-box retailers", "Distributors and wholesalers with many trading partners",
          "Retail and e-commerce suppliers facing new EDI requirements", "Teams outgrowing expensive legacy EDI providers"],
         ("Your partners' documents, in a format your systems understand",
-         "TradeFlo receives your partners' EDI documents, turns them into clean JSON or files your systems can use, and sends your responses back in the exact format each partner expects."),
+         "TradeFlo is being built to support every EDI document, in X12 and EDIFACT. It receives what your partners send, turns it into clean JSON or files your systems can use, and sends your responses back in the exact format each partner expects."),
         ("A Walmart purchase order, start to finish",
          "An 850 arrives from Walmart. TradeFlo validates it, sends the 997 acknowledgment, and hands your system clean JSON. When you ship, your 856 and 810 go back the same way.",
          translate_demo("Walmart purchase order", "X12 850", PO_X12, "Delivered to your system", "JSON", PO_JSON)),
-        [("swap", "X12 and EDIFACT translation", "Read and write the standards your retail and international partners use."),
-         ("code", "EDI to JSON", "Work with clean, documented JSON instead of segments and delimiters."),
-         ("server", "SFTP", "Drop and pick up files from a secure SFTP folder. No code required."),
-         ("plug", "REST API", "Send and receive documents programmatically and connect your ERP or storefront."),
-         ("users", "Trading partner management", "Keep each partner's IDs, specs and connection settings in one place."),
-         ("eye", "Transaction tracking", "Follow every document from received to acknowledged, with full history."),
-         ("bell", "Error alerts", "Get notified about rejected or late documents before they become chargebacks."),
-         ("check", "Validation", "Catch missing fields and bad values before a document leaves your hands."),
-         ("chat", "Hands-on onboarding", "We help you connect your first trading partner, directly.")],
-        "X12 documents",
-        [("850", "Purchase order"), ("855", "Purchase order acknowledgment"), ("856", "Advance ship notice (ASN)"),
-         ("810", "Invoice"), ("846", "Inventory inquiry / advice"), ("997", "Functional acknowledgment")],
+        [], "", [],
         ("Get early access to TradeFlo", "Founding customers lock in launch pricing and help shape the product.", "tradeflo"),
         flow=tradeflo_flow(),
     )
@@ -1151,81 +1010,6 @@ def healthflo():
         [("HL7 v2", "Event-based messages (ADT, ORM, ORU and more)"), ("FHIR R4", "Modern REST-based healthcare resources")],
         ("Join the HealthFlo waitlist", "We'll let you know as soon as HealthFlo opens, and early waitlist members get first access.", "healthflo"),
     )
-
-
-@page("solutions.html", "Solutions", "EDI and healthcare data solutions for manufacturers, logistics, medical billing and health tech teams.", "solutions")
-def solutions():
-    cards = "".join(
-        f'<a class="card" href="{s["href"]}">{icon(s["icon"])}<h3 class="mt-2">{s["name"]}</h3><p>{s["short"]}</p>'
-        f'<span class="more arrow">Uses {s["product"]}</span></a>' for s in SOLUTIONS)
-    return page_hero("Solutions for your industry", "Start with who you are. We'll show you which product fits.",
-                     "Solutions", [("Home", "index.html"), ("Solutions", None)]) + f'''
-<section><div class="container"><div class="grid grid-2">{cards}</div></div></section>
-{cta_band(source="solutions")}'''
-
-
-SOLUTION_CONTENT = {
-    "manufacturers": dict(
-        title="EDI that keeps retailers happy, at a price that makes sense",
-        lead="Your retail partners require EDI. Your current options are expensive, slow to set up, or both. NexFlo is built to fix that.",
-        pains=[("Retailers require EDI to do business", "Big-box and online retailers won't place orders without 850s, 856s and 810s in their exact format."),
-               ("Legacy providers are expensive", "Per-partner fees, setup charges and long contracts add up fast for a growing manufacturer."),
-               ("Mistakes cost you chargebacks", "A late or incorrect ship notice can mean fines and short payments from your retail partners.")],
-        how="TradeFlo translates your partners' documents into clean data, sends your responses in the right format, and alerts you before small errors turn into chargebacks.",
-        product="tradeflo"),
-    "logistics": dict(
-        title="Many trading partners. One place to manage them.",
-        lead="Distributors and logistics teams juggle documents from dozens of partners, each with its own quirks. NexFlo brings them into one flow.",
-        pains=[("Every partner is different", "Each customer and supplier has its own specs, IDs and connection method."),
-               ("Too much manual handling", "Re-keying orders and ship notices from emails and portals burns hours and invites errors."),
-               ("No single view of what's moving", "When documents live in different inboxes and portals, nobody knows what's stuck.")],
-        how="TradeFlo keeps every trading partner's settings in one place, automates document exchange over SFTP or API, and tracks every transaction in one dashboard.",
-        product="tradeflo"),
-    "medical-billing": dict(
-        title="Claims and eligibility data, in one consistent format",
-        lead="Billing and RCM teams handle claims, eligibility checks and remittances across many payers. CareFlo is being built to simplify the data layer underneath.",
-        pains=[("Every payer behaves differently", "Companion guides, edits and responses vary from one payer to the next."),
-               ("Raw X12 is hard to work with", "837s, 835s and 271s are dense and hard to debug without specialist tools."),
-               ("Errors surface too late", "Rejections show up days later, after the claim has already left your hands.")],
-        how="CareFlo is planned as a translation and validation layer for HIPAA X12 transactions, turning them into JSON, CSV or other formats your systems use and catching errors early. Payer connectivity is arranged separately through your clearinghouse.",
-        product="careflo"),
-    "health-tech": dict(
-        title="Connect systems that format data differently",
-        lead="Health tech teams spend months on integrations because every EHR and hospital system speaks its own dialect. HealthFlo is being built to shorten that.",
-        pains=[("Every integration is custom", "Each hospital's HL7 feed has its own quirks, even for the same message type."),
-               ("Old and new standards mix", "You need to work with HL7 v2 feeds and FHIR APIs at the same time."),
-               ("Interfaces fail quietly", "When a feed stops, you often hear about it from a customer first.")],
-        how="HealthFlo is planned to map HL7 v2 to FHIR and back, route messages to the right place, and monitor every interface so you know about problems first.",
-        product="healthflo"),
-}
-
-
-def solution_page(key):
-    s = next(x for x in SOLUTIONS if x["key"] == key)
-    c = SOLUTION_CONTENT[key]
-    p = next(x for x in PRODUCTS if x["key"] == c["product"])
-    live = p["status"] == "live"
-    pains = "".join(f'<div class="pain"><span class="num">{i}</span><div><h3>{t}</h3><p class="muted mb-0">{d}</p></div></div>'
-                    for i, (t, d) in enumerate(c["pains"], 1))
-    return page_hero(c["title"], c["lead"], s["name"], [("Solutions", "solutions.html"), (s["name"], None)]) + f'''
-<section><div class="container">
-  <div class="section-head"><span class="eyebrow">Sound familiar?</span><h2>The problems we hear most</h2></div>
-  <div class="grid grid-3">{pains}</div>
-</div></section>
-<section class="section-soft"><div class="container split">
-  <div><span class="eyebrow">The fit</span><h2>{p["name"]} {status_badge(p["status"])}</h2><p class="lead">{c["how"]}</p>
-    <div class="row mt-3"><a class="btn btn-secondary" href="{p["href"]}">Explore {p["name"]}</a>
-    {f'<a class="btn btn-ghost arrow" href="pricing.html?product={p["name"]}#quote">Request pricing </a>' if live else ""}</div></div>
-  <a class="card featured {tone(p["name"])}" href="{p["href"]}"><div class="card-top"><div class="product-mark">{wordmark(p["name"])}</div>{status_badge(p["status"])}</div><p>{p["line"]}</p><span class="more arrow">Learn more</span></a>
-</div></section>
-{cta_band("Get early access" if live else f"Join the {p['name']} waitlist",
-          "Founding customers lock in launch pricing." if live else "Be first to know when it opens in 2027.",
-          f"solution-{key}", product=p["name"], secondary=live)}'''
-
-
-for _s in SOLUTIONS:
-    page(_s["href"], _s["name"], f'{_s["short"]} NexFlo Cloud for {_s["name"].lower()}.', "solutions")(
-        (lambda k: (lambda: solution_page(k)))(_s["key"]))
 
 
 PRICING_FAQ = [
@@ -1432,7 +1216,7 @@ article("retail-edi-documents.html", "The supplier's guide to retail EDI documen
 <h2>4. Get paid (810)</h2>
 <p>Your 810 invoice should match the order and the ASN. Mismatches slow down payment.</p>
 <h2>How TradeFlo helps</h2>
-<p><a href="tradeflo.html">TradeFlo</a> is built to handle all six documents, validate them against each partner's rules, and alert you before a problem becomes a chargeback.</p>''')
+<p><a href="tradeflo.html">TradeFlo</a> is built to handle these six documents and every other EDI document, validate them against each partner's rules, and alert you before a problem becomes a chargeback.</p>''')
 
 
 @page("security.html", "Security", "How NexFlo Cloud plans to protect your data: encryption, access control, monitoring and Business Associate Agreements.", "resources")
