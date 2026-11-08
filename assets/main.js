@@ -127,6 +127,18 @@ const FORM_ENDPOINT = "";
     });
   });
 
+  /* ---- TEMPORARY design preview: product name colours (Version 1 / Version 2) ----
+     The version is set on <html data-pv> by a small script in <head>; this keeps the switches in sync,
+     applies a click immediately to every product name on the page, and remembers it for other pages. */
+  const pvButtons = [...document.querySelectorAll(".pv-toggle [data-pv]")];
+  const pvSync = () => pvButtons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.pv === document.documentElement.dataset.pv)));
+  pvButtons.forEach((b) => b.addEventListener("click", () => {
+    document.documentElement.dataset.pv = b.dataset.pv;
+    try { localStorage.setItem("nf-pv", b.dataset.pv); } catch (e) { /* private mode: still switches on this page */ }
+    pvSync();
+  }));
+  pvSync();
+
   /* ---- Year ---- */
   document.querySelectorAll("[data-year]").forEach((el) => (el.textContent = new Date().getFullYear()));
 })();
