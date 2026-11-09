@@ -2,12 +2,10 @@
 
 /*
  * FORM DELIVERY
- * Every form posts to FORM_ENDPOINT as JSON: { form, to, page, fields: {...} }.
- * Point it at whatever forwards to your Microsoft 365 inbox, e.g. a Power Automate
- * "When an HTTP request is received" flow, an Azure Function, or a service like Formspree.
- * While it's empty, forms validate but don't send; they tell the visitor to email the inbox instead.
+ * Every form posts to FORM_ENDPOINT as JSON: { form, page, fields: {...} }.
+ * api/contact.mjs emails it to the NexFlo team and decides who receives each form.
  */
-const FORM_ENDPOINT = "";
+const FORM_ENDPOINT = "/api/contact";
 
 (function () {
   const body = document.body;
@@ -57,8 +55,8 @@ const FORM_ENDPOINT = "";
   });
 
   /* ---- Forms ----
-     Validates inline, blocks double submits, and shows success only after the endpoint confirms.
-     Until FORM_ENDPOINT is set there is nowhere to send to, so the form says so and offers email instead. */
+     Validates inline, blocks double submits, and shows success only after the endpoint confirms the email was sent.
+     If sending fails, the form says so and offers the inbox address instead. */
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   const setError = (field, msg) => {
     const wrap = field.closest(".field");
@@ -100,11 +98,6 @@ const FORM_ENDPOINT = "";
       }
       status.setAttribute("role", "status");
       status.textContent = "";
-      if (!FORM_ENDPOINT) {
-        status.className = "form-status warn";
-        status.innerHTML = `Online sending isn't switched on yet, so this wasn't sent. Please email <a href="mailto:${form.dataset.to}">${form.dataset.to}</a>.`;
-        return;
-      }
       const data = Object.fromEntries(new FormData(form).entries());
       delete data.website;
       const btn = form.querySelector('[type="submit"]');
@@ -113,7 +106,7 @@ const FORM_ENDPOINT = "";
       if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
       try {
         const res = await fetch(FORM_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ form: form.dataset.form, to: form.dataset.to, page: location.pathname, submitted_at: new Date().toISOString(), fields: data }) });
+          body: JSON.stringify({ form: form.dataset.form, page: location.pathname, fields: data }) });
         if (!res.ok) throw new Error("Request failed");
         form.classList.add("sent");
         form.reset();
