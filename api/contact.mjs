@@ -4,7 +4,7 @@
  * Needs RESEND_API_KEY in Vercel. The sender address must be on a domain verified in Resend;
  * set FORM_FROM in Vercel to use a different sender.
  */
-const TEAM = "aadithbalaji@nexflo.cloud";
+const TEAM = "sales@nexflo.cloud";
 
 // Who receives each form. The browser never picks the recipient, so nobody can use this to email anyone else.
 const RECIPIENTS = {

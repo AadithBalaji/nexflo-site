@@ -18,8 +18,8 @@ DIST = ROOT / ("dist-lines" if __import__("os").environ.get("HERO") == "lines" e
 
 # ---------------------------------------------------------------- settings
 SITE_URL = "https://nexflo.cloud"
-SALES = "aadithbalaji@nexflo.cloud"  # early access, pricing and demo requests
-INFO = SALES  # address shown for general, security and legal questions; set to support@nexflo.cloud once that inbox is ready
+SALES = "sales@nexflo.cloud"  # the public address: forms, sales, and every "email us" on the site
+INFO = SALES  # general, security and legal questions; point at its own inbox (e.g. support@) when there is one
 # Until app.nexflo.cloud exists, "Portal login" points at the local placeholder.
 # Deploy dist/portal.html as the index of app.nexflo.cloud, then set this to "https://app.nexflo.cloud".
 PORTAL_URL = "portal.html"
@@ -354,7 +354,6 @@ def footer_html():
     <div class="foot-grid">
       <div class="foot-brand">
         <a href="index.html" aria-label="NexFlo Cloud home"><img src="assets/logo.png" alt="NexFlo Cloud" width="154" height="46"></a>
-        <p>Minnesota, USA</p>
         <p><a href="mailto:{INFO}">{INFO}</a></p>
         <div class="foot-social"><a href="{LINKEDIN}" rel="noopener" target="_blank" aria-label="NexFlo on LinkedIn">{LINKEDIN_SVG}</a></div>
       </div>
@@ -1110,7 +1109,7 @@ GENERAL_FAQ = [
     ("Do I need developers to use NexFlo?", "No. You can exchange files over SFTP and use the dashboard. Teams with developers can use the REST API and JSON instead."),
     ("Is CareFlo a clearinghouse?", "No. CareFlo is planned as a translation and validation layer. Payer connectivity is arranged separately, through your existing clearinghouse or a partner."),
     ("Are you HIPAA compliant?", "CareFlo and HealthFlo are being built to meet HIPAA requirements, and we'll sign a Business Associate Agreement (BAA) with every customer who needs one. There's no official HIPAA certification, so we'll only say we're compliant once an independent review confirms it. See our <a href=\"security.html\">Security page</a> for details."),
-    ("Where are you based?", "Minnesota. NexFlo is a small team, so you talk directly to the people building it."),
+    ("Who do you work with?", "Businesses across the U.S. NexFlo is a small team, so you talk directly to the people building it."),
 ]
 
 GUIDES = [
@@ -1249,7 +1248,7 @@ def security():
 </div></section>'''
 
 
-@page("about.html", "About", "NexFlo Cloud is a Minnesota company building affordable, enterprise-grade integration for growing businesses.", "company")
+@page("about.html", "About", "NexFlo Cloud builds affordable, enterprise-grade integration for growing businesses across the U.S.", "company")
 def about():
     return page_hero("EDI for the suppliers big providers overlook",
                      "NexFlo Cloud exists to make EDI and data integration affordable and simple for the businesses that big providers overlook.",
@@ -1262,7 +1261,7 @@ def about():
     <p class="mb-0">NexFlo fixes that. TradeFlo comes first, for suppliers trading with retailers. CareFlo and HealthFlo bring the same approach to healthcare data in 2027.</p></div>
 </div>
 <div class="container grid grid-3 mt-6">
-  <div class="card">{icon("map")}<h3 class="mt-2">Based in Minnesota</h3><p>Built in the Midwest, for businesses everywhere.</p></div>
+  <div class="card">{icon("map")}<h3 class="mt-2">Serving businesses nationwide</h3><p>It all runs in the cloud, so it works wherever you and your partners are.</p></div>
   <div class="card">{icon("tag")}<h3 class="mt-2">Transparent by default</h3><p>Clear pricing and honest claims about what's built and what's planned.</p></div>
   <div class="card">{icon("chat")}<h3 class="mt-2">Direct support</h3><p>No ticket queues. You talk to the person who wrote the code.</p></div>
 </div></section>
@@ -1290,8 +1289,8 @@ def contact():
   </form>
   <div class="grid">
     <div class="card">{icon("chat")}<h3 class="mt-2">General questions</h3><p><a href="mailto:{INFO}">{INFO}</a></p></div>
-    <div class="card">{icon("tag")}<h3 class="mt-2">Sales and pricing</h3><p><a href="mailto:{SALES}">{SALES}</a></p></div>
-    <div class="card">{icon("map")}<h3 class="mt-2">Location</h3><p>Minnesota, USA</p></div>
+    <div class="card">{icon("tag")}<h3 class="mt-2">Sales and pricing</h3><p><a href="pricing.html#quote">Request pricing</a></p></div>
+    <div class="card">{icon("map")}<h3 class="mt-2">Where we work</h3><p>Businesses across the U.S.</p></div>
   </div>
 </div></section>'''
 
@@ -1383,7 +1382,7 @@ def privacy():
 <h2>Retention</h2><p>We keep form submissions only as long as needed for the purposes above, or as required by law.</p>
 <h2>Your choices</h2><p>You can unsubscribe from emails at any time and ask us to access, correct or delete your information by writing to <a href="mailto:{INFO}">{INFO}</a>.</p>
 <h2>Security</h2><p>We use reasonable safeguards to protect your information. See our <a href="security.html">Security page</a>.</p>
-<h2>Contact</h2><p>NexFlo Cloud, Minnesota, USA · <a href="mailto:{INFO}">{INFO}</a></p>
+<h2>Contact</h2><p>NexFlo Cloud · <a href="mailto:{INFO}">{INFO}</a></p>
 </div></div></section>'''
 
 
