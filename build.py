@@ -19,7 +19,7 @@ DIST = ROOT / ("dist-lines" if __import__("os").environ.get("HERO") == "lines" e
 # ---------------------------------------------------------------- settings
 SITE_URL = "https://nexflo.cloud"
 SALES = "aadithbalaji@nexflo.cloud"  # early access, pricing and demo requests
-INFO = "support@nexflo.cloud"  # contact form, security, legal
+INFO = SALES  # address shown for general, security and legal questions; set to support@nexflo.cloud once that inbox is ready
 # Until app.nexflo.cloud exists, "Portal login" points at the local placeholder.
 # Deploy dist/portal.html as the index of app.nexflo.cloud, then set this to "https://app.nexflo.cloud".
 PORTAL_URL = "portal.html"
@@ -1274,7 +1274,7 @@ def contact():
     return page_hero("Contact us", "Questions, partnerships or just curious? We reply within one business day.",
                      "Company", [("Company", None), ("Contact", None)]) + f'''
 <section><div class="container split top">
-  <form class="form-card" data-form="Contact" data-to="{INFO}">
+  <form class="form-card" data-form="Contact" data-to="{SALES}">
     {HONEYPOT}
     <div class="form-body"><div class="form-grid">
       <div class="field"><label for="c-name">Name</label><input id="c-name" name="name" required autocomplete="name"></div>

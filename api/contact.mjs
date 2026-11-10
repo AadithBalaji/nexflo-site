@@ -4,15 +4,14 @@
  * Needs RESEND_API_KEY in Vercel. The sender address must be on a domain verified in Resend;
  * set FORM_FROM in Vercel to use a different sender.
  */
-const SALES = "aadithbalaji@nexflo.cloud";
-const SUPPORT = "support@nexflo.cloud";
+const TEAM = "aadithbalaji@nexflo.cloud";
 
 // Who receives each form. The browser never picks the recipient, so nobody can use this to email anyone else.
 const RECIPIENTS = {
-  "Early access": SALES,
-  "Pricing request": SALES,
-  "Consultation request": SALES,
-  Contact: SUPPORT,
+  "Early access": TEAM,
+  "Pricing request": TEAM,
+  "Consultation request": TEAM,
+  Contact: TEAM,
 };
 
 // The fields we accept, in the order they appear in the email. Anything else is dropped.
