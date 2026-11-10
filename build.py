@@ -1109,7 +1109,7 @@ GENERAL_FAQ = [
     ("Do I need developers to use NexFlo?", "No. You can exchange files over SFTP and use the dashboard. Teams with developers can use the REST API and JSON instead."),
     ("Is CareFlo a clearinghouse?", "No. CareFlo is planned as a translation and validation layer. Payer connectivity is arranged separately, through your existing clearinghouse or a partner."),
     ("Are you HIPAA compliant?", "CareFlo and HealthFlo are being built to meet HIPAA requirements, and we'll sign a Business Associate Agreement (BAA) with every customer who needs one. There's no official HIPAA certification, so we'll only say we're compliant once an independent review confirms it. See our <a href=\"security.html\">Security page</a> for details."),
-    ("Where are you based?", "We're based in Minnesota and work with businesses nationwide. NexFlo is a small team, so you talk directly to the people building it."),
+    ("Who do you work with?", "Businesses across the U.S. NexFlo is a small team, so you talk directly to the people building it."),
 ]
 
 GUIDES = [
