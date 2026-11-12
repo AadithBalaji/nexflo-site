@@ -51,6 +51,6 @@ Pricing is package-based: each product has monthly Starter, Growth and Enterpris
 - **Forms.** Every form posts to `api/contact.mjs`, a Vercel Function that emails it through Resend. Every form goes to sales@nexflo.cloud (set in `RECIPIENTS` in that file). It needs `RESEND_API_KEY` in Vercel (added by the Resend integration) and `nexflo.cloud` verified in Resend. Set `FORM_FROM` to change the sender. Success only shows after Resend accepts the email; otherwise the form asks the visitor to try again or email instead.
 - **Analytics.** Paste your snippet where the `<!-- Analytics -->` comment sits in `layout()` in `build.py`.
 - **Portal.** Deploy `dist/portal.html` as app.nexflo.cloud, then set `PORTAL_URL = "https://app.nexflo.cloud"` in `build.py`.
-- **Copy to fill in.** Confirm `LINKEDIN` and the TechDigital details on the About page ("since 2008", and add a link to its website if you want one).
+- **Copy to fill in.** LinkedIn is set (`LINKEDIN` in `build.py`). Founder details stay off the site unless Aadith asks for them.
 - **Legal.** `privacy.html` and `terms.html` are drafts and need a lawyer's review.
 - **Product name.** If TradeFlo becomes OrderFlo, rename it in the `PRODUCTS` list and run find-and-replace in `build.py`.
