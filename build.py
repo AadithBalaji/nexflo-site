@@ -23,7 +23,7 @@ INFO = SALES  # general, security and legal questions; point at its own inbox (e
 # Until app.nexflo.cloud exists, "Portal login" points at the local placeholder.
 # Deploy dist/portal.html as the index of app.nexflo.cloud, then set this to "https://app.nexflo.cloud".
 PORTAL_URL = "portal.html"
-LINKEDIN = "https://www.linkedin.com/company/nexflo-cloud"  # TODO: confirm company page URL
+LINKEDIN = "https://www.linkedin.com/company/nexflo-cloud/"
 YEAR = "2026"
 
 
