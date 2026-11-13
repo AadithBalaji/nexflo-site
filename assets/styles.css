@@ -1289,3 +1289,86 @@ details.more p { margin-top: 10px; font-size: .95rem; color: var(--muted); }
 /* Home: the Walmart example sits on light gray between two dark sections. The cloud edge above it is clipped
    by its section, so a 1px band of the same gray closes the hairline seam where the two sections meet. */
 .demo-s.s-light { box-shadow: 0 -1px 0 var(--bg); }
+
+/* Header actions: a plain "Login" link, then one pill button ("Book Demo"). */
+.nav-actions { gap: 14px; }
+.nav-login { font-weight: 600; color: var(--ink2); padding: 8px 6px; }
+.btn-pill { border-radius: 999px; padding: 10px 22px; font-size: .95rem; font-weight: 700; }
+.site-header .btn-primary { box-shadow: 0 8px 22px -12px rgba(0,107,253,.9); }
+@media (max-width: 1080px) { .nav-actions .btn-pill { padding: 13px 22px; } }
+
+/* Focused header (Book Demo): a link back on the left, the logo centred, no menu. */
+.focus-header .nav { display: grid; grid-template-columns: 1fr auto 1fr; }
+.focus-header .nav-login { justify-self: start; padding-left: 0; }
+
+/* ---------- Book Demo ----------
+   One framed block: the form on the left; on the right what the call is about, with three plain facts
+   underneath. On phones: the pitch, then the form, then the facts. */
+.bk { padding: 48px 0 84px; }
+.bk-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); grid-template-rows: 1fr auto;
+  grid-template-areas: "form pitch" "form facts"; border: 1px solid var(--line); border-radius: 26px; overflow: hidden; background: var(--bg2); }
+.bk-form { grid-area: form; padding: 40px; }
+.bk-pitch { grid-area: pitch; display: flex; flex-direction: column; justify-content: center; padding: 56px 52px; border-left: 1px solid var(--line); }
+.bk-pitch h1 { font-size: clamp(2.1rem, 3.4vw, 2.9rem); margin: 0 0 18px; }
+.bk-lead { font-size: 1.22rem; font-weight: 600; line-height: 1.45; color: var(--ink2); margin: 0; }
+.bk-pitch h2 { margin: 34px 0 14px; font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.bk-facts { grid-area: facts; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
+.bk-facts > div { display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 22px 24px; text-align: center; }
+.bk-facts > div + div { border-left: 1px solid var(--line); }
+.bk-facts b { font-size: 1rem; }
+.bk-facts span, .bk-facts a { font-size: .86rem; color: var(--muted); overflow-wrap: anywhere; }
+.bk-facts a { color: var(--link); }
+.bk .form-grid { gap: 14px; }
+.bk .form-foot { margin-top: 24px; }
+.bk .form-foot .btn { padding: 14px 30px; font-size: 1rem; }
+
+/* Pill fields: the label sits inside the field, before what you type (or above a choice or a text box). */
+.pf { display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 0 22px; border: 1px solid transparent; border-radius: 999px;
+  background: var(--panel-2); cursor: text; transition: border-color .2s, box-shadow .2s; }
+.pf > span { flex: none; font-size: .98rem; color: var(--ink2); white-space: nowrap; }
+.pf .opt { font-size: .85em; color: var(--muted); }
+.pf input, .pf select, .pf textarea, .pf input:focus, .pf select:focus, .pf textarea:focus {
+  flex: 1; min-width: 0; width: auto; padding: 16px 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; outline: none; font: inherit; font-size: 1rem; color: var(--ink); }
+.pf:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 25%, transparent); }
+.pf:has([aria-invalid="true"]) { border-color: #FF8A80; }
+.pf-stack, .pf-area { flex-direction: column; align-items: stretch; justify-content: center; gap: 2px; border-radius: 26px; }
+.pf-stack { padding: 10px 22px; cursor: pointer; }
+.pf-stack > span, .pf-area > span { font-size: .8rem; color: var(--muted); }
+.pf-stack select, .pf-stack select:focus { padding: 2px 0; cursor: pointer; }
+.pf-area { padding: 16px 22px; }
+.pf-area textarea, .pf-area textarea:focus { min-height: 112px; padding: 6px 0 0; resize: vertical; }
+.pf textarea::placeholder { color: var(--muted); }
+.bk .field .err-msg { margin: 6px 0 0 22px; }
+.pf-set { grid-column: 1 / -1; margin: 4px 0 0; padding: 12px 22px 18px; border: 1px solid var(--line); border-radius: 22px; }
+.pf-set legend { padding: 0 8px; margin-left: -8px; font-size: .95rem; font-weight: 600; }
+.pf-checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px; margin-top: 8px; }
+.pf-check { display: flex; align-items: center; gap: 10px; font-size: .98rem; cursor: pointer; }
+.pf-check input { flex: none; width: 18px; height: 18px; margin: 0; accent-color: var(--blue); cursor: pointer; }
+.pf-check small { margin-left: 4px; font-size: .74rem; color: var(--muted); }
+
+@media (max-width: 960px) {
+  .bk-grid { grid-template-columns: 1fr; grid-template-rows: none; grid-template-areas: "pitch" "form" "facts"; }
+  .bk-pitch { border-left: 0; border-bottom: 1px solid var(--line); padding: 36px 28px; }
+  .bk-form { padding: 28px; }
+  .bk-facts { border-left: 0; }
+}
+@media (max-width: 640px) {
+  .bk { padding: 24px 0 52px; }
+  .bk-grid { border-radius: 20px; }
+  .bk-pitch { padding: 28px 20px; }
+  .bk-pitch h1 { font-size: 2rem; }
+  .bk-lead { font-size: 1.06rem; }
+  .bk-form { padding: 20px 14px; }
+  .bk-facts { grid-template-columns: 1fr; }
+  .bk-facts > div { padding: 14px 20px; }
+  .bk-facts > div + div { border-left: 0; border-top: 1px solid var(--line); }
+  .pf-checks { grid-template-columns: 1fr; gap: 10px; }
+  .bk .form-foot .btn { width: 100%; }
+  .focus-header .nav-login { font-size: .88rem; }
+  .focus-header .brand img { height: 34px; }
+}
+.bk .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.pf-stack > span, .pf-area > span { white-space: normal; line-height: 1.3; }
+@media (max-width: 640px) { .bk .form-grid { grid-template-columns: 1fr; } }
+@media (max-width: 960px) { .bk-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 640px) { .bk .form-grid { grid-template-columns: minmax(0, 1fr); } }

@@ -337,8 +337,8 @@ def nav_html(active):
         <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
       </ul>
       <div class="nav-actions">
-        <a class="nav-login" href="{PORTAL_URL}">Portal login</a>
-        <a class="btn btn-primary btn-sm" href="early-access.html">Join early access</a>
+        <a class="nav-login" href="{PORTAL_URL}">Login</a>
+        <a class="btn btn-pill btn-primary" href="demo.html">Book Demo</a>
       </div>
     </div>
   </nav>
@@ -372,13 +372,21 @@ def footer_html():
 </footer>'''
 
 
-def layout(title, description, body, active="", slug="", bare=False):
+def layout(title, description, body, active="", slug="", bare=False, focus=False):
+    """bare: logo and a link back, no footer (the portal). focus: the logo centred with a link back and no
+    menu, but with the footer (pages that should keep attention on one form, like Book Demo)."""
     full_title = title if "NexFlo" in title else f"{title} | NexFlo Cloud"
     canonical = f"{SITE_URL}/{slug.removesuffix('.html')}" if slug and slug != "index.html" else f"{SITE_URL}/"
-    header = nav_html(active) if not bare else (
-        '<header class="site-header"><nav class="container nav"><a class="brand" href="index.html">'
-        '<img src="assets/logo.png" alt="NexFlo Cloud" width="154" height="46"></a>'
-        '<div style="margin-left:auto"><a class="nav-login" href="index.html">← Back to site</a></div></nav></header>')
+    if focus:
+        header = ('<header class="site-header focus-header"><nav class="container nav" aria-label="Main">'
+                  '<a class="nav-login" href="index.html">← Back to site</a>'
+                  '<a class="brand" href="index.html" aria-label="NexFlo Cloud home"><img src="assets/logo.png" alt="NexFlo Cloud" width="154" height="46"></a>'
+                  '<span></span></nav></header>')
+    else:
+        header = nav_html(active) if not bare else (
+            '<header class="site-header"><nav class="container nav"><a class="brand" href="index.html">'
+            '<img src="assets/logo.png" alt="NexFlo Cloud" width="154" height="46"></a>'
+            '<div style="margin-left:auto"><a class="nav-login" href="index.html">← Back to site</a></div></nav></header>')
     return f'''<!doctype html>
 <html lang="en" data-theme="dark">
 <head>
@@ -1685,30 +1693,57 @@ def contact():
 </div></section>'''
 
 
-@page("demo.html", "Talk to us", "Request a consultation with NexFlo Cloud about your trading partners, documents and how NexFlo could fit.")
+def pill_field(fid, name, label, kind="input", required=False, extra="", body=""):
+    """A rounded field with its label inside it (Book Demo page). kind: "input", "select" (label above the
+    choice) or "area" (label above a text box). The .field wrapper is where main.js puts error messages."""
+    opt_tag = "" if required else ' <span class="opt">(optional)</span>'
+    req = " required" if required else ""
+    control = {"input": f'<input id="{fid}" name="{name}"{req}{extra}>',
+               "select": f'<select id="{fid}" name="{name}"{req}>{body}</select>',
+               "area": f'<textarea id="{fid}" name="{name}"{req}{extra}></textarea>'}[kind]
+    cls = {"input": "pf", "select": "pf pf-stack", "area": "pf pf-area"}[kind]
+    full = " full" if kind == "area" else ""
+    return f'<div class="field{full}"><label class="{cls}" for="{fid}"><span>{label}{opt_tag}</span>{control}</label></div>'
+
+
+@page("demo.html", "Book Demo", "Book Demo with the NexFlo Cloud team about your trading partners, documents and how NexFlo could fit.")
 def demo():
-    return page_hero("Talk to us", "Tell us who you trade with and what's slowing you down. We'll set up a call and explain plainly how NexFlo can help. No technical knowledge needed.",
-                     "Request a consultation", [("Home", "index.html"), ("Talk to us", None)]) + f'''
-<section><div class="container split top">
-  <form class="form-card" data-form="Consultation request" data-to="{SALES}">
+    """Book Demo: the form on the left, what the call is about on the right, a few plain facts underneath.
+    Uses the focused header (logo and a way back, no menu); see FOCUS in build()."""
+    status = {p["name"]: ("Early access" if p["status"] == "live" else "2027") for p in PRODUCTS}
+    checks = "".join(f'<label class="pf-check"><input type="checkbox" name="product" value="{p}"><span>{p}'
+                     f'{f" <small>{status[p]}</small>" if p in status else ""}</span></label>' for p in PRODUCT_OPTS)
+    return f'''
+<section class="bk"><div class="container"><div class="bk-grid">
+  <form class="bk-form" data-form="Consultation request" data-to="{SALES}">
     {HONEYPOT}
     <div class="form-body"><div class="form-grid">
-      <div class="field"><label for="d-name">Name</label><input id="d-name" name="name" required autocomplete="name"></div>
-      <div class="field"><label for="d-email">Work email</label><input id="d-email" name="email" type="email" required autocomplete="email"></div>
-      <div class="field"><label for="d-company">Company</label><input id="d-company" name="company" required autocomplete="organization"></div>
-      <div class="field"><label for="d-product">Product of interest</label><select id="d-product" name="product" required>{opt(PRODUCT_OPTS)}</select></div>
-      <div class="field"><label for="d-volume">Orders, invoices or claims per month</label><select id="d-volume" name="monthly_volume">{opt(VOLUME_OPTS)}</select></div>
-      <div class="field"><label for="d-contact">Best way to reach you</label><select id="d-contact" name="preferred_contact">{opt(["Email", "Phone call", "Video call"])}</select></div>
-      <div class="field full"><label for="d-msg">What's the challenge? <span class="opt">(optional)</span></label><textarea id="d-msg" name="message" placeholder="e.g. Walmart asked us to start using EDI, or our current provider is too expensive"></textarea></div>
+      {pill_field("d-name", "name", "Name", required=True, extra=' autocomplete="name"')}
+      {pill_field("d-email", "email", "Work email", required=True, extra=' type="email" autocomplete="email"')}
+      {pill_field("d-company", "company", "Company", required=True, extra=' autocomplete="organization"')}
+      {pill_field("d-phone", "phone", "Phone", extra=' type="tel" autocomplete="tel"')}
+      {pill_field("d-volume", "monthly_volume", "Orders, invoices or claims per month", "select", body=opt(VOLUME_OPTS))}
+      {pill_field("d-contact", "preferred_contact", "Best way to reach you", "select", body=opt(["Email", "Phone call", "Video call"]))}
+      <fieldset class="pf-set"><legend>Which product are you interested in? <span class="opt">(optional)</span></legend>
+        <div class="pf-checks">{checks}</div></fieldset>
+      {pill_field("d-msg", "message", "How can we help?", "area", extra=' placeholder="e.g. Walmart asked us to start using EDI, or our current provider is too expensive"')}
     </div>
-    <div class="form-foot"><small>By submitting you agree to our <a href="privacy.html">Privacy Policy</a>.</small><button class="btn btn-primary" type="submit">Request a consultation</button></div></div>
+    <div class="form-foot"><small>By submitting you agree to our <a href="privacy.html">Privacy Policy</a>.</small><button class="btn btn-pill btn-primary" type="submit">Book Demo</button></div></div>
     {form_success("Request received.", "We'll email you within one business day to find a time.")}
   </form>
-  <div><h2>What we'll talk about</h2>
-    <ul class="checks mt-3"><li>Who you trade with and which documents they ask for</li><li>How you handle orders and invoices today</li>
+  <div class="bk-pitch">
+    <h1>Talk to the NexFlo team.</h1>
+    <p class="bk-lead">Tell us who you trade with and what's slowing you down. We'll set up a call and explain plainly how NexFlo can help.</p>
+    <h2>What we'll talk about</h2>
+    <ul class="checks"><li>Who you trade with and which documents they ask for</li><li>How you handle orders and invoices today</li>
       <li>How NexFlo would fit, step by step</li><li>Early-access timing and pricing as it's set</li></ul>
-    <div class="notice mt-4"><div>Prefer email? Write to <a href="mailto:{SALES}">{SALES}</a>.</div></div></div>
-</div></section>'''
+  </div>
+  <div class="bk-facts">
+    <div><b>One business day</b><span>to hear back from us</span></div>
+    <div><b>No jargon</b><span>no technical knowledge needed</span></div>
+    <div><b>Prefer email?</b><a href="mailto:{SALES}">{SALES}</a></div>
+  </div>
+</div></div></section>'''
 
 
 def early_access_form(source):
@@ -1855,8 +1890,9 @@ def build():
     import hashlib
     stamps = {name: hashlib.md5((ROOT / "assets" / name).read_bytes()).hexdigest()[:10] for name in ("styles.css", "main.js", "motion.js")}
     bare = {"portal.html"}
+    focus = {"demo.html"}
     for slug, (title, desc, active, fn) in PAGES.items():
-        out = layout(title, desc, fn(), active, slug, bare=slug in bare)
+        out = layout(title, desc, fn(), active, slug, bare=slug in bare, focus=slug in focus)
         for name, h in stamps.items():
             out = out.replace(f'assets/{name}"', f'assets/{name}?v={h}"')
         out = out.replace(LOGO_IMG, LOGO_PAIR)
