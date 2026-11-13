@@ -56,6 +56,9 @@ const FORM_ENDPOINT = "/api/contact";
     });
   });
 
+  /* Book Demo page opened from an email box whose email was sent: say so */
+  if (params.get("sent") === "1") document.querySelectorAll("[data-got]").forEach((el) => { el.hidden = false; });
+
   /* ---- Forms ----
      Validates inline, blocks double submits, and shows success only after the endpoint confirms the email was sent.
      If sending fails, the form says so and offers the inbox address instead. */
@@ -106,15 +109,30 @@ const FORM_ENDPOINT = "/api/contact";
       delete data.website;
       const btn = form.querySelector('[type="submit"]');
       const label = btn ? btn.textContent : "";
+      /* Forms with data-next (the "Book Demo" email boxes) go on to that page once the email is sent, with the
+         email and product filled in there; sent=1 tells it the email arrived. If sending fails they still go on,
+         and the full form there is the fallback. */
+      const next = form.dataset.next;
+      const goNext = (ok) => {
+        const q = new URLSearchParams();
+        ["email", "product"].forEach((k) => data[k] && q.set(k, data[k]));
+        if (ok) q.set("sent", "1");
+        location.href = `${next}?${q}`;
+      };
       busy = true;
       if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
       try {
         const res = await fetch(FORM_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" },
           body: JSON.stringify({ form: form.dataset.form, page: location.pathname, fields: data }) });
-        if (!res.ok) throw new Error("Request failed");
+        if (!res.ok) {
+          console.warn("Form not sent:", res.status, await res.text().catch(() => ""));
+          throw new Error("Request failed");
+        }
+        if (next) return goNext(true);
         form.classList.add("sent");
         form.reset();
       } catch (err) {
+        if (next) return goNext(false);
         status.className = "form-status warn";
         status.innerHTML = `Sorry, that didn't go through. Please try again or email <a href="mailto:${form.dataset.to}">${form.dataset.to}</a>.`;
       } finally {

@@ -11,6 +11,8 @@ const RECIPIENTS = {
   "Early access": TEAM,
   "Pricing request": TEAM,
   "Consultation request": TEAM,
+  // The "Book Demo" email boxes (hero, closing bands): just an email, sent before the visitor sees the full form.
+  "Demo request": TEAM,
   Contact: TEAM,
 };
 

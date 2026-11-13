@@ -430,8 +430,11 @@ HONEYPOT = '<div class="hp" aria-hidden="true"><input type="text" name="website"
 def signup_inline(source, dark=False, button="Get early access", product=""):
     prod = f'<input type="hidden" name="product" value="{product}">' if product else ""
     if button == "Book Demo":
-        # Not a sign-up: the email box opens the Book Demo page with the email (and product) already filled in.
-        return f'''<form class="signup{" dark" if dark else ""}" action="demo.html" method="get">{prod}
+        # The email is sent to the team straight away as a "Demo request" (so it isn't lost if the visitor stops
+        # there), then the Book Demo page opens with it filled in (main.js, data-next). Without JavaScript the
+        # form simply opens the Book Demo page.
+        return f'''<form class="signup{" dark" if dark else ""}" action="demo.html" method="get" data-form="Demo request" data-to="{SALES}" data-next="demo.html" novalidate>
+  {HONEYPOT}<input type="hidden" name="source" value="{source}">{prod}
   <input type="email" name="email" placeholder="Work email" aria-label="Work email" required autocomplete="email">
   <button class="btn btn-primary" type="submit">{button}</button>
 </form>'''
@@ -1723,6 +1726,7 @@ def demo():
     return f'''
 <section class="bk"><div class="container"><div class="bk-grid">
   <form class="bk-form" data-form="Consultation request" data-to="{SALES}">
+    <p class="bk-got" data-got hidden>✓ We've got your email and will be in touch within one business day. Add a few details below so we can prepare, or leave it there.</p>
     {HONEYPOT}
     <div class="form-body"><div class="form-grid">
       {pill_field("d-name", "name", "Name", required=True, extra=' autocomplete="name"')}
@@ -1880,7 +1884,7 @@ def brand_names(page):
 def clean_links(text):
     text = re.sub(r'(href|src)="assets/', r'\1="/assets/', text)
     text = re.sub(r'href="index\.html([#?][^"]*)?"', lambda m: f'href="/{m.group(1) or ""}"', text)
-    return re.sub(r'(href|action)="([a-z0-9-]+)\.html([#?][^"]*)?"', lambda m: f'{m.group(1)}="/{m.group(2)}{m.group(3) or ""}"', text)
+    return re.sub(r'(href|action|data-next)="([a-z0-9-]+)\.html([#?][^"]*)?"', lambda m: f'{m.group(1)}="/{m.group(2)}{m.group(3) or ""}"', text)
 
 
 
