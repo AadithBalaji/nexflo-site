@@ -57,6 +57,12 @@ ICONS = {
     "building": '<path d="M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17M3 21h18M9 7h.01M15 7h.01M9 11h.01M15 11h.01M9 15h.01M15 15h.01M10 21v-3h4v3"/>',
     "hospital": '<path d="M4 21V8l8-5 8 5v13M2 21h20M12 8v6M9 11h6M10 21v-3h4v3"/>',
     "shieldplus": '<path d="M12 2l8 3v6c0 5-3.5 9.5-8 11-4.5-1.5-8-6-8-11V5z"/><path d="M12 8v6M9 11h6"/>',
+    "cart": '<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.6 12.2a1 1 0 0 0 1 .8h9.7a1 1 0 0 0 1-.8L21 7H6"/>',
+    "box": '<path d="M21 8l-9-5-9 5v8l9 5 9-5zM3 8l9 5 9-5M12 13v8"/>',
+    "sheet": '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>',
+    "warehouse": '<path d="M3 21V8l9-5 9 5v13M7 21v-9h10v9M7 15h10M7 18h10"/>',
+    "calendar": '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+    "bank": '<path d="M3 10l9-6 9 6M5 10v8M10 10v8M14 10v8M19 10v8M3 21h18"/>',
 }
 
 
@@ -677,6 +683,388 @@ def product_tiles():
     return f'<div class="tiles">{"".join(out)}</div>'
 
 
+# ---------------------------------------------------------------- "Without NexFlo / With NexFlo" (home page)
+# A map of one business: its software on the left, suppliers above, logistics below, the partners it sells to on
+# the right, and the ways documents travel in between. Both states draw the same map (like a wiring diagram):
+#   Without: every link is a one-off. Red crosses mark the gaps where documents get stuck; boxes have red borders.
+#   With:    a NexFlo hub sits in each of those gaps, the lines turn blue and documents flow through.
+# The buttons switch between them. While the section is on screen motion.js ([data-vs]) also switches on its own,
+# until the visitor picks one. Two layouts are drawn, "wide" (desktop, tablet) and "tall" (phones); CSS shows one.
+#
+# The map is drawn for two kinds of business, picked with the "See it for" buttons (or ?product=careflo):
+# a TradeFlo customer (orders, invoices, shipping) and a CareFlo customer (claims and payments). The wiring is the
+# same; the box labels, title, caption and cards change. Box labels for each are in _vs_layout().
+VS_FOR = {
+    "trade": dict(
+        name="TradeFlo", sub="Orders and invoices",
+        title={"without": "Fragmented partner connections",
+               "with": "Orders. Invoices. Shipping notices. One place for every partner."},
+        caption={"without": "Each partner is connected a different way, and documents get stuck in the gaps. Your team fills them by hand.",
+                 "with": "TradeFlo is being built to sit in every one of those gaps, checking, translating and delivering each document."},
+        cards=[  # (icon, title, text) without NexFlo, then the same column with NexFlo
+            (("doc", "Orders typed in by hand", "Orders arrive by email, PDF and partner portals, and someone retypes each one into your system."),
+             ("check", "No more retyping", "Built to check each partner document and turn it into data your software already reads.")),
+            (("route", "Every partner is a new project", "Each partner has its own format and rules, so every new connection starts from scratch."),
+             ("plug", "Add partners without starting over", "Each partner's rules live in one place, so a new connection builds on what's already set up.")),
+            (("bell", "Mistakes show up late", "A missing label or a wrong price often surfaces weeks later, as a rejected invoice or a penalty."),
+             ("shield", "Problems caught before they're sent", "Built to check every document against the partner's rules first, and tell you exactly what to fix.")),
+        ]),
+    "care": dict(
+        name="CareFlo", sub="Claims and payments · 2027",
+        title={"without": "Fragmented claims and payments",
+               "with": "Claims. Remittances. Eligibility checks. One place for every payer."},
+        caption={"without": "Each payer is connected a different way, and claims get stuck in the gaps. Your team fills them by hand.",
+                 "with": "CareFlo, coming in 2027, is being built to sit in every one of those gaps, checking each claim and matching every payment."},
+        cards=[
+            (("doc", "Claims keyed in by hand", "Claims, eligibility checks and payment details get copied between payer portals and your billing system."),
+             ("check", "No more retyping", "Built to turn claims, remittances and eligibility responses into data your billing system already reads.")),
+            (("route", "Every payer is a new setup", "Each insurer has its own rules and enrollment steps, so adding a payer starts from scratch."),
+             ("plug", "Add payers without starting over", "Each payer's rules live in one place, so a new connection builds on what's already set up.")),
+            (("bell", "Denials show up late", "A missing code or a wrong member ID often surfaces weeks later, as a denied claim."),
+             ("shield", "Claims checked before they're sent", "Built to check every claim against the payer's rules first, and tell you exactly what to fix.")),
+        ]),
+}
+
+
+def _n(v):
+    return f"{round(v, 1):g}"
+
+
+class _VPath:
+    """An SVG path from straight and curved pieces. Keeps sample points so it can be measured, which lets
+    pulses travel at the same speed on every route."""
+
+    def __init__(self, start):
+        self.d, self.pts, self.cur = f"M{_n(start[0])} {_n(start[1])}", [start], start
+
+    def line(self, end):
+        a = self.cur
+        self.d += f" L{_n(end[0])} {_n(end[1])}"
+        self.pts += [(a[0] + (end[0] - a[0]) * k / 16, a[1] + (end[1] - a[1]) * k / 16) for k in range(1, 17)]
+        self.cur = end
+        return self
+
+    def curve(self, c1, c2, end):
+        a = self.cur
+        self.d += f" C{_n(c1[0])} {_n(c1[1])} {_n(c2[0])} {_n(c2[1])} {_n(end[0])} {_n(end[1])}"
+        for k in range(1, 25):
+            t, s = k / 24, 1 - k / 24
+            self.pts.append(tuple(s ** 3 * p + 3 * s * s * t * q + 3 * s * t * t * r + t ** 3 * e for p, q, r, e in zip(a, c1, c2, end)))
+        self.cur = end
+        return self
+
+    @classmethod
+    def poly(cls, pts, r=8):
+        """Straight runs with rounded corners, like wiring."""
+        p = cls(pts[0])
+        for a, b, c in zip(pts, pts[1:], pts[2:]):
+            la, lb = abs(b[0] - a[0]) + abs(b[1] - a[1]), abs(c[0] - b[0]) + abs(c[1] - b[1])
+            di = ((b[0] - a[0]) / la, (b[1] - a[1]) / la)
+            do = ((c[0] - b[0]) / lb, (c[1] - b[1]) / lb)
+            if di == do:
+                p.line(b)
+                continue
+            rr = min(r, la / 2, lb / 2)
+            s, e = (b[0] - di[0] * rr, b[1] - di[1] * rr), (b[0] + do[0] * rr, b[1] + do[1] * rr)
+            p.line(s).curve((b[0] - di[0] * rr * .45, b[1] - di[1] * rr * .45), (b[0] + do[0] * rr * .45, b[1] + do[1] * rr * .45), e)
+        return p.line(pts[-1])
+
+    @property
+    def length(self):
+        return sum(((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2) ** 0.5 for a, b in zip(self.pts, self.pts[1:]))
+
+
+def _vs_pulse(p, speed, dash, phase, cls=""):
+    """A bright dash that runs along route p, then rests for the last 40% of its loop (vsRun in styles.css)."""
+    nd = dash * 1000 / p.length
+    t = (p.length + dash) / speed / 0.6
+    return (f'<path class="vs-pulse{" " + cls if cls else ""}" d="{p.d}" pathLength="1000" '
+            f'style="stroke-dasharray:{nd:.1f} 2000;--d:{nd:.1f};--t:{t:.2f}s;--dl:{-(phase % 1) * t:.2f}s"/>')
+
+
+def _vs_stuck(p, speed, dash, phase):
+    """A document that runs to the end of p (a break in the wiring) and stops there. Returns the pulse and the
+    timing the red flash at the break shares with it, so it flashes as the document hits it (vsStuck / vsSpark)."""
+    nd = dash * 1000 / p.length
+    t = p.length / speed / 0.45
+    timing = f"--t:{t:.2f}s;--dl:{-(phase % 1) * t:.2f}s"
+    return (f'<path class="vs-pulse stuck" d="{p.d}" pathLength="1000" '
+            f'style="stroke-dasharray:{nd:.1f} 2000;--d:{nd:.1f};--s:{nd - 1000:.1f};{timing}"/>'), timing
+
+
+def _vs_both(trade, care=None):
+    """A box's label and icon for each kind of business. care=None: the same for both (e.g. API, SFTP)."""
+    return {"trade": trade, "care": care or trade}
+
+
+def _vs_layout(kind):
+    """Everything is in viewBox units. Nodes: (x, y_centre, width, {"trade": (label, icon), "care": (label, icon)}).
+    Lines: lists of points. Hubs: where NexFlo sits (and, without it, where the wiring has a gap and a red cross).
+    Routes: paths documents travel. With NexFlo they run the whole way; without it they stop at the first break
+    (see _vs_fragment)."""
+    if kind == "wide":
+        g = dict(W=1000, H=372, nh=28, fs=11, isz=13, dash=30, fast=190, slow=95, center=(430, 163, 140, 60), jitter=1,
+                 labels=[(10, 9, "start", "YOUR SOFTWARE"), (990, 9, "end", "YOUR PARTNERS")])
+        soft = [(40, ("Online store", "cart"), ("EHR", "pulse")), (76, ("Order system", "clipboard"), ("Practice mgmt", "clipboard")),
+                (139, ("Accounting", "chart"), ("Billing system", "chart")), (175, ("Inventory", "box"), ("Scheduling", "calendar")),
+                (211, ("Spreadsheets", "sheet"), None), (290, ("Shipping app", "route"), ("Patient portal", "users"))]
+        conn = [(139, ("API", "code"), None), (175, ("SFTP", "folder"), None), (211, ("Service bus", "server"), None), (247, ("AS2", "lock"), None)]
+        fmts = [(175, ("X12 EDI", "doc"), ("X12 837", "doc")), (211, ("EDIFACT", "doc"), ("X12 835", "doc"))]
+        part = [(30, ("Retailers", "building"), ("Medicare", "shieldplus")), (64, ("Marketplaces", "tag"), ("Medicaid", "shieldplus")),
+                (98, ("Grocers", "cart"), ("Insurers", "shield")), (132, ("Wholesalers", "box"), ("Workers' comp", "building")),
+                (245, ("Dropship", "route"), ("Clearinghouse", "server")), (279, ("Distributors", "warehouse"), ("Dental plans", "shield")),
+                (313, ("Dealers", "users"), ("Vision plans", "eye"))]
+        g["nodes"] = ([(10, y, 140, _vs_both(t, c)) for y, t, c in soft] + [(205, y, 120, _vs_both(t, c)) for y, t, c in conn] +
+                      [(320, 40, 150, _vs_both(("Suppliers", "factory"), ("Clinics", "hospital"))),
+                       (530, 40, 150, _vs_both(("Manufacturers", "building"), ("Physicians", "users"))),
+                       (320, 314, 150, _vs_both(("3PL warehouse", "warehouse"), ("Banks", "bank"))),
+                       (530, 314, 150, _vs_both(("Carriers", "truck"), ("Collections", "bell"))),
+                       (425, 350, 150, _vs_both(("Freight", "route"), ("Patient bills", "doc")))] +
+                      [(655, y, 110, _vs_both(t, c)) for y, t, c in fmts] + [(850, y, 146, _vs_both(t, c)) for y, t, c in part])
+        g["lines"] = ([[(150, y), (180, y)] for y, *_ in soft] + [[(180, 40), (180, 290)]] +
+                      [[(180, y), (205, y)] for y, *_ in conn] + [[(325, y), (345, y)] for y, *_ in conn] +
+                      [[(345, 139), (345, 247)], [(345, 193), (430, 193)],
+                       [(395, 54), (395, 92), (500, 92)], [(605, 54), (605, 92), (500, 92)], [(500, 92), (500, 163)],
+                       [(500, 223), (500, 280)], [(500, 280), (395, 280), (395, 300)], [(500, 280), (605, 280), (605, 300)], [(500, 280), (500, 336)],
+                       [(570, 193), (630, 193)], [(630, 175), (630, 211)], [(630, 175), (655, 175)], [(630, 211), (655, 211)],
+                       [(765, 175), (800, 175)], [(765, 211), (800, 211)], [(800, 175), (800, 211)],
+                       [(800, 175), (800, 81), (825, 81)], [(825, 30), (825, 132)], [(800, 211), (800, 279), (825, 279)], [(825, 245), (825, 313)]] +
+                      [[(825, y), (850, y)] for y, *_ in part])
+        g["hubs"] = {"left": (388, 193), "top": (500, 128), "bottom": (500, 251), "right": (600, 193), "up": (800, 128), "down": (800, 245)}
+        trunk_out = [(430, 193), (570, 193), (630, 193)]
+        g["routes"] = [  # software -> partners, partners -> software, suppliers -> logistics
+            [(150, 40), (180, 40), (180, 139), (205, 139), (325, 139), (345, 139), (345, 193)] + trunk_out +
+            [(630, 175), (655, 175), (765, 175), (800, 175), (800, 81), (825, 81), (825, 64), (850, 64)],
+            [(150, 175), (180, 175), (205, 175), (325, 175), (345, 175), (345, 193)] + trunk_out +
+            [(630, 211), (655, 211), (765, 211), (800, 211), (800, 279), (825, 279), (850, 279)],
+            [(395, 54), (395, 92), (500, 92), (500, 163), (500, 223), (500, 280), (605, 280), (605, 300)],
+            [(850, 132), (825, 132), (825, 81), (800, 81), (800, 175), (765, 175), (655, 175), (630, 175), (630, 193), (570, 193),
+             (430, 193), (345, 193), (345, 211), (325, 211), (205, 211), (180, 211), (150, 211)],
+            [(605, 54), (605, 92), (500, 92), (500, 163), (500, 223), (500, 280), (500, 336)],
+            [(850, 245), (825, 245), (825, 279), (800, 279), (800, 211), (765, 211), (655, 211), (630, 211), (630, 193), (570, 193),
+             (430, 193), (345, 193), (345, 247), (325, 247), (205, 247), (180, 247), (180, 76), (150, 76)],
+            [(150, 139), (180, 139), (180, 247), (205, 247), (325, 247), (345, 247), (345, 193)] + trunk_out +
+            [(630, 211), (655, 211), (765, 211), (800, 211), (800, 279), (825, 279), (825, 313), (850, 313)],
+        ]
+    else:
+        g = dict(W=340, H=436, nh=28, fs=10.5, isz=12, dash=22, fast=130, slow=70, center=(95, 218, 150, 46), jitter=.6,
+                 labels=[(6, 9, "start", "YOUR SOFTWARE"), (6, 428, "start", "YOUR PARTNERS")])
+        # Two columns either side of one trunk: software, then the ways in, then NexFlo / your business, then partners.
+        top = [_vs_both(("Online store", "cart"), ("EHR", "pulse")), _vs_both(("Accounting", "chart"), ("Practice mgmt", "clipboard")),
+               _vs_both(("Inventory", "box"), ("Billing system", "chart")), _vs_both(("Spreadsheets", "sheet")),
+               _vs_both(("API", "code")), _vs_both(("SFTP", "folder")), _vs_both(("Service bus", "server")), _vs_both(("AS2", "lock"))]
+        part = [_vs_both(("Retailers", "building"), ("Medicare", "shieldplus")), _vs_both(("Marketplaces", "tag"), ("Medicaid", "shieldplus")),
+                _vs_both(("Distributors", "warehouse"), ("Insurers", "shield")), _vs_both(("Wholesalers", "box"), ("Workers' comp", "building")),
+                _vs_both(("3PL warehouse", "warehouse"), ("Clearinghouse", "server")), _vs_both(("Carriers", "truck"), ("Banks", "bank"))]
+        top_rows, part_rows = [36, 72, 116, 152], [324, 360, 396]
+        g["nodes"] = ([(6 if k % 2 == 0 else 178, top_rows[k // 2], 156, f) for k, f in enumerate(top)] +
+                      [(6 if k % 2 == 0 else 178, part_rows[k // 2], 156, f) for k, f in enumerate(part)])
+        g["lines"] = ([[(162, y), (170, y)] for y in top_rows] + [[(178, y), (170, y)] for y in top_rows] +
+                      [[(170, 36), (170, 218)], [(170, 264), (170, 396)]] +
+                      [[(170, y), (162, y)] for y in part_rows] + [[(170, y), (178, y)] for y in part_rows])
+        g["hubs"] = {"top": (170, 192), "bottom": (170, 290)}
+        g["routes"] = [
+            [(162, 36), (170, 36), (170, 360), (178, 360)],
+            [(178, 72), (170, 72), (170, 396), (162, 396)],
+            [(162, 324), (170, 324), (170, 72), (162, 72)],
+            [(178, 152), (170, 152), (170, 324), (178, 324)],
+            [(162, 116), (170, 116), (170, 396), (178, 396)],
+        ]
+    return g
+
+
+def _vs_dist(a, b):
+    return ((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2) ** .5
+
+
+def _vs_total(pts):
+    return sum(_vs_dist(a, b) for a, b in zip(pts, pts[1:]))
+
+
+def _vs_point(pts, d):
+    """The point d units along polyline pts."""
+    for a, b in zip(pts, pts[1:]):
+        step = _vs_dist(a, b)
+        if d <= step:
+            return (a[0] + (b[0] - a[0]) * d / step, a[1] + (b[1] - a[1]) * d / step) if step else a
+        d -= step
+    return pts[-1]
+
+
+def _vs_seg_dist(p, a, b):
+    """How far point p is from the straight piece a-b."""
+    step = _vs_dist(a, b)
+    if not step:
+        return _vs_dist(p, a)
+    t = max(0, min(1, ((p[0] - a[0]) * (b[0] - a[0]) + (p[1] - a[1]) * (b[1] - a[1])) / step ** 2))
+    return _vs_dist(p, (a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t))
+
+
+def _vs_along(pts, h):
+    """How far along polyline pts the point h sits, or None if it isn't on it."""
+    run = 0.0
+    for a, b in zip(pts, pts[1:]):
+        if _vs_seg_dist(h, a, b) < .5:
+            return run + _vs_dist(a, h)
+        run += _vs_dist(a, b)
+    return None
+
+
+def _vs_pieces(pts, cuts):
+    """What's left of polyline pts after removing the (start, end) distance ranges in cuts."""
+    total, keep, s = _vs_total(pts), [], 0.0
+    for c0, c1 in sorted(cuts):
+        if c0 > s:
+            keep.append((s, c0))
+        s = max(s, c1)
+    if s < total:
+        keep.append((s, total))
+    out = []
+    for a, b in keep:
+        if b - a < 3:
+            continue
+        piece, run = [_vs_point(pts, a)], 0.0
+        for p, q in zip(pts, pts[1:]):
+            run += _vs_dist(p, q)
+            if a < run < b:
+                piece.append(q)
+        out.append(piece + [_vs_point(pts, b)])
+    return out
+
+
+def _vs_fragment(g, ends, gap):
+    """Without NexFlo the same wiring falls apart: a gap wherever a NexFlo hub would sit, a break part-way along
+    every longer line, and some short links missing altogether. Returns the pieces that are left, their loose
+    ends (which get red dots) and the gaps as straight pieces (so documents can be stopped at them)."""
+    hubs = list(g["hubs"].values())
+    pieces, loose, gaps = [], [], []
+    for k, pts in enumerate(g["lines"]):
+        total = _vs_total(pts)
+        if total < 40 and k % 4 == 1:  # this link is missing altogether
+            gaps.append((pts[0], pts[-1]))
+            continue
+        cuts = [(s - gap, s + gap) for s in (_vs_along(pts, h) for h in hubs) if s is not None]
+        if total >= 40:  # one break part-way along, away from junctions and hub gaps
+            for f in (.5, .38, .62, .3, .7, .22, .78):
+                s = total * f
+                if all(s < c0 - 9 or s > c1 + 9 for c0, c1 in cuts) and all(_vs_dist(_vs_point(pts, s), e) > 14 for e in ends):
+                    cuts.append((s - 8, s + 8))
+                    break
+        gaps += [(_vs_point(pts, max(c0, 0)), _vs_point(pts, min(c1, total))) for c0, c1 in cuts]
+        for piece in _vs_pieces(pts, cuts):
+            pieces.append(piece)
+            loose += [e for e in (piece[0], piece[-1]) if all(_vs_dist(e, x) > .5 for x in ends)]
+    return pieces, loose, gaps
+
+
+def _vs_trim(route, gaps):
+    """The part of a route a document gets through, without NexFlo, before it reaches a gap."""
+    total, d = _vs_total(route), 0.0
+    while d < total and not any(_vs_seg_dist(_vs_point(route, d), a, b) < .8 for a, b in gaps):
+        d += 1.0
+    stop = d - 4
+    return _vs_pieces(route, [(stop, total + 1)])[0] if 16 < stop < total else None
+
+
+def _vs_icon(name, x, y, size, cls="vs-ico"):
+    return (f'<g class="{cls}" transform="translate({_n(x)} {_n(y)}) scale({size / 24:g})" fill="none" stroke="currentColor" '
+            f'stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">{ICONS[name]}</g>')
+
+
+def vs_svg(kind):
+    g = _vs_layout(kind)
+    nh, fs, isz = g["nh"], g["fs"], g["isz"]
+    lines = [_VPath.poly(pts) for pts in g["lines"]]
+    # A dot wherever a line ends: at a node's edge or where it joins another line.
+    ends = list(dict.fromkeys(pt for pts in g["lines"] for pt in (pts[0], pts[-1])))
+
+    # Each box has a face for a TradeFlo business and one for a CareFlo business (data-for); CSS shows the one
+    # picked. Without NexFlo each box sits a little out of line (--jx/--jy); with it they snap into place.
+    def face(x, y, t, i, aud=""):
+        attr = f' data-for="{aud}"' if aud else ""
+        return (f'<g{attr}>{_vs_icon(i, x + 9, y - isz / 2, isz)}'
+                f'<text class="vs-name" x="{_n(x + 16 + isz)}" y="{_n(y)}" dy=".36em" font-size="{fs}">{t.upper()}</text></g>')
+
+    def faces(x, y, f):
+        return face(x, y, *f["trade"]) if f["trade"] == f["care"] else "".join(face(x, y, *f[a], a) for a in VS_FOR)
+
+    jit = g["jitter"]
+    nodes = "".join(
+        f'<g class="vs-node" style="--jx:{_n((k * 7 % 13 - 6) * jit)};--jy:{_n((k * 5 % 9 - 4) * jit)}">'
+        f'<rect class="vs-box" x="{x}" y="{_n(y - nh / 2)}" width="{w}" height="{nh}" rx="8"/>{faces(x, y, f)}</g>'
+        for k, (x, y, w, f) in enumerate(g["nodes"]))
+    cx, cy, cw, ch = g["center"]
+    big = kind == "wide"
+    center = (f'<g class="vs-core"><rect x="{cx}" y="{cy}" width="{cw}" height="{ch}" rx="10"/>'
+              f'{_vs_icon("building", cx + cw / 2 - (10 if big else 8), cy + (10 if big else 7), 20 if big else 16)}'
+              f'<text x="{_n(cx + cw / 2)}" y="{_n(cy + ch - (15 if big else 11))}" dy=".36em" text-anchor="middle" '
+              f'font-size="{fs + 1}">YOUR BUSINESS</text></g>')
+
+    # Without: the wiring in pieces, red crosses in the gaps where NexFlo would sit, and documents setting off
+    # along the same routes as below but stopping, with a red flash, at the first break they reach.
+    pieces, loose, gaps = _vs_fragment(g, ends, 17 if big else 15)
+    stuck, crosses = [], []
+    for k, route in enumerate(g["routes"]):
+        part = _vs_trim(route, gaps)
+        if part:
+            pulse, timing = _vs_stuck(_VPath.poly(part), g["slow"], g["dash"], k * .29)
+            x, y = part[-1]
+            stuck.append(pulse)
+            crosses.append(f'<g transform="translate({_n(x)} {_n(y)})"><circle class="vs-spark" r="6" style="{timing}"/></g>')
+    crosses += [f'<g transform="translate({_n(hx)} {_n(hy)})"><g class="vs-x" style="--k:{k}"><circle r="9"/>'
+                f'<path d="M-3 -3l6 6M3 -3l-6 6"/></g></g>' for k, (hx, hy) in enumerate(g["hubs"].values())]
+    frags = "".join(f'<path d="{_VPath.poly(p).d}"/>' for p in pieces)
+    frags += "".join(f'<circle cx="{_n(x)}" cy="{_n(y)}" r="2.6"/>' for x, y in loose)
+    # With: NexFlo hubs in the gaps, documents flowing along whole routes.
+    hubs = "".join(f'<g transform="translate({_n(hx)} {_n(hy)})"><g class="vs-hub" style="--k:{k}"><circle class="vs-hglow" r="21"/>'
+                   f'<circle class="vs-hring" r="16"/><image href="assets/favicon-180.png" x="-15" y="-15" width="30" height="30" '
+                   f'clip-path="url(#vsClip-{kind})"/></g></g>' for k, (hx, hy) in enumerate(g["hubs"].values()))
+    flows = "".join(_vs_pulse(_VPath.poly(pts), g["fast"], g["dash"], k * .37) for k, pts in enumerate(g["routes"]))
+
+    labels = "".join(f'<text class="vs-col" x="{x}" y="{y}" dy=".36em" text-anchor="{a}" font-size="{fs - .5}">{t}</text>'
+                     for x, y, a, t in g["labels"])
+    paths = "".join(f'<path d="{p.d}"/>' for p in lines)
+    dots = "".join(f'<circle cx="{_n(x)}" cy="{_n(y)}" r="2.6"/>' for x, y in ends)
+    return (f'<svg class="vs-svg vs-{kind}" viewBox="0 0 {g["W"]} {g["H"]}" aria-hidden="true" focusable="false">'
+            f'<defs><clipPath id="vsClip-{kind}"><circle r="13.5"/></clipPath></defs>{labels}'
+            f'<g class="vs-lines" data-when="with">{paths}</g><g class="vs-frag" data-when="without">{frags}</g>'
+            f'<g class="vs-mess" data-when="without">{"".join(stuck)}</g><g class="vs-flow" data-when="with">{flows}</g>'
+            f'<g class="vs-dots">{dots}</g>{nodes}{center}<g class="vs-mess" data-when="without">{"".join(crosses)}</g>'
+            f'<g class="vs-flow" data-when="with">{hubs}</g></svg>')
+
+
+def versus():
+    def side(when, ico, title, text):
+        return f'<div data-when="{when}">{icon(ico, "vs-cico")}<h3>{title}</h3><p>{text}</p></div>'
+
+    def stack(key):  # one line per kind of business and state, stacked in the same spot
+        return "".join(f'<span data-for="{a}" data-when="{k}">{v}</span>' for a, d in VS_FOR.items() for k, v in d[key].items())
+
+    cards = "".join(f'<div class="vs-cards" data-for="{a}">' + "".join(
+        f'<div class="vs-card">{side("without", *x)}{side("with", *y)}</div>' for x, y in d["cards"]) + "</div>"
+        for a, d in VS_FOR.items())
+    tabs = "".join(
+        f'<button class="vs-tab" type="button" role="tab" id="vs-tab-{k}" data-state="{k}" aria-selected="{sel}" '
+        f'aria-controls="vs-panel" tabindex="{0 if sel == "true" else -1}">{t}<i class="vs-prog" aria-hidden="true"></i></button>'
+        for k, t, sel in (("without", "Without NexFlo", "true"), ("with", "With NexFlo", "false")))
+    auds = "".join(f'<button class="vs-aud {tone(d["name"])}" type="button" data-aud="{a}" aria-pressed="{str(a == "trade").lower()}">'
+                   f'<b>{d["name"]}</b><small>{d["sub"]}</small></button>' for a, d in VS_FOR.items())
+    return f'''<section class="vs-sec sec-tight edge-bottom edge-to-light" id="why"><div class="container">
+  <div class="section-head center"><span class="vs-eyebrow">The <b>challenge</b></span><h2>Every partner wants it their way</h2>
+    <p class="lead">Whether you ship products or bill insurers, every partner sends orders, invoices or claims in its own format. Without one place to handle them, your team becomes the go-between.</p></div>
+  <div class="vs" data-vs data-state="without" data-for="trade">
+    <div class="vs-bar"><div class="vs-toggle" role="tablist" aria-label="Compare a business without and with NexFlo"><span class="vs-thumb" aria-hidden="true"></span>{tabs}</div></div>
+    <div class="vs-panel" id="vs-panel" role="tabpanel" aria-labelledby="vs-tab-without">
+      <div class="vs-for" role="group" aria-label="See it for"><span class="vs-for-label">See it for</span>{auds}</div>
+      <h3 class="vs-title">{stack("title")}</h3>
+      <div class="vs-stage">{vs_svg("wide")}{vs_svg("tall")}</div>
+      <div class="vs-foot"><p class="vs-cap">{stack("caption")}</p><span class="vs-illus">Illustration</span></div>
+    </div>
+    {cards}
+  </div>
+</div></section>'''
+
+
 @page("index.html", "NexFlo Cloud | Business data, flowing better",
       "NexFlo Cloud helps businesses connect their software, exchange important documents like orders, invoices and claims, and reduce manual work.")
 def home():
@@ -705,7 +1093,9 @@ def home():
   <div class="hero-strip"><div class="container"><p>TradeFlo early access is open · CareFlo and HealthFlo are coming in 2027</p></div>{ticker()}</div>
 </section>
 
-<section class="demo-s sec-tight"><div class="container">
+{versus()}
+
+<section class="demo-s s-light sec-tight edge-bottom edge-to-dark"><div class="container">
   <div class="section-head center"><span class="label">Example</span><h2>A Walmart order, in plain data</h2></div>
   <div class="demo-stage">{hero_demo()}</div>
 </div></section>
