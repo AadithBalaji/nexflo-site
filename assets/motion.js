@@ -17,7 +17,7 @@
   };
 
   /* ---- Reveal on scroll (home and inner pages) ---- */
-  const REVEAL = ".section-head, .how-head, .frow-text, .vis, .card, .feature, .step, .pain, .price-card, .form-card, .doc, .tile, .scard, .faq, .prow, .fact, .orbit-view, .notice, .cta2-box, .f4, .pkg-how li, .tf-side, .tf-engine, .tf-feats";
+  const REVEAL = ".section-head, .how-head, .frow-text, .vis, .card, .feature, .step, .pain, .price-card, .form-card, .doc, .tile, .scard, .faq, .prow, .fact, .orbit-view, .notice, .cta2-box, .f4, .pkg-how li, .tf-side, .tf-engine, .tf-feats, .vs";
   if ("IntersectionObserver" in window) {
     const els = [...document.querySelectorAll(REVEAL)].filter((e) => !e.closest(".hero-s, .page-hero, .dropdown") && !e.parentElement.closest(REVEAL));
     els.forEach((e) => {
@@ -294,6 +294,72 @@
     show(ex[0], false);
     let i = 0;
     onVisible(tf, () => setInterval(() => show(ex[++i % ex.length], true), 4200));
+  });
+
+  /* ---- Without NexFlo / With NexFlo (home). The buttons switch the map. While it's on screen it also switches
+     by itself, with a thin bar under the other button counting down, until the visitor clicks, taps or tabs into
+     it; a mouse resting on it pauses the countdown. Off screen, every animation in it stops. ---- */
+  document.querySelectorAll("[data-vs]").forEach((vs) => {
+    const tabs = [...vs.querySelectorAll('[role="tab"]')];
+    const panel = vs.querySelector('[role="tabpanel"]');
+    const hold = { without: reduce ? 8000 : 5500, with: reduce ? 11000 : 8000 };
+    let state = vs.dataset.state || "without", auto = true, visible = false, hovered = false, timer = 0;
+    const apply = () => {
+      vs.dataset.state = state;
+      tabs.forEach((t) => {
+        const on = t.dataset.state === state;
+        t.setAttribute("aria-selected", String(on));
+        t.tabIndex = on ? 0 : -1;
+        if (on) panel.setAttribute("aria-labelledby", t.id);
+      });
+      vs.querySelectorAll("[data-when]").forEach((el) => el.setAttribute("aria-hidden", String(el.dataset.when !== state)));
+    };
+    const schedule = () => {
+      clearTimeout(timer);
+      vs.classList.remove("tick");
+      if (!auto || !visible || hovered) return;
+      vs.style.setProperty("--hold", `${hold[state]}ms`);
+      void vs.offsetWidth; // restart the countdown bar
+      vs.classList.add("tick");
+      timer = setTimeout(() => { state = state === "with" ? "without" : "with"; apply(); schedule(); }, hold[state]);
+    };
+    const stop = () => { auto = false; vs.classList.remove("is-auto"); schedule(); };
+    /* "See it for": the same map for a TradeFlo or a CareFlo business. Picking one doesn't stop the auto-switch;
+       it starts the story again from "without". ?product=careflo opens on CareFlo. */
+    const auds = [...vs.querySelectorAll("[data-aud]")];
+    const setAud = (a, animate) => {
+      vs.dataset.for = a;
+      auds.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.aud === a)));
+      if (!animate) return;
+      vs.classList.remove("aud-swap");
+      void vs.offsetWidth;
+      vs.classList.add("aud-swap");
+      if (auto) { state = "without"; apply(); schedule(); }
+    };
+    auds.forEach((b) => b.addEventListener("click", () => setAud(b.dataset.aud, true)));
+    const wanted = (new URLSearchParams(location.search).get("product") || "").toLowerCase().replace(/flo$/, "");
+    if (auds.some((b) => b.dataset.aud === wanted)) setAud(wanted, false);
+    tabs.forEach((t, k) => {
+      t.addEventListener("click", () => { state = t.dataset.state; apply(); stop(); });
+      t.addEventListener("keydown", (e) => {
+        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
+        e.preventDefault();
+        const n = e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : (k + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+        tabs[n].focus();
+        tabs[n].click();
+      });
+    });
+    vs.querySelector('[role="tablist"]').addEventListener("focusin", stop);
+    vs.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") { hovered = true; schedule(); } });
+    vs.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") { hovered = false; schedule(); } });
+    vs.classList.add("is-auto");
+    apply();
+    if (!("IntersectionObserver" in window)) { visible = true; return schedule(); }
+    new IntersectionObserver((es) => es.forEach((e) => {
+      vs.classList.toggle("is-paused", !e.isIntersecting);
+      const now = e.intersectionRatio >= 0.3;
+      if (now !== visible) { visible = now; schedule(); }
+    }), { threshold: [0, 0.3] }).observe(panel);
   });
 
   /* ---- Code tabs ---- */

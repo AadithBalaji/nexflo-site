@@ -1133,6 +1133,128 @@ details.more p { margin-top: 10px; font-size: .95rem; color: var(--muted); }
 .tf-head .tf-mark { display: inline-block; padding: 5px 16px 6px; border-radius: 999px; background: #fff; color: #0A1122; box-shadow: 0 12px 26px -14px rgba(0,20,80,.6); --s-trade: #00A85C; }
 .tf-head small { margin-top: 8px; }
 
+/* ---------- Home: Without NexFlo / With NexFlo ----------
+   One framed block: the toggle, a wiring map of a business, then three columns. data-state on .vs says which
+   half shows; anything marked data-when="without" or "with" fades with it. motion.js switches the state and
+   adds .is-paused while the block is off screen, which stops every animation in it. */
+.vs-sec { overflow: hidden; }
+.vs-sec::before { content: ""; position: absolute; left: 50%; top: 40px; width: min(820px, 120%); height: 340px; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(0,107,253,.2), transparent); opacity: 0; transition: opacity 1s ease; pointer-events: none; }
+.vs-sec:has(.vs[data-state="with"])::before { opacity: 1; }
+.vs-sec .section-head { position: relative; margin-bottom: 32px; }
+.vs-eyebrow { display: inline-block; margin-bottom: 16px; font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); }
+.vs-eyebrow b { margin-left: 3px; padding: 2px 7px; border-radius: 4px; background: var(--blue); color: #fff; }
+.vs { position: relative; border: 1px solid var(--line); border-radius: 22px; overflow: hidden; background: var(--bg2); }
+.vs-bar, .vs-panel { background-image: radial-gradient(rgba(255,255,255,.075) 1px, transparent 1.3px); background-size: 16px 16px; background-position: 8px 8px; border-bottom: 1px solid var(--line); }
+.vs-bar { padding: 14px; }
+.vs-toggle { position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 999px; border: 1px solid rgba(77,149,255,.32); background: #050B1A; }
+.vs-thumb { position: absolute; left: 4px; top: 4px; bottom: 4px; width: calc(50% - 4px); border-radius: 999px; background: var(--blue); box-shadow: 0 10px 30px -10px rgba(0,107,253,.9); transition: transform .55s var(--ease); }
+.vs[data-state="with"] .vs-thumb { transform: translateX(100%); }
+.vs-tab { position: relative; z-index: 1; overflow: hidden; padding: 15px 12px; border: 0; border-radius: 999px; background: none; font: 700 .86rem var(--font); letter-spacing: .09em; text-transform: uppercase; color: #6FA8FF; cursor: pointer; white-space: nowrap; transition: color .35s ease; }
+.vs-tab:hover { color: #A9CBFF; }
+.vs-tab[aria-selected="true"] { color: #fff; }
+.vs-prog { position: absolute; left: 32%; right: 32%; bottom: 6px; height: 2px; border-radius: 2px; background: currentColor; opacity: .6; transform: scaleX(0); transform-origin: left; }
+.vs.is-auto.tick .vs-tab[aria-selected="false"] .vs-prog { animation: vsProg var(--hold, 5s) linear forwards; }
+@keyframes vsProg { to { transform: scaleX(1); } }
+.vs-panel { position: relative; padding: 30px 26px 0; }
+.vs-title { display: grid; margin: 0 auto 22px; max-width: 760px; text-align: center; font-size: clamp(1.15rem, 2vw, 1.45rem); }
+.vs-title > span, .vs-cap > span { grid-area: 1 / 1; }
+.vs-svg { width: 100%; height: auto; overflow: visible; }
+.vs-tall { display: none; max-width: 440px; margin: 0 auto; }
+.vs-foot { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 14px 4px 18px; }
+.vs-cap { display: grid; margin: 0; max-width: 720px; font-size: .9rem; line-height: 1.5; color: var(--muted); }
+.vs-illus { flex: none; padding: 3px 9px; border: 1px solid var(--line); border-radius: 999px; font-family: var(--mono); font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* "See it for": TradeFlo or CareFlo. data-for on .vs picks one; anything marked for the other is removed. */
+.vs[data-for="trade"] [data-for="care"], .vs[data-for="care"] [data-for="trade"] { display: none; }
+.vs-for { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; margin: 0 auto 18px; }
+.vs-for-label { font-family: var(--mono); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+.vs-aud { display: inline-flex; align-items: baseline; gap: 8px; padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px; background: #050B1A; color: var(--ink2); font: 500 .8rem var(--font); cursor: pointer; transition: border-color .25s ease, background-color .25s ease, color .25s ease; }
+.vs-aud b { font-size: .95rem; font-weight: 700; color: var(--ink); }
+.vs-aud small { font-size: .78rem; color: var(--muted); }
+.vs-aud:hover { border-color: color-mix(in srgb, var(--ps) 50%, transparent); }
+.vs-aud[aria-pressed="true"] { border-color: var(--ps); background: color-mix(in srgb, var(--ps) 14%, #050B1A); }
+.vs-aud[aria-pressed="true"] small { color: var(--ink2); }
+.vs.aud-swap .vs-title, .vs.aud-swap .vs-stage, .vs.aud-swap .vs-cap, .vs.aud-swap .vs-cards { animation: vsSwap .45s var(--ease); }
+@keyframes vsSwap { from { opacity: .2; } }
+
+/* What fades with the state */
+.vs [data-when] { transition: opacity .5s var(--ease), visibility 0s linear .5s; }
+.vs[data-state="without"] [data-when="with"], .vs[data-state="with"] [data-when="without"] { opacity: 0; visibility: hidden; }
+.vs[data-state="without"] [data-when="without"], .vs[data-state="with"] [data-when="with"] { transition-delay: .1s, 0s; }
+
+/* The map */
+.vs-svg text { font-family: var(--font); }
+.vs-col { fill: var(--muted); font-family: var(--mono) !important; font-weight: 500; letter-spacing: .12em; }
+/* With NexFlo the wiring is whole and flowing (.vs-lines); without it, the same wiring in pieces (.vs-frag),
+   with a red dot on every loose end. */
+.vs-lines path, .vs-frag path { fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-dasharray: .01 5; }
+.vs-lines path { stroke: #4D95FF; animation: vsMarch .8s linear infinite; }
+.vs-frag path { stroke: rgba(170,180,199,.42); }
+.vs-frag circle { fill: #FF5A6A; }
+@keyframes vsMarch { to { stroke-dashoffset: -5.01; } }
+.vs-node { transition: transform .8s var(--ease); }
+.vs[data-state="without"] .vs-node { transform: translate(calc(var(--jx, 0) * 1px), calc(var(--jy, 0) * 1px)); }
+.vs-dots circle { fill: #FF5A6A; transition: fill .6s ease; }
+.vs[data-state="with"] .vs-dots circle { fill: #9CC6FF; }
+.vs-box { fill: #0D1630; stroke: rgba(255,90,106,.6); stroke-width: 1.2; transition: fill .6s ease, stroke .6s ease; }
+.vs[data-state="with"] .vs-box { fill: #1A2849; stroke: rgba(143,189,255,.2); }
+.vs-name { fill: #E6EBF4; font-weight: 700; letter-spacing: .05em; }
+.vs-ico { color: #FF7A88; transition: color .6s ease; }
+.vs[data-state="with"] .vs-ico { color: #6FA8FF; }
+.vs-core rect { fill: #fff; }
+.vs-core text { fill: #0A1122; font-weight: 800; letter-spacing: .05em; }
+.vs-core .vs-ico, .vs[data-state="with"] .vs-core .vs-ico { color: #006BFD; }
+.vs-pulse { fill: none; stroke-linecap: round; stroke-width: 3; animation-name: vsRun; animation-duration: var(--t, 3s); animation-delay: var(--dl, 0s); animation-timing-function: linear; animation-iteration-count: infinite; }
+.vs-flow .vs-pulse { stroke: #D6E7FF; }
+.vs-pulse.stuck { stroke: #C9D1E0; animation-name: vsStuck; }
+@keyframes vsRun { 0% { stroke-dashoffset: var(--d); } 60%, 100% { stroke-dashoffset: -1000; } }
+@keyframes vsStuck { 0% { stroke-dashoffset: var(--d); opacity: 1; } 40% { stroke: #C9D1E0; } 45% { stroke-dashoffset: var(--s); stroke: #FF5A6A; opacity: 1; } 62%, 100% { stroke-dashoffset: var(--s); stroke: #FF5A6A; opacity: 0; } }
+.vs-x { animation: vsBlink 2.6s ease-in-out infinite; animation-delay: calc(var(--k, 0) * -.45s); }
+.vs-x circle { fill: #2A0E18; stroke: #FF5A6A; stroke-width: 1.5; }
+.vs-x path { fill: none; stroke: #FF7A88; stroke-width: 2; stroke-linecap: round; }
+@keyframes vsBlink { 50% { opacity: .5; } }
+/* Where a document stops: a red ring that flashes as it arrives (shares --t/--dl with its vsStuck pulse) */
+.vs-spark { fill: none; stroke: #FF5A6A; stroke-width: 2; opacity: 0; transform-box: fill-box; transform-origin: center; animation: vsSpark var(--t, 3s) linear infinite; animation-delay: var(--dl, 0s); }
+@keyframes vsSpark { 0%, 43% { opacity: 0; transform: scale(.4); } 46% { opacity: 1; transform: scale(.7); } 66%, 100% { opacity: 0; transform: scale(1.7); } }
+.vs-hub { transform-box: fill-box; transform-origin: center; transition: transform .6s cubic-bezier(.3,1.6,.5,1); transition-delay: calc(var(--k, 0) * 70ms + .1s); }
+.vs[data-state="without"] .vs-hub { transform: scale(.3); transition-delay: 0s; }
+.vs-hring { fill: #006BFD; }
+.vs-hglow { fill: rgba(0,107,253,.28); transform-box: fill-box; transform-origin: center; animation: vsGlow 2.6s ease-in-out infinite; }
+@keyframes vsGlow { 50% { transform: scale(1.22); opacity: .4; } }
+.vs.is-paused *, .vs[data-state="with"] .vs-mess *, .vs[data-state="without"] .vs-flow *, .vs[data-state="without"] .vs-lines * { animation-play-state: paused !important; }
+
+/* Three columns under the map */
+.vs-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; padding: 28px 32px 32px; }
+.vs-card { display: grid; }
+.vs-card > div { grid-area: 1 / 1; }
+.vs-cico { display: block; width: 24px; height: 24px; margin-bottom: 14px; }
+.vs-cico svg { width: 100%; height: 100%; }
+.vs-card [data-when="without"] .vs-cico { color: #FF7A88; }
+.vs-card [data-when="with"] .vs-cico { color: #4D95FF; }
+.vs-card h3 { margin: 0 0 6px; font-size: 1.05rem; }
+.vs-card p { margin: 0; font-size: .94rem; line-height: 1.55; color: var(--ink2); }
+
+@media (max-width: 900px) {
+  .vs-wide { display: none; }
+  .vs-tall { display: block; }
+  .vs-cards { grid-template-columns: 1fr; gap: 18px; padding: 22px 20px 24px; }
+  .vs-card > div { display: grid; grid-template-columns: 22px minmax(0, 1fr); column-gap: 12px; }
+  .vs-cico { grid-row: span 2; width: 22px; height: 22px; margin: 1px 0 0; }
+}
+@media (max-width: 640px) {
+  .vs { border-radius: 18px; }
+  .vs-bar { padding: 10px; }
+  .vs-tab { padding: 13px 6px; font-size: .74rem; letter-spacing: .06em; }
+  .vs-panel { padding: 22px 10px 0; }
+  .vs-title { margin-bottom: 16px; padding: 0 8px; }
+  .vs-foot { padding: 12px 8px 16px; gap: 10px; }
+  .vs-cap { font-size: .84rem; }
+  .vs-for { gap: 6px; margin-bottom: 14px; align-items: stretch; }
+  .vs-for-label { width: 100%; text-align: center; margin: 0 0 2px; }
+  .vs-aud { flex: 1 1 0; min-width: 0; max-width: 190px; flex-direction: column; align-items: flex-start; gap: 0; padding: 6px 12px; border-radius: 14px; text-align: left; }
+  .vs-aud small { font-size: .7rem; line-height: 1.3; }
+}
+
 /* Reduce Motion: calmer, not frozen. Nothing slides, zooms or grows; things fade in where they are,
    orbits and flowing lines run at half speed, and content that changes in place (the order demo, typing,
    chat, dashboard) runs as normal. Kept last so these keyframes replace the ones above. */
@@ -1154,4 +1276,16 @@ details.more p { margin-top: 10px; font-size: .95rem; color: var(--muted); }
   .tf-wire i:nth-of-type(3) { animation-delay: 3.2s; }
   .tf-ring { animation-duration: 32s; }
   .tile-box:hover, .tile-box:hover .tile-cta i { transform: none; }
+  .vs-pulse, .vs-spark { animation-duration: calc(var(--t, 3s) * 2); }
+  .vs-spark { animation-name: vsSparkCalm; }
+  @keyframes vsSparkCalm { 0%, 43% { opacity: 0; } 46% { opacity: 1; } 66%, 100% { opacity: 0; } }
+  .vs-lines path { animation-duration: 1.6s; }
+  .vs-node { transition: none; }
+  .vs-hglow { animation: none; }
+  .vs-hub, .vs[data-state="without"] .vs-hub { transform: none; }
+  .vs-thumb { transition: none; }
 }
+
+/* Home: the Walmart example sits on light gray between two dark sections. The cloud edge above it is clipped
+   by its section, so a 1px band of the same gray closes the hairline seam where the two sections meet. */
+.demo-s.s-light { box-shadow: 0 -1px 0 var(--bg); }
