@@ -95,8 +95,9 @@ export async function POST(request) {
   const form = typeof payload?.form === "string" ? payload.form : "";
   if (!Object.hasOwn(RECIPIENTS, form)) return reply({ error: "Unknown form." }, 400);
 
-  // The hidden "website" box is only filled in by bots. Pretend it worked and send nothing.
-  if (text(fields.website)) return reply({ ok: true }, 200);
+  // The hidden bot-trap box ("nf_trap"; "website" on pages cached from before) is only filled in by bots.
+  // Pretend it worked and send nothing.
+  if (text(fields.nf_trap) || text(fields.website)) return reply({ ok: true }, 200);
 
   const email = oneLine(fields.email);
   if (!EMAIL_RE.test(email)) return reply({ error: "A valid email is required." }, 400);

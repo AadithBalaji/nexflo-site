@@ -424,7 +424,11 @@ def layout(title, description, body, active="", slug="", bare=False, focus=False
 '''
 
 
-HONEYPOT = '<div class="hp" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>'
+# Bot trap: a box people never see, so only bots fill it in. It is display:none (browsers and password managers
+# don't autofill fields that aren't shown), has a name autofill doesn't recognise, and carries the "ignore me" hints
+# that password managers read. A field named "website" was being autofilled, which silently stopped real sends.
+HONEYPOT = ('<div class="hp" aria-hidden="true"><input type="text" name="nf_trap" tabindex="-1" autocomplete="off" '
+            'data-1p-ignore data-lpignore="true" data-bwignore data-form-type="other"></div>')
 
 
 def signup_inline(source, dark=False, button="Get early access", product=""):

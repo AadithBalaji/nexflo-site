@@ -83,13 +83,17 @@ const FORM_ENDPOINT = "/api/contact";
   };
   document.querySelectorAll("form[data-form]").forEach((form) => {
     form.setAttribute("novalidate", "");
-    const fields = [...form.querySelectorAll("input:not([type=hidden]):not([name=website]), select, textarea")];
+    const fields = [...form.querySelectorAll("input:not([type=hidden]):not(.hp input), select, textarea")];
     fields.forEach((f) => f.addEventListener("blur", () => { if (f.hasAttribute("aria-invalid")) setError(f, check(f)); }));
     let busy = false;
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (busy) return;
-      if (form.querySelector(".hp input")?.value) return; // honeypot
+      // Bot trap filled in: act as if it worked and send nothing (never just do nothing).
+      if (form.querySelector(".hp input")?.value) {
+        if (form.dataset.next) location.href = form.dataset.next; else form.classList.add("sent");
+        return;
+      }
       let first = null;
       fields.forEach((f) => { const m = check(f); setError(f, m); if (m && !first) first = f; });
       if (first) { first.focus(); return; }
@@ -106,6 +110,7 @@ const FORM_ENDPOINT = "/api/contact";
       // Fields that appear more than once (ticked checkboxes) are sent as one comma-separated value.
       const data = {};
       for (const [k, v] of new FormData(form).entries()) data[k] = k in data ? `${data[k]}, ${v}` : v;
+      delete data.nf_trap;
       delete data.website;
       const btn = form.querySelector('[type="submit"]');
       const label = btn ? btn.textContent : "";
