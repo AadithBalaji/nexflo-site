@@ -50,6 +50,8 @@ const FORM_ENDPOINT = "/api/contact";
       if (el.tagName === "SELECT") {
         const opt = [...el.options].find((o) => o.value.toLowerCase() === v.toLowerCase());
         if (opt) el.value = opt.value;
+      } else if (el.type === "checkbox") {
+        if (el.value.toLowerCase() === v.toLowerCase()) el.checked = true;
       } else if (!el.value) el.value = v;
     });
   });
@@ -98,7 +100,9 @@ const FORM_ENDPOINT = "/api/contact";
       }
       status.setAttribute("role", "status");
       status.textContent = "";
-      const data = Object.fromEntries(new FormData(form).entries());
+      // Fields that appear more than once (ticked checkboxes) are sent as one comma-separated value.
+      const data = {};
+      for (const [k, v] of new FormData(form).entries()) data[k] = k in data ? `${data[k]}, ${v}` : v;
       delete data.website;
       const btn = form.querySelector('[type="submit"]');
       const label = btn ? btn.textContent : "";
