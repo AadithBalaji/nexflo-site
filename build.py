@@ -349,7 +349,7 @@ def footer_html():
     cols = [
         ("Products", [("TradeFlo", "tradeflo.html"), ("CareFlo", "careflo.html"), ("HealthFlo", "healthflo.html"), ("Pricing", "pricing.html"), ("Portal login", PORTAL_URL)]),
         ("Resources", [("EDI guides", "resources.html"), ("What is EDI?", "what-is-edi.html"), ("837 and 835 explained", "837-835-transactions.html"), ("Security", "security.html"), ("FAQ", "resources.html#faq")]),
-        ("Company", [("About", "about.html"), ("Contact", "contact.html"), ("Talk to us", "demo.html"), ("Join early access", "early-access.html")]),
+        ("Company", [("About", "about.html"), ("Contact", "contact.html"), ("Book Demo", "demo.html")]),
     ]
     def col(h, links):
         items = "".join('<li><a href="%s">%s</a></li>' % (u, t) for t, u in links)
@@ -429,6 +429,12 @@ HONEYPOT = '<div class="hp" aria-hidden="true"><input type="text" name="website"
 
 def signup_inline(source, dark=False, button="Get early access", product=""):
     prod = f'<input type="hidden" name="product" value="{product}">' if product else ""
+    if button == "Book Demo":
+        # Not a sign-up: the email box opens the Book Demo page with the email (and product) already filled in.
+        return f'''<form class="signup{" dark" if dark else ""}" action="demo.html" method="get">{prod}
+  <input type="email" name="email" placeholder="Work email" aria-label="Work email" required autocomplete="email">
+  <button class="btn btn-primary" type="submit">{button}</button>
+</form>'''
     return f'''<form class="signup{" dark" if dark else ""}" data-form="Early access" data-to="{SALES}" novalidate>
   {HONEYPOT}<input type="hidden" name="source" value="{source}">{prod}
   <input type="email" name="email" placeholder="Work email" aria-label="Work email" required autocomplete="email">
@@ -450,9 +456,10 @@ def page_hero(title, lead, eyebrow="", crumbs=None, actions="", badge=""):
 </div></section>'''
 
 
-def cta_band(title="Join early access", text="Founding customers keep their launch pricing. Join the list and the NexFlo team will reach out personally.",
-             source="cta", product="", secondary=True, button="Get early access"):
-    sec = (f'<p class="small">Have questions first? <a href="demo.html">Talk to us</a> '
+def cta_band(title="Book Demo", text="Tell us who you trade with and what's slowing you down. We'll set up a call and explain plainly how NexFlo can help.",
+             source="cta", product="", secondary=True, button="Book Demo"):
+    talk = ('<a href="contact.html">Contact us</a>' if button == "Book Demo" else '<a href="demo.html">Talk to us</a>')
+    sec = (f'<p class="small">Have questions first? {talk} '
            f'or <a href="pricing.html#quote">ask about pricing</a>.</p>') if secondary else ""
     return f'''<section class="cta2"><div class="container"><div class="cta2-box"><div class="arc"></div>
   <div><h2>{title}</h2><p>{text}</p></div>
@@ -1090,7 +1097,7 @@ def home():
   <div class="container">
     <h1>{title}</h1>
     <p class="sub">NexFlo Cloud helps businesses connect their software, exchange important documents, and reduce manual work.</p>
-    {signup_inline("home-hero", button="Join early access")}
+    {signup_inline("home-hero", button="Book Demo")}
     <p class="hero-note">New to EDI? It's the standard way companies send orders, invoices and claims to each other. NexFlo handles it for you. <a href="what-is-edi.html">Learn more</a></p>
     <div class="hero-stage products-stage" id="products"><div class="arc hero-circle"></div>
       <div class="section-head center s-accent"><h2>Three products for three kinds of businesses</h2>
@@ -1137,8 +1144,8 @@ def home():
   <div class="arc cta-circle" data-arc="0.8"></div>
   <div class="container cta-in">
     <h2>Ready to simplify your integrations?</h2>
-    <p>Join early access, or tell us about your partners and documents. No technical knowledge needed.</p>
-    <div class="row"><a class="btn btn-ghost arrow" href="demo.html">Talk to NexFlo</a><a class="btn btn-white btn-lg" href="early-access.html">Join early access</a></div>
+    <p>Book Demo, or tell us about your partners and documents. No technical knowledge needed.</p>
+    <div class="row"><a class="btn btn-ghost arrow" href="contact.html">Talk to NexFlo</a><a class="btn btn-white btn-lg" href="demo.html">Book Demo</a></div>
   </div>
 </section>
 '''
@@ -1298,7 +1305,7 @@ def careflo_flow():
 def product_page(name, mark, status, lead, who, example_intro, demo, features, standards_label, standards, cta, notice="", product="", flow=""):
     badge = status_badge(status)
     is_live = status == "live"
-    actions = (f'<a class="btn btn-primary btn-lg" href="early-access.html?product={name}">Join early access</a>'
+    actions = (f'<a class="btn btn-primary btn-lg" href="demo.html?product={name}">Book Demo</a>'
                f'<a class="btn btn-secondary btn-lg" href="pricing.html?product={name}#quote">Request pricing</a>') if is_live else (
                f'<a class="btn btn-primary btn-lg" href="#waitlist">Join the waitlist</a>')
     feat_html = "".join(f'<div class="feature">{icon(i)}<h3>{t}</h3><p>{d}</p></div>' for i, t, d in features)
@@ -1449,7 +1456,7 @@ def pricing():
             elif live:
                 btn = f'<a class="btn {"btn-primary" if tier == "Growth" else "btn-secondary"}" href="?product={p["name"]}#quote">Request pricing</a>'
             else:
-                btn = f'<a class="btn {"btn-primary" if tier == "Growth" else "btn-secondary"}" href="early-access.html?product={p["name"]}">Join early access</a>'
+                btn = f'<a class="btn {"btn-primary" if tier == "Growth" else "btn-secondary"}" href="demo.html?product={p["name"]}">Book Demo</a>'
             cards.append(f'''<div class="price-card{" featured" if tier == "Growth" else ""}">
   <h3>{tier}</h3><p class="muted">{desc}</p>
   <div class="price">Pricing coming soon</div>
@@ -1873,7 +1880,7 @@ def brand_names(page):
 def clean_links(text):
     text = re.sub(r'(href|src)="assets/', r'\1="/assets/', text)
     text = re.sub(r'href="index\.html([#?][^"]*)?"', lambda m: f'href="/{m.group(1) or ""}"', text)
-    return re.sub(r'href="([a-z0-9-]+)\.html([#?][^"]*)?"', lambda m: f'href="/{m.group(1)}{m.group(2) or ""}"', text)
+    return re.sub(r'(href|action)="([a-z0-9-]+)\.html([#?][^"]*)?"', lambda m: f'{m.group(1)}="/{m.group(2)}{m.group(3) or ""}"', text)
 
 
 
