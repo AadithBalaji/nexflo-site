@@ -1164,99 +1164,17 @@ def home():
 
 @page("products.html", "Products", "TradeFlo, CareFlo and HealthFlo: EDI and healthcare data translation from NexFlo Cloud.", "products")
 def products():
-    # Product tabs (motion.js [data-tabs]; ?product=careflo opens that tab), each with the two packages side by side:
-    # tops in the first grid row, feature lists in the second, so both line up. On phones each package's list
-    # follows its own top. Prices aren't set, so nothing here shows a number.
-    tabs = "".join(f'<button class="pk-tab {tone(p["name"])}" role="tab" aria-selected="{str(i == 0).lower()}" '
-                   f'aria-controls="pk-{p["key"]}" id="pkt-{p["key"]}">{p["name"]}</button>' for i, p in enumerate(PRODUCTS))
-    panels = []
-    for i, p in enumerate(PRODUCTS):
-        k = PACKAGES[p["name"]]
-        lis = lambda items: "".join(f"<li>{x}</li>" for x in items)
-        panels.append(f'''<div class="pk-panel {tone(p["name"])}" role="tabpanel" id="pk-{p["key"]}" aria-labelledby="pkt-{p["key"]}"{"" if i == 0 else " hidden"}>
-  <div class="pk-meta"><span>{wordmark(p["name"])} · {p["sub"]}</span>{status_badge(p["status"])}<a href="{p["href"]}">See how {p["name"]} works <i aria-hidden="true">→</i></a></div>
-  <div class="pk-grid">
-    <div class="pk-top pk-sig"><p class="pk-ribbon">Recommended</p><div class="pk-in">
-      <h3>{PKG_MAIN}</h3><p class="pk-price">Pricing coming soon</p><p class="pk-bill">Billed monthly · a fixed number of {k["unit"]} each month</p>
-      <p class="pk-desc">{k["sig"]}</p>
-      <a class="pk-btn pk-outline" href="demo.html?product={p["name"]}">Book Demo</a>
-      <p class="pk-fine">Prices will be published before launch</p></div></div>
-    <div class="pk-top pk-ent"><div class="pk-in">
-      <h3>Enterprise</h3><p class="pk-price">Custom</p><p class="pk-bill">Sized to your volume · priced by quote</p>
-      <p class="pk-desc">{k["ent"]}</p>
-      <a class="pk-btn pk-fill" href="pricing.html?product={p["name"]}#quote">Get Custom Pricing</a>
-      <a class="pk-btn pk-soon" href="#estimate">Estimate Your Savings <span>Coming soon</span></a></div></div>
-    <ul class="pk-list pk-sig-list">{lis(k["sig_feats"])}</ul>
-    <ul class="pk-list pk-ent-list">{lis(k["ent_feats"])}</ul>
-  </div>
-</div>''')
-
-    yes = '<span class="cmp-yes" role="img" aria-label="Included">✓</span>'
-    groups = [("In every package", [(t, yes, yes) for t in (
-                  "Translation to and from clean JSON", "API and SFTP connections", "Partner management and transaction tracking",
-                  "Validation and error alerts", "One dashboard and one team to talk to")]),
-              ("Volume and billing", [("Monthly allowance", "Fixed, to be announced", "Sized to your volume"),
-                                      ("Price", "Monthly, coming soon", "Custom quote"),
-                                      ("Savings estimate", "Coming soon", "Coming soon")])]
-    rows = "".join(f'<tr class="cmp-group"><th colspan="3" scope="colgroup">{g}</th></tr>' + "".join(
-        f'<tr><th scope="row">{t}</th><td>{a}</td><td>{b}</td></tr>' for t, a, b in items) for g, items in groups)
-
-    est_fields = "".join(f'<div class="est-field"><span>{l}</span><b>{v}</b><i style="--v:{w}%"></i></div>'
-                         for l, v, w in (("Trading partners", "12", 30), ("Documents per month", "2,500", 46), ("What you pay today", "$ · · ·", 62)))
-
-    return f'''<section class="pk-hero"><div class="pk-glow" aria-hidden="true"></div><div class="container">
-  <div class="breadcrumbs"><a href="index.html">Home</a> / Products</div>
-  <h1>One platform for all your business data.</h1>
-  <p class="lead">Exchange orders, invoices, claims and health records with every partner you work with. Pick a product, then the package that fits.</p>
-</div></section>
-
-<section class="pk-band"><div class="container">
-  <div class="pk-tabs-wrap" data-tabs>
-    <div class="pk-tabs" role="tablist" aria-label="Choose a product">{tabs}</div>
-    <div class="pk-stage">{"".join(panels)}</div>
-  </div>
-</div></section>
-
-<section class="est" id="estimate"><div class="container est-box">
-  <div class="est-copy"><span class="badge badge-soon">Coming soon</span><h2>Estimate your savings</h2>
-    <p class="lead">Soon you'll be able to enter your partners and monthly volume and see what you could save compared with what you pay today. It goes live once our prices are final.</p>
-    <a class="btn btn-secondary" href="demo.html">Book Demo to talk it through</a></div>
-  <div class="est-mock" aria-hidden="true"><span class="est-tag">Illustration</span>
-    {est_fields}
-    <div class="est-result"><span>Your estimated savings</span><div class="est-blur"><i></i><i></i></div><b class="est-lock">{icon("lock", "est-ico")}Coming soon</b></div>
-  </div>
-</div></section>
-
-<section class="cmp"><div class="container">
-  <div class="cmp-head"><h2>Compare packages</h2>
-    <div><h3>{PKG_MAIN}</h3><a class="pk-btn pk-outline" href="demo.html">Book Demo</a></div>
-    <div><h3>Enterprise</h3><a class="pk-btn pk-fill" href="pricing.html#quote">Get Custom Pricing</a></div></div>
-  <div class="table-wrap"><table class="cmp-table"><caption class="sr-only">What each package includes</caption>
-    <thead class="sr-only"><tr><th scope="col">Feature</th><th scope="col">{PKG_MAIN}</th><th scope="col">Enterprise</th></tr></thead>
-    <tbody>{rows}</tbody></table></div>
-  <p class="small muted mt-3">Planned package contents. Prices, allowances and final details will be published before launch.</p>
-</div></section>
-
-<section class="pk-faq"><div class="container narrow">
-  <h2 class="center">Frequently asked questions</h2>
-  {faq(PRODUCTS_FAQ).replace("<details>", "<details open>", 1)}
+    return page_hero("Products", "One translation engine, three products. TradeFlo is first to launch; CareFlo and HealthFlo follow in 2027.",
+                     "NexFlo Cloud", [("Home", "index.html"), ("Products", None)]) + f'''
+<section><div class="container">{product_cards("See product")}</div></section>
+<section class="section-soft"><div class="container split">
+  <div><h2>Shared by every product</h2><p class="lead">Each product runs on the same core, so what you learn in one carries over.</p></div>
+  <ul class="checks">
+    <li>Translation to and from clean JSON</li><li>API and SFTP connections</li>
+    <li>Partner management and transaction tracking</li><li>Validation and error alerts</li>
+    <li>One dashboard and one team to talk to</li></ul>
 </div></section>
 {cta_band(source="products")}'''
-
-
-PRODUCTS_FAQ = [
-    ("Which product do I need?", "TradeFlo is for businesses that exchange orders, invoices and shipping notices with retailers and other partners. "
-     "CareFlo is for claims, eligibility and payments in healthcare billing. HealthFlo connects clinical systems that use HL7 or FHIR. "
-     "Not sure? <a href=\"demo.html\">Book Demo</a> and we'll tell you plainly."),
-    ("What's the difference between Signature and Enterprise?", "Signature is a monthly package with a fixed number of documents or transactions each month. "
-     "Enterprise is custom: it's sized to your volume and needs, and priced by quote."),
-    ("Why aren't prices listed yet?", "We're still setting final prices. We'd rather publish numbers we can stand behind than change them later."),
-    ("When will the savings estimator be ready?", "Once our prices are final. Until then, book a demo and we'll walk through what you pay today and how NexFlo compares."),
-    ("Is it pay-as-you-go?", "No. You'll have a monthly package with a set allowance, so your monthly cost is predictable."),
-    ("Are there setup fees or long contracts?", "Those details aren't decided yet. Whatever they are, you'll have them in writing before you sign anything."),
-    ("When can I start?", "TradeFlo is in development, with early access open now. CareFlo and HealthFlo are planned for 2027."),
-    ("Do I need developers?", "No. You can exchange files over SFTP and use the dashboard. Teams with developers can use the REST API and JSON instead."),
-]
 
 
 # ---------------------------------------------------------------- "How it works" diagrams (TradeFlo, CareFlo)
@@ -1512,12 +1430,24 @@ def healthflo():
     )
 
 
-PRICING_FAQ = [
+# The two pricing answers the Resources FAQ shows.
+PRICING_BASICS = [
     ("How will pricing work?", "In packages. Each product will have two monthly packages: Signature, which includes a fixed number of documents or transactions per month, and Enterprise, which is sized to your volume and priced by quote. We're finalizing the exact prices and allowances."),
     ("Is it pay-as-you-go?", "No. You'll pick a monthly package with a set allowance, so your monthly cost is predictable."),
+]
+
+PRICING_FAQ = [
+    ("Which product do I need?", "TradeFlo is for businesses that exchange orders, invoices and shipping notices with retailers and other partners. "
+     "CareFlo is for claims, eligibility and payments in healthcare billing. HealthFlo connects clinical systems that use HL7 or FHIR. "
+     "Not sure? <a href=\"demo.html\">Book Demo</a> and we'll tell you plainly."),
+    ("What's the difference between Signature and Enterprise?", "Signature is a monthly package with a fixed number of documents or transactions each month. "
+     "Enterprise is custom: it's sized to your volume and needs, and priced by quote."),
     ("Why aren't prices listed yet?", "We're still setting final prices. We'd rather publish numbers we can stand behind than change them later."),
+    ("When will the savings estimator be ready?", "Once our prices are final. Until then, book a demo and we'll walk through what you pay today and how NexFlo compares."),
+    ("Is it pay-as-you-go?", "No. You'll have a monthly package with a set allowance, so your monthly cost is predictable."),
     ("Are there setup fees or long contracts?", "Those details aren't decided yet. Whatever they are, you'll have them in writing before you sign anything."),
-    ("Do founding customers lock in launch pricing?", "Yes. Founding customers keep their launch pricing as the product grows."),
+    ("When can I start?", "TradeFlo is in development, with early access open now. CareFlo and HealthFlo are planned for 2027."),
+    ("Do I need developers?", "No. You can exchange files over SFTP and use the dashboard. Teams with developers can use the REST API and JSON instead."),
 ]
 
 
@@ -1544,39 +1474,77 @@ PACKAGES = {
 
 @page("pricing.html", "Pricing", "NexFlo Cloud pricing: monthly Signature and Enterprise packages for TradeFlo, CareFlo and HealthFlo.", "pricing")
 def pricing():
-    tabs = "".join(f'<button class="ptab" role="tab" aria-selected="{str(i == 0).lower()}" aria-controls="pp-{p["key"]}" id="pt-{p["key"]}">{p["name"]}</button>'
-                   for i, p in enumerate(PRODUCTS))
+    # Product tabs (motion.js [data-tabs]; ?product=careflo opens that tab), each with the two packages side by side:
+    # tops in the first grid row, feature lists in the second, so both line up. On phones each package's list
+    # follows its own top. Prices aren't set, so nothing here shows a number.
+    tabs = "".join(f'<button class="pk-tab {tone(p["name"])}" role="tab" aria-selected="{str(i == 0).lower()}" '
+                   f'aria-controls="pk-{p["key"]}" id="pkt-{p["key"]}">{p["name"]}</button>' for i, p in enumerate(PRODUCTS))
     panels = []
     for i, p in enumerate(PRODUCTS):
         k = PACKAGES[p["name"]]
-        main_btn = (f'<a class="btn btn-primary" href="?product={p["name"]}#quote">Request pricing</a>' if p["status"] == "live"
-                    else f'<a class="btn btn-primary" href="demo.html?product={p["name"]}">Book Demo</a>')
-        cards = [f'''<div class="price-card featured">
-  <h3>{PKG_MAIN}</h3><p class="muted">{k["sig"]}</p>
-  <div class="price">Pricing coming soon</div>
-  <ul class="checks"><li>A fixed number of {k["unit"]} each month</li><li>Allowance to be announced</li></ul>
-  {main_btn}</div>''', f'''<div class="price-card">
-  <h3>Enterprise</h3><p class="muted">{k["ent"]}</p>
-  <div class="price">Custom pricing</div>
-  <ul class="checks"><li>An allowance sized to your volume</li><li>Priced by quote</li></ul>
-  <a class="btn btn-secondary" href="contact.html">Contact sales</a></div>''']
-        panels.append(f'''<div class="ppanel" role="tabpanel" id="pp-{p["key"]}" aria-labelledby="pt-{p["key"]}"{"" if i == 0 else " hidden"}>
-  <div class="ppanel-head"><p><b>{p["name"]}</b> · {p["sub"]} {status_badge(p["status"])}</p></div>
-  <div class="grid grid-2">{"".join(cards)}</div></div>''')
-    how = [("Choose your product", "TradeFlo, CareFlo or HealthFlo, depending on what your business does."),
-           ("Pick a package", "Signature for a set monthly allowance, or Enterprise for a custom one sized to your volume."),
-           ("Know what to expect", "Signature includes a set number of documents or transactions every month. Enterprise is sized to you.")]
-    how_html = "".join(f'<li><span>{i}</span><div><b>{t}</b><p>{d}</p></div></li>' for i, (t, d) in enumerate(how, 1))
-    return page_hero("Simple monthly packages",
-                     "Each NexFlo product comes in two monthly packages: Signature, with a fixed number of documents or transactions each month, and Enterprise, sized to your volume. Final prices are being set now.",
-                     "Pricing", [("Home", "index.html"), ("Pricing", None)]) + f'''
-<section class="sec-tight"><div class="container">
-  <ol class="pkg-how">{how_html}</ol>
-  <div class="pricing-tabs" data-tabs>
-    <div class="ptabs" role="tablist" aria-label="Choose a product">{tabs}</div>
-    {"".join(panels)}
+        lis = lambda items: "".join(f"<li>{x}</li>" for x in items)
+        panels.append(f'''<div class="pk-panel {tone(p["name"])}" role="tabpanel" id="pk-{p["key"]}" aria-labelledby="pkt-{p["key"]}"{"" if i == 0 else " hidden"}>
+  <div class="pk-meta"><span>{wordmark(p["name"])} · {p["sub"]}</span>{status_badge(p["status"])}<a href="{p["href"]}">See how {p["name"]} works <i aria-hidden="true">→</i></a></div>
+  <div class="pk-grid">
+    <div class="pk-top pk-sig"><p class="pk-ribbon">Recommended</p><div class="pk-in">
+      <h3>{PKG_MAIN}</h3><p class="pk-price">Pricing coming soon</p><p class="pk-bill">Billed monthly · a fixed number of {k["unit"]} each month</p>
+      <p class="pk-desc">{k["sig"]}</p>
+      <a class="pk-btn pk-outline" href="demo.html?product={p["name"]}">Book Demo</a>
+      <p class="pk-fine">Prices will be published before launch</p></div></div>
+    <div class="pk-top pk-ent"><div class="pk-in">
+      <h3>Enterprise</h3><p class="pk-price">Custom</p><p class="pk-bill">Sized to your volume · priced by quote</p>
+      <p class="pk-desc">{k["ent"]}</p>
+      <a class="pk-btn pk-fill" href="?product={p["name"]}#quote">Get Custom Pricing</a>
+      <a class="pk-btn pk-soon" href="#estimate">Estimate Your Savings <span>Coming soon</span></a></div></div>
+    <ul class="pk-list pk-sig-list">{lis(k["sig_feats"])}</ul>
+    <ul class="pk-list pk-ent-list">{lis(k["ent_feats"])}</ul>
   </div>
-  <p class="small muted mt-3">Prices and monthly allowances haven't been finalized. We'll publish them here once they're confirmed.</p>
+</div>''')
+
+    yes = '<span class="cmp-yes" role="img" aria-label="Included">✓</span>'
+    groups = [("In every package", [(t, yes, yes) for t in (
+                  "Translation to and from clean JSON", "API and SFTP connections", "Partner management and transaction tracking",
+                  "Validation and error alerts", "One dashboard and one team to talk to")]),
+              ("Volume and billing", [("Monthly allowance", "Fixed, to be announced", "Sized to your volume"),
+                                      ("Price", "Monthly, coming soon", "Custom quote"),
+                                      ("Savings estimate", "Coming soon", "Coming soon")])]
+    rows = "".join(f'<tr class="cmp-group"><th colspan="3" scope="colgroup">{g}</th></tr>' + "".join(
+        f'<tr><th scope="row">{t}</th><td>{a}</td><td>{b}</td></tr>' for t, a, b in items) for g, items in groups)
+
+    est_fields = "".join(f'<div class="est-field"><span>{l}</span><b>{v}</b><i style="--v:{w}%"></i></div>'
+                         for l, v, w in (("Trading partners", "12", 30), ("Documents per month", "2,500", 46), ("What you pay today", "$ · · ·", 62)))
+
+    return f'''<section class="pk-hero"><div class="pk-glow" aria-hidden="true"></div><div class="container">
+  <div class="breadcrumbs"><a href="index.html">Home</a> / Pricing</div>
+  <h1>One platform for all your business data.</h1>
+  <p class="lead">Exchange orders, invoices, claims and health records with every partner you work with. Pick a product, then the package that fits.</p>
+</div></section>
+
+<section class="pk-band"><div class="container">
+  <div class="pk-tabs-wrap" data-tabs>
+    <div class="pk-tabs" role="tablist" aria-label="Choose a product">{tabs}</div>
+    <div class="pk-stage">{"".join(panels)}</div>
+  </div>
+</div></section>
+
+<section class="est" id="estimate"><div class="container est-box">
+  <div class="est-copy"><span class="badge badge-soon">Coming soon</span><h2>Estimate your savings</h2>
+    <p class="lead">Soon you'll be able to enter your partners and monthly volume and see what you could save compared with what you pay today. It goes live once our prices are final.</p>
+    <a class="btn btn-secondary" href="demo.html">Book Demo to talk it through</a></div>
+  <div class="est-mock" aria-hidden="true"><span class="est-tag">Illustration</span>
+    {est_fields}
+    <div class="est-result"><span>Your estimated savings</span><div class="est-blur"><i></i><i></i></div><b class="est-lock">{icon("lock", "est-ico")}Coming soon</b></div>
+  </div>
+</div></section>
+
+<section class="cmp"><div class="container">
+  <div class="cmp-head"><h2>Compare packages</h2>
+    <div><h3>{PKG_MAIN}</h3><a class="pk-btn pk-outline" href="demo.html">Book Demo</a></div>
+    <div><h3>Enterprise</h3><a class="pk-btn pk-fill" href="#quote">Get Custom Pricing</a></div></div>
+  <div class="table-wrap"><table class="cmp-table"><caption class="sr-only">What each package includes</caption>
+    <thead class="sr-only"><tr><th scope="col">Feature</th><th scope="col">{PKG_MAIN}</th><th scope="col">Enterprise</th></tr></thead>
+    <tbody>{rows}</tbody></table></div>
+  <p class="small muted mt-3">Planned package contents. Prices, allowances and final details will be published before launch.</p>
 </div></section>
 
 <section class="section-soft sec-tight" id="quote"><div class="container split top">
@@ -1599,11 +1567,12 @@ def pricing():
   </form>
 </div></section>
 
-<section class="sec-tight"><div class="container narrow">
-  <div class="section-head"><span class="eyebrow">FAQ</span><h2>Pricing questions</h2></div>
-  {faq(PRICING_FAQ)}
+<section class="pk-faq"><div class="container narrow">
+  <h2 class="center">Frequently asked questions</h2>
+  {faq(PRICING_FAQ).replace("<details>", "<details open>", 1)}
 </div></section>
 {cta_band(source="pricing", secondary=False)}'''
+
 
 
 GENERAL_FAQ = [
@@ -1638,7 +1607,7 @@ def resources():
 </div></section>
 <section id="faq"><div class="container narrow">
   <div class="section-head"><span class="eyebrow">FAQ</span><h2>Frequently asked questions</h2></div>
-  {faq(GENERAL_FAQ + PRICING_FAQ[:2])}
+  {faq(GENERAL_FAQ + PRICING_BASICS)}
   <p class="mt-4 muted">Still have a question? <a href="contact.html">Contact us</a>.</p>
 </div></section>
 {cta_band(source="resources")}'''
