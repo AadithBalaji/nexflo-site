@@ -17,7 +17,7 @@
   };
 
   /* ---- Reveal on scroll (home and inner pages) ---- */
-  const REVEAL = ".section-head, .how-head, .frow-text, .vis, .card, .feature, .step, .pain, .price-card, .form-card, .doc, .tile, .scard, .faq, .prow, .fact, .orbit-view, .notice, .cta2-box, .f4, .pkg-how li, .tf-side, .tf-engine, .tf-feats, .vs";
+  const REVEAL = ".section-head, .how-head, .frow-text, .vis, .card, .feature, .step, .pain, .price-card, .form-card, .doc, .tile, .scard, .faq, .prow, .fact, .orbit-view, .notice, .cta2-box, .f4, .pkg-how li, .tf-side, .tf-engine, .tf-feats, .vs, .est-copy, .est-mock, .cmp-head, .cmp .table-wrap";
   if ("IntersectionObserver" in window) {
     const els = [...document.querySelectorAll(REVEAL)].filter((e) => !e.closest(".hero-s, .page-hero, .dropdown") && !e.parentElement.closest(REVEAL));
     els.forEach((e) => {
@@ -361,6 +361,9 @@
       if (now !== visible) { visible = now; schedule(); }
     }), { threshold: [0, 0.3] }).observe(panel);
   });
+
+  /* ---- Products page: the savings estimator illustration slides its controls into place once seen ---- */
+  document.querySelectorAll(".est").forEach((el) => onVisible(el, () => el.classList.add("on")));
 
   /* ---- Code tabs ---- */
   document.querySelectorAll("[data-tabs]").forEach((w) => {
