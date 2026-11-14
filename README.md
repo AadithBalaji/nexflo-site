@@ -4,7 +4,7 @@ Static site for nexflo.cloud. There's no framework and nothing to install.
 
 ```
 assets/      styles.css, main.js, logo.png, cloud-icon.png, favicons, hero-cloud.jpg,
-             cloud-glow.jpg, og-image.jpg, launch-graphic.jpg
+             cloud-glow.jpg, og-image-v2.jpg, launch-graphic.jpg
 build.py     every page's copy plus the shared header and footer
 dist/        built site (upload this folder to your host)
 ```
@@ -47,7 +47,7 @@ Pricing is package-based: each product has monthly Starter, Growth and Enterpris
 
 ## Before launch
 
-- **Brand assets are in place.** `logo.png` is your wordmark with a transparent background. The hero art is the cloud and ribbon from the launch graphic, with the text removed. The favicons and the dark sign-up band's glow come from your cloud icons. `og-image.jpg` (1200×630) is the social sharing image. If you have a vector (SVG) logo, use it instead of `logo.png` for sharper edges.
+- **Brand assets are in place.** `logo.png` is your wordmark with a transparent background. The hero art is the cloud and ribbon from the launch graphic, with the text removed. The favicons and the dark sign-up band's glow come from your cloud icons. `og-image-v2.jpg` (1200×630) is the link preview image (made from `tools/og-image.html`; the steps are in that file). When it changes, save it under a new name and update `og:image` in `build.py`, so apps that cached the old preview fetch the new one. If you have a vector (SVG) logo, use it instead of `logo.png` for sharper edges.
 - **Forms.** Every form posts to `api/contact.mjs`, a Vercel Function that emails it through Resend. Every form goes to sales@nexflo.cloud (set in `RECIPIENTS` in that file). It needs `RESEND_API_KEY` in Vercel (added by the Resend integration) and `nexflo.cloud` verified in Resend. Set `FORM_FROM` to change the sender. Success only shows after Resend accepts the email; otherwise the form asks the visitor to try again or email instead.
 - **Analytics.** Paste your snippet where the `<!-- Analytics -->` comment sits in `layout()` in `build.py`.
 - **Portal.** Deploy `dist/portal.html` as app.nexflo.cloud, then set `PORTAL_URL = "https://app.nexflo.cloud"` in `build.py`.

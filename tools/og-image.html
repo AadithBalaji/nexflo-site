@@ -1,0 +1,69 @@
+<!doctype html>
+<!--
+  NexFlo Cloud link preview (og:image), 1200 x 630. Matches the home page hero: dark canvas, ribbon lines,
+  the headline, and the blue cloud with the three products on it.
+
+  To regenerate assets/og-image-v2.jpg (Windows, Microsoft Edge):
+    msedge --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 --window-size=1200,630
+           --virtual-time-budget=10000 --screenshot=og.png file:///<path>/tools/og-image.html
+  then save og.png as a JPG (quality ~90) at assets/og-image-v2.jpg. When the picture changes, give the file a
+  new name and update og:image in build.py, so apps that cached the old preview fetch the new one.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NexFlo Cloud link preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=block" rel="stylesheet">
+<style>
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: #050B1A; }
+  .og { position: relative; width: 1200px; height: 630px; overflow: hidden; font-family: "Archivo", system-ui, sans-serif;
+    background: radial-gradient(ellipse 700px 380px at 50% 46%, rgba(0,107,253,.16), transparent 70%), #050B1A; }
+  svg { position: absolute; inset: 0; }
+  .logo { position: absolute; left: 50%; top: 46px; height: 56px; transform: translateX(-50%); }
+  h1 { position: absolute; left: 0; right: 0; top: 132px; margin: 0; text-align: center; color: #F1F4F9;
+    font-size: 104px; font-weight: 700; line-height: 1.02; letter-spacing: -.045em; }
+  h1 span { display: block; color: #4D95FF; }
+  p { position: absolute; left: 0; right: 0; top: 366px; margin: 0; text-align: center; color: #AAB4C7;
+    font-size: 27px; font-weight: 500; letter-spacing: -.01em; }
+  .products { position: absolute; left: 0; right: 0; top: 548px; text-align: center; color: #fff;
+    font-size: 28px; font-weight: 700; letter-spacing: -.01em; }
+  .products i { font-style: normal; opacity: .55; margin: 0 16px; }
+</style>
+</head>
+<body>
+<div class="og">
+  <svg viewBox="0 0 1200 630" width="1200" height="630" aria-hidden="true">
+    <defs>
+      <linearGradient id="cloud" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2F86FF"/><stop offset=".45" stop-color="#006BFD"/></linearGradient>
+      <path id="r1" d="M-60 438 C 200 388 380 498 600 452 S 1000 398 1260 446"/>
+      <path id="r2" d="M-60 482 C 220 532 400 424 620 476 S 1010 528 1260 470"/>
+      <path id="r3" d="M-60 520 C 180 480 420 566 640 516 S 1020 470 1260 512"/>
+    </defs>
+    <!-- Ribbons: three bundles of three lines, with a few bright dashes on the middle line of each -->
+    <g fill="none" stroke="#4D95FF" stroke-opacity=".2" stroke-width="1.3">
+      <use href="#r1"/><use href="#r1" transform="translate(0 9)"/><use href="#r1" transform="translate(0 18)"/>
+      <use href="#r2"/><use href="#r2" transform="translate(0 9)"/><use href="#r2" transform="translate(0 18)"/>
+      <use href="#r3"/><use href="#r3" transform="translate(0 9)"/><use href="#r3" transform="translate(0 18)"/>
+    </g>
+    <g fill="none" stroke="#8FBDFF" stroke-width="2.6" stroke-linecap="round" pathLength="1000">
+      <use href="#r1" transform="translate(0 9)" stroke-dasharray="60 2000" stroke-dashoffset="-80"/>
+      <use href="#r1" transform="translate(0 9)" stroke-dasharray="60 2000" stroke-dashoffset="-1030"/>
+      <use href="#r2" transform="translate(0 9)" stroke-dasharray="60 2000" stroke-dashoffset="-260"/>
+      <use href="#r3" transform="translate(0 9)" stroke-dasharray="60 2000" stroke-dashoffset="-1180"/>
+    </g>
+    <!-- The blue cloud along the bottom, like the home page -->
+    <g fill="url(#cloud)">
+      <rect x="0" y="560" width="1200" height="70"/>
+      <circle cx="600" cy="640" r="196"/>
+      <circle cx="372" cy="636" r="150"/><circle cx="828" cy="636" r="150"/>
+      <circle cx="160" cy="650" r="132"/><circle cx="1040" cy="650" r="132"/>
+      <circle cx="-30" cy="660" r="128"/><circle cx="1230" cy="660" r="128"/>
+    </g>
+  </svg>
+  <img class="logo" src="../assets/logo-dark.png" alt="NexFlo Cloud">
+  <h1>Business Data.<span>Flowing Better.</span></h1>
+  <p>Connect your software, exchange documents, reduce manual work.</p>
+  <div class="products">TradeFlo<i>·</i>CareFlo<i>·</i>HealthFlo</div>
+</div>
+</body>
+</html>
