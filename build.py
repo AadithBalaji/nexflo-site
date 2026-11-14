@@ -400,8 +400,12 @@ def layout(title, description, body, active="", slug="", bare=False, focus=False
 <meta property="og:title" content="{html.escape(full_title)}">
 <meta property="og:description" content="{html.escape(description)}">
 <meta property="og:url" content="{canonical}">
-<meta property="og:image" content="{SITE_URL}/assets/og-image.jpg">
+<meta property="og:image" content="{SITE_URL}/assets/og-image-v2.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="NexFlo Cloud: Business Data. Flowing Better.">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{SITE_URL}/assets/og-image-v2.jpg">
 <meta name="theme-color" content="#050B1A">
 <link rel="icon" href="assets/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
