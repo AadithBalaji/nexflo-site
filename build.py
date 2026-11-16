@@ -80,10 +80,10 @@ PRODUCTS = [
          line="Built to send and receive every EDI document, from purchase orders and invoices to shipping notices, between your business and its partners.",
          **{"for": "manufacturers, distributors, retail suppliers and e-commerce sellers"}),
     dict(key="careflo", name="CareFlo", mark="Care", href="careflo.html", status="soon", sub="Healthcare billing and claims",
-         line="Simplify how healthcare businesses exchange claims, billing information, and insurance-related documents.",
+         line="Translates 837 claims, 835 remittances and 270/271 eligibility checks to and from your billing system's format, and checks each one before it goes out.",
          **{"for": "medical billing companies, healthcare providers and revenue cycle teams"}),
     dict(key="healthflo", name="HealthFlo", mark="Health", href="healthflo.html", status="soon", sub="Healthcare system connections",
-         line="Help healthcare software and medical systems exchange important information more easily.",
+         line="Turns an HL7 v2 feed from one clinical system into FHIR resources another system can use.",
          **{"for": "hospitals, clinics, EHR vendors and digital health companies"}),
 ]
 
@@ -666,7 +666,7 @@ def orbit():
         dict(o=0, phase=0, speed=16, dot="in"), dict(o=0, phase=180, speed=16, dot="in"),
         dict(o=1, phase=90, speed=-14, dot="ok"), dict(o=2, phase=160, speed=22, dot="ok"),
     ]
-    core = ('<div class="o-core"><span class="o-halo"></span><div class="o-plate">'
+    core = ('<div class="o-core"><div class="o-plate">'
             '<img src="assets/cloud-icon.png" alt="" width="1106" height="689"></div></div>')
     return orbit_view((1000, 620), [[450, 118, -14], [410, 150, 16], [330, 200, 4]], items, core, "o-home",
                       "Messages in EDI, XML, JSON, CSV and flat files arriving over SFTP or API, translated by TradeFlo and sent on to your partners")
@@ -1058,10 +1058,10 @@ def versus():
 
 
 @page("index.html", "NexFlo Cloud | Business data, flowing better",
-      "NexFlo Cloud helps businesses connect their software, exchange important documents like orders, invoices and claims, and reduce manual work.")
+      "NexFlo Cloud translates EDI orders, invoices and claims between your partners' formats and your software, and checks each one against the partner's rules before it goes out.")
 def home():
-    words = "Business Data. Flowing Better.".split()
-    title = " ".join(f'<span class="w{" accent" if i > 1 else ""}" style="--i:{i}">{w}</span>' for i, w in enumerate(words))
+    words = "Your partners speak EDI. Your software doesn't.".split()
+    title = " ".join(f'<span class="w{" accent" if i > 3 else ""}" style="--i:{i}">{w}</span>' for i, w in enumerate(words))
     chat = f'''<div class="chat" data-chat aria-label="Example support conversation">
   <div class="msg"><span class="avatar them">JM</span><div><b>Jordan, Acme Supply</b><time>9:12 AM</time><p>Walmart rejected this morning's shipping notice. Any idea why?</p></div></div>
   <div class="typing" hidden><i></i><i></i><i></i></div>
@@ -1073,12 +1073,12 @@ def home():
   {hero_background()}
   <div class="container">
     <h1>{title}</h1>
-    <p class="sub">NexFlo Cloud helps businesses connect their software, exchange important documents, and reduce manual work.</p>
+    <p class="sub">NexFlo translates between your partners' formats and yours, and checks every document against that partner's rules, so it doesn't come back rejected.</p>
     {signup_inline("home-hero", button="Book Demo")}
     <p class="hero-note">New to EDI? It's the standard way companies send orders, invoices and claims to each other. NexFlo handles it for you. <a href="what-is-edi.html">Learn more</a></p>
     <div class="hero-stage products-stage" id="products"><div class="arc hero-circle"></div>
-      <div class="section-head center s-accent"><h2>Three products for three kinds of businesses</h2>
-        <p class="lead">Pick the one that matches what you do. All three are in development and run on the same NexFlo platform.</p></div>
+      <div class="section-head center s-accent"><h2>Which documents do you send?</h2>
+        <p class="lead">Pick the product that handles them. All three are in development and run on the same translation engine, so what you learn in one carries over.</p></div>
       <div class="s-light">{product_tiles()}</div>
     </div>
   </div>
@@ -1101,8 +1101,8 @@ def home():
 </div></section>
 
 <section class="s-light sec-tight edge-bottom edge-to-dark"><div class="container split">
-  <div class="frow-text"><span class="label">Support</span><h2>Real people, quick answers</h2>
-    <p>Email the NexFlo team and get a reply within one business day, plus hands-on help connecting your first trading partner.</p>
+  <div class="frow-text"><span class="label">Support</span><h2>A reply within one business day</h2>
+    <p>Email us about a rejected document or a new partner's requirements, and you'll hear from the people building NexFlo. We'll also help you connect your first trading partner.</p>
     <a class="link-arrow" href="contact.html">Contact us</a></div>
   <div class="vis vis-blue"><div class="arc" data-arc="0.6"></div>{chat}</div>
 </div></section>
@@ -1120,8 +1120,8 @@ def home():
 <section class="cta-s edge-bottom">
   <div class="arc cta-circle" data-arc="0.8"></div>
   <div class="container cta-in">
-    <h2>Ready to simplify your integrations?</h2>
-    <p>Book Demo, or tell us about your partners and documents. No technical knowledge needed.</p>
+    <h2>Has a retailer or insurer asked you for EDI?</h2>
+    <p>Tell us who's asking and which documents they need, and we'll show you what it takes. No technical knowledge needed.</p>
     <div class="row"><a class="btn btn-ghost arrow" href="contact.html">Talk to NexFlo</a><a class="btn btn-white btn-lg" href="demo.html">Book Demo</a></div>
   </div>
 </section>
@@ -1343,7 +1343,7 @@ def careflo():
               'existing clearinghouse or a partner we help you set up.</div></div>')
     return product_page(
         "CareFlo", "Care", "soon",
-        "Simplify how healthcare businesses exchange claims, billing information, and insurance-related documents. CareFlo is in development and planned for 2027.",
+        "Translate 837 claims, 835 remittances and 270/271 eligibility checks to and from your billing system's format, and catch errors before they go out. CareFlo is in development and planned for 2027.",
         ["Medical billing companies", "Revenue cycle management (RCM) teams", "Practice management software vendors",
          "Clinics that manage their own billing", "Health plans and benefits administrators"],
         ("Claims and eligibility data, in a format your team can work with",
@@ -1376,7 +1376,7 @@ def careflo():
 def healthflo():
     return product_page(
         "HealthFlo", "Health", "soon",
-        "Help healthcare software and medical systems exchange important information more easily. HealthFlo is in development and planned for 2027.",
+        "Turn an HL7 v2 feed from one clinical system into FHIR resources another system can use. HealthFlo is in development and planned for 2027.",
         ["Health tech startups integrating with EHRs", "Hospital and clinic IT teams", "Digital health platforms",
          "Labs and imaging providers"],
         ("Connect clinical systems that speak different formats",
@@ -1685,8 +1685,8 @@ def about():
                      "NexFlo Cloud exists to make EDI and data integration affordable and simple for the businesses that big providers overlook.",
                      "About us", [("Company", None), ("About", None)]) + f'''
 <section><div class="container split top">
-  <div><span class="eyebrow">Our mission</span><h2>Less friction. More flow.</h2>
-    <p class="lead">Growing businesses shouldn't have to choose between expensive legacy EDI providers and doing everything by hand. We're building the middle path: modern, transparent and easy to start.</p></div>
+  <div><span class="eyebrow">Our mission</span><h2>EDI a small supplier can afford and understand</h2>
+    <p class="lead">Growing businesses shouldn't have to choose between expensive legacy EDI providers and doing everything by hand. We're building the middle path: monthly packages sized to your volume, and support from the people who build it.</p></div>
   <div><span class="eyebrow">Why NexFlo exists</span>
     <p>Small manufacturers and suppliers pay enterprise prices for EDI they barely understand, then wait days for help when something breaks.</p>
     <p class="mb-0">NexFlo fixes that. TradeFlo comes first, for suppliers trading with retailers. CareFlo and HealthFlo bring the same approach to healthcare data in 2027.</p></div>
