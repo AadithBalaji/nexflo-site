@@ -717,39 +717,20 @@ def product_tiles():
 # The buttons switch between them. While the section is on screen motion.js ([data-vs]) also switches on its own,
 # until the visitor picks one. Two layouts are drawn, "wide" (desktop, tablet) and "tall" (phones); CSS shows one.
 #
-# The map is drawn for two kinds of business, picked with the "See it for" buttons (or ?product=careflo):
-# a TradeFlo customer (orders, invoices, shipping) and a CareFlo customer (claims and payments). The wiring is the
-# same; the box labels, title, caption and cards change. Box labels for each are in _vs_layout().
-VS_FOR = {
-    "trade": dict(
-        name="TradeFlo", sub="Orders and invoices",
-        title={"without": "Fragmented partner connections",
-               "with": "Orders. Invoices. Shipping notices. One place for every partner."},
-        caption={"without": "Each partner is connected a different way, and documents get stuck in the gaps. Your team fills them by hand.",
-                 "with": "TradeFlo is being built to sit in every one of those gaps, checking, translating and delivering each document."},
-        cards=[  # (icon, title, text) without NexFlo, then the same column with NexFlo
-            (("doc", "Orders typed in by hand", "Orders arrive by email, PDF and partner portals, and someone retypes each one into your system."),
-             ("check", "No more retyping", "Built to check each partner document and turn it into data your software already reads.")),
-            (("route", "Every partner is a new project", "Each partner has its own format and rules, so every new connection starts from scratch."),
-             ("plug", "Add partners without starting over", "Each partner's rules live in one place, so a new connection builds on what's already set up.")),
-            (("bell", "Mistakes show up late", "A missing label or a wrong price often surfaces weeks later, as a rejected invoice or a penalty."),
-             ("shield", "Problems caught before they're sent", "Built to check every document against the partner's rules first, and tell you exactly what to fix.")),
-        ]),
-    "care": dict(
-        name="CareFlo", sub="Claims and payments · 2027",
-        title={"without": "Fragmented claims and payments",
-               "with": "Claims. Remittances. Eligibility checks. One place for every payer."},
-        caption={"without": "Each payer is connected a different way, and claims get stuck in the gaps. Your team fills them by hand.",
-                 "with": "CareFlo, coming in 2027, is being built to sit in every one of those gaps, checking each claim and matching every payment."},
-        cards=[
-            (("doc", "Claims keyed in by hand", "Claims, eligibility checks and payment details get copied between payer portals and your billing system."),
-             ("check", "No more retyping", "Built to turn claims, remittances and eligibility responses into data your billing system already reads.")),
-            (("route", "Every payer is a new setup", "Each insurer has its own rules and enrollment steps, so adding a payer starts from scratch."),
-             ("plug", "Add payers without starting over", "Each payer's rules live in one place, so a new connection builds on what's already set up.")),
-            (("bell", "Denials show up late", "A missing code or a wrong member ID often surfaces weeks later, as a denied claim."),
-             ("shield", "Claims checked before they're sent", "Built to check every claim against the payer's rules first, and tell you exactly what to fix.")),
-        ]),
-}
+# The labels are for a TradeFlo business (orders, invoices, shipping); they're in _vs_layout().
+VS = dict(
+    title={"without": "Every partner connected a different way",
+           "with": "Every partner's orders, invoices and shipping notices in one place"},
+    caption={"without": "Documents get stuck in the gaps between systems, and your team fills them by hand.",
+             "with": "TradeFlo is being built to sit in every one of those gaps, checking, translating and delivering each document."},
+    cards=[  # (icon, title, text) without NexFlo, then the same column with NexFlo
+        (("doc", "Orders typed in by hand", "Orders arrive by email, PDF and partner portals, and someone retypes each one into your system."),
+         ("check", "No more retyping", "Built to check each partner document and turn it into data your software already reads.")),
+        (("route", "Every partner is a new project", "Each partner has its own format and rules, so every new connection starts from scratch."),
+         ("plug", "Add partners without starting over", "Each partner's rules live in one place, so a new connection builds on what's already set up.")),
+        (("bell", "Mistakes show up late", "A missing label or a wrong price often surfaces weeks later, as a rejected invoice or a penalty."),
+         ("shield", "Problems caught before they're sent", "Built to check every document against the partner's rules first, and tell you exactly what to fix.")),
+    ])
 
 
 def _n(v):
@@ -818,35 +799,30 @@ def _vs_stuck(p, speed, dash, phase):
             f'style="stroke-dasharray:{nd:.1f} 2000;--d:{nd:.1f};--s:{nd - 1000:.1f};{timing}"/>'), timing
 
 
-def _vs_both(trade, care=None):
-    """A box's label and icon for each kind of business. care=None: the same for both (e.g. API, SFTP)."""
-    return {"trade": trade, "care": care or trade}
-
-
 def _vs_layout(kind):
-    """Everything is in viewBox units. Nodes: (x, y_centre, width, {"trade": (label, icon), "care": (label, icon)}).
+    """Everything is in viewBox units. Nodes: (x, y_centre, width, (label, icon)).
     Lines: lists of points. Hubs: where NexFlo sits (and, without it, where the wiring has a gap and a red cross).
     Routes: paths documents travel. With NexFlo they run the whole way; without it they stop at the first break
     (see _vs_fragment)."""
     if kind == "wide":
         g = dict(W=1000, H=372, nh=28, fs=11, isz=13, dash=30, fast=190, slow=95, center=(430, 163, 140, 60), jitter=1,
                  labels=[(10, 9, "start", "YOUR SOFTWARE"), (990, 9, "end", "YOUR PARTNERS")])
-        soft = [(40, ("Online store", "cart"), ("EHR", "pulse")), (76, ("Order system", "clipboard"), ("Practice mgmt", "clipboard")),
-                (139, ("Accounting", "chart"), ("Billing system", "chart")), (175, ("Inventory", "box"), ("Scheduling", "calendar")),
-                (211, ("Spreadsheets", "sheet"), None), (290, ("Shipping app", "route"), ("Patient portal", "users"))]
-        conn = [(139, ("API", "code"), None), (175, ("SFTP", "folder"), None), (211, ("Service bus", "server"), None), (247, ("AS2", "lock"), None)]
-        fmts = [(175, ("X12 EDI", "doc"), ("X12 837", "doc")), (211, ("EDIFACT", "doc"), ("X12 835", "doc"))]
-        part = [(30, ("Retailers", "building"), ("Medicare", "shieldplus")), (64, ("Marketplaces", "tag"), ("Medicaid", "shieldplus")),
-                (98, ("Grocers", "cart"), ("Insurers", "shield")), (132, ("Wholesalers", "box"), ("Workers' comp", "building")),
-                (245, ("Dropship", "route"), ("Clearinghouse", "server")), (279, ("Distributors", "warehouse"), ("Dental plans", "shield")),
-                (313, ("Dealers", "users"), ("Vision plans", "eye"))]
-        g["nodes"] = ([(10, y, 140, _vs_both(t, c)) for y, t, c in soft] + [(205, y, 120, _vs_both(t, c)) for y, t, c in conn] +
-                      [(320, 40, 150, _vs_both(("Suppliers", "factory"), ("Clinics", "hospital"))),
-                       (530, 40, 150, _vs_both(("Manufacturers", "building"), ("Physicians", "users"))),
-                       (320, 314, 150, _vs_both(("3PL warehouse", "warehouse"), ("Banks", "bank"))),
-                       (530, 314, 150, _vs_both(("Carriers", "truck"), ("Collections", "bell"))),
-                       (425, 350, 150, _vs_both(("Freight", "route"), ("Patient bills", "doc")))] +
-                      [(655, y, 110, _vs_both(t, c)) for y, t, c in fmts] + [(850, y, 146, _vs_both(t, c)) for y, t, c in part])
+        soft = [(40, ("Online store", "cart")), (76, ("Order system", "clipboard")),
+                (139, ("Accounting", "chart")), (175, ("Inventory", "box")),
+                (211, ("Spreadsheets", "sheet")), (290, ("Shipping app", "route"))]
+        conn = [(139, ("API", "code")), (175, ("SFTP", "folder")), (211, ("Service bus", "server")), (247, ("AS2", "lock"))]
+        fmts = [(175, ("X12 EDI", "doc")), (211, ("EDIFACT", "doc"))]
+        part = [(30, ("Retailers", "building")), (64, ("Marketplaces", "tag")),
+                (98, ("Grocers", "cart")), (132, ("Wholesalers", "box")),
+                (245, ("Dropship", "route")), (279, ("Distributors", "warehouse")),
+                (313, ("Dealers", "users"))]
+        g["nodes"] = ([(10, y, 140, t) for y, t in soft] + [(205, y, 120, t) for y, t in conn] +
+                      [(320, 40, 150, ("Suppliers", "factory")),
+                       (530, 40, 150, ("Manufacturers", "building")),
+                       (320, 314, 150, ("3PL warehouse", "warehouse")),
+                       (530, 314, 150, ("Carriers", "truck")),
+                       (425, 350, 150, ("Freight", "route"))] +
+                      [(655, y, 110, t) for y, t in fmts] + [(850, y, 146, t) for y, t in part])
         g["lines"] = ([[(150, y), (180, y)] for y, *_ in soft] + [[(180, 40), (180, 290)]] +
                       [[(180, y), (205, y)] for y, *_ in conn] + [[(325, y), (345, y)] for y, *_ in conn] +
                       [[(345, 139), (345, 247)], [(345, 193), (430, 193)],
@@ -876,12 +852,12 @@ def _vs_layout(kind):
         g = dict(W=340, H=436, nh=28, fs=10.5, isz=12, dash=22, fast=130, slow=70, center=(95, 218, 150, 46), jitter=.6,
                  labels=[(6, 9, "start", "YOUR SOFTWARE"), (6, 428, "start", "YOUR PARTNERS")])
         # Two columns either side of one trunk: software, then the ways in, then NexFlo / your business, then partners.
-        top = [_vs_both(("Online store", "cart"), ("EHR", "pulse")), _vs_both(("Accounting", "chart"), ("Practice mgmt", "clipboard")),
-               _vs_both(("Inventory", "box"), ("Billing system", "chart")), _vs_both(("Spreadsheets", "sheet")),
-               _vs_both(("API", "code")), _vs_both(("SFTP", "folder")), _vs_both(("Service bus", "server")), _vs_both(("AS2", "lock"))]
-        part = [_vs_both(("Retailers", "building"), ("Medicare", "shieldplus")), _vs_both(("Marketplaces", "tag"), ("Medicaid", "shieldplus")),
-                _vs_both(("Distributors", "warehouse"), ("Insurers", "shield")), _vs_both(("Wholesalers", "box"), ("Workers' comp", "building")),
-                _vs_both(("3PL warehouse", "warehouse"), ("Clearinghouse", "server")), _vs_both(("Carriers", "truck"), ("Banks", "bank"))]
+        top = [("Online store", "cart"), ("Accounting", "chart"),
+               ("Inventory", "box"), ("Spreadsheets", "sheet"),
+               ("API", "code"), ("SFTP", "folder"), ("Service bus", "server"), ("AS2", "lock")]
+        part = [("Retailers", "building"), ("Marketplaces", "tag"),
+                ("Distributors", "warehouse"), ("Wholesalers", "box"),
+                ("3PL warehouse", "warehouse"), ("Carriers", "truck")]
         top_rows, part_rows = [36, 72, 116, 152], [324, 360, 396]
         g["nodes"] = ([(6 if k % 2 == 0 else 178, top_rows[k // 2], 156, f) for k, f in enumerate(top)] +
                       [(6 if k % 2 == 0 else 178, part_rows[k // 2], 156, f) for k, f in enumerate(part)])
@@ -1004,20 +980,15 @@ def vs_svg(kind):
     # A dot wherever a line ends: at a node's edge or where it joins another line.
     ends = list(dict.fromkeys(pt for pts in g["lines"] for pt in (pts[0], pts[-1])))
 
-    # Each box has a face for a TradeFlo business and one for a CareFlo business (data-for); CSS shows the one
-    # picked. Without NexFlo each box sits a little out of line (--jx/--jy); with it they snap into place.
-    def face(x, y, t, i, aud=""):
-        attr = f' data-for="{aud}"' if aud else ""
-        return (f'<g{attr}>{_vs_icon(i, x + 9, y - isz / 2, isz)}'
-                f'<text class="vs-name" x="{_n(x + 16 + isz)}" y="{_n(y)}" dy=".36em" font-size="{fs}">{t.upper()}</text></g>')
-
-    def faces(x, y, f):
-        return face(x, y, *f["trade"]) if f["trade"] == f["care"] else "".join(face(x, y, *f[a], a) for a in VS_FOR)
+    # Without NexFlo each box sits a little out of line (--jx/--jy); with it they snap into place.
+    def face(x, y, t, i):
+        return (f'{_vs_icon(i, x + 9, y - isz / 2, isz)}'
+                f'<text class="vs-name" x="{_n(x + 16 + isz)}" y="{_n(y)}" dy=".36em" font-size="{fs}">{t.upper()}</text>')
 
     jit = g["jitter"]
     nodes = "".join(
         f'<g class="vs-node" style="--jx:{_n((k * 7 % 13 - 6) * jit)};--jy:{_n((k * 5 % 9 - 4) * jit)}">'
-        f'<rect class="vs-box" x="{x}" y="{_n(y - nh / 2)}" width="{w}" height="{nh}" rx="8"/>{faces(x, y, f)}</g>'
+        f'<rect class="vs-box" x="{x}" y="{_n(y - nh / 2)}" width="{w}" height="{nh}" rx="8"/>{face(x, y, *f)}</g>'
         for k, (x, y, w, f) in enumerate(g["nodes"]))
     cx, cy, cw, ch = g["center"]
     big = kind == "wide"
@@ -1042,7 +1013,7 @@ def vs_svg(kind):
     frags = "".join(f'<path d="{_VPath.poly(p).d}"/>' for p in pieces)
     frags += "".join(f'<circle cx="{_n(x)}" cy="{_n(y)}" r="2.6"/>' for x, y in loose)
     # With: NexFlo hubs in the gaps, documents flowing along whole routes.
-    hubs = "".join(f'<g transform="translate({_n(hx)} {_n(hy)})"><g class="vs-hub" style="--k:{k}"><circle class="vs-hglow" r="21"/>'
+    hubs = "".join(f'<g transform="translate({_n(hx)} {_n(hy)})"><g class="vs-hub" style="--k:{k}">'
                    f'<circle class="vs-hring" r="16"/><image href="assets/favicon-180.png" x="-15" y="-15" width="30" height="30" '
                    f'clip-path="url(#vsClip-{kind})"/></g></g>' for k, (hx, hy) in enumerate(g["hubs"].values()))
     flows = "".join(_vs_pulse(_VPath.poly(pts), g["fast"], g["dash"], k * .37) for k, pts in enumerate(g["routes"]))
@@ -1063,25 +1034,20 @@ def versus():
     def side(when, ico, title, text):
         return f'<div data-when="{when}">{icon(ico, "vs-cico")}<h3>{title}</h3><p>{text}</p></div>'
 
-    def stack(key):  # one line per kind of business and state, stacked in the same spot
-        return "".join(f'<span data-for="{a}" data-when="{k}">{v}</span>' for a, d in VS_FOR.items() for k, v in d[key].items())
+    def stack(key):  # both states' lines, stacked in the same spot
+        return "".join(f'<span data-when="{k}">{v}</span>' for k, v in VS[key].items())
 
-    cards = "".join(f'<div class="vs-cards" data-for="{a}">' + "".join(
-        f'<div class="vs-card">{side("without", *x)}{side("with", *y)}</div>' for x, y in d["cards"]) + "</div>"
-        for a, d in VS_FOR.items())
+    cards = '<div class="vs-cards">' + "".join(f'<div class="vs-card">{side("without", *x)}{side("with", *y)}</div>' for x, y in VS["cards"]) + "</div>"
     tabs = "".join(
         f'<button class="vs-tab" type="button" role="tab" id="vs-tab-{k}" data-state="{k}" aria-selected="{sel}" '
         f'aria-controls="vs-panel" tabindex="{0 if sel == "true" else -1}">{t}<i class="vs-prog" aria-hidden="true"></i></button>'
         for k, t, sel in (("without", "Without NexFlo", "true"), ("with", "With NexFlo", "false")))
-    auds = "".join(f'<button class="vs-aud {tone(d["name"])}" type="button" data-aud="{a}" aria-pressed="{str(a == "trade").lower()}">'
-                   f'<b>{d["name"]}</b><small>{d["sub"]}</small></button>' for a, d in VS_FOR.items())
     return f'''<section class="vs-sec sec-tight edge-bottom edge-to-light" id="why"><div class="container">
-  <div class="section-head center"><span class="vs-eyebrow">The <b>challenge</b></span><h2>Every partner wants it their way</h2>
-    <p class="lead">Whether you ship products or bill insurers, every partner sends orders, invoices or claims in its own format. Without one place to handle them, your team becomes the go-between.</p></div>
-  <div class="vs" data-vs data-state="without" data-for="trade">
+  <div class="section-head center"><span class="eyebrow">The challenge</span><h2>Every partner wants it their way</h2>
+    <p class="lead">Every partner sends orders, invoices or claims in its own format. Without one place to handle them, your team becomes the go-between.</p></div>
+  <div class="vs" data-vs data-state="without">
     <div class="vs-bar"><div class="vs-toggle" role="tablist" aria-label="Compare a business without and with NexFlo"><span class="vs-thumb" aria-hidden="true"></span>{tabs}</div></div>
     <div class="vs-panel" id="vs-panel" role="tabpanel" aria-labelledby="vs-tab-without">
-      <div class="vs-for" role="group" aria-label="See it for"><span class="vs-for-label">See it for</span>{auds}</div>
       <h3 class="vs-title">{stack("title")}</h3>
       <div class="vs-stage">{vs_svg("wide")}{vs_svg("tall")}</div>
       <div class="vs-foot"><p class="vs-cap">{stack("caption")}</p><span class="vs-illus">Illustration</span></div>
@@ -1446,8 +1412,6 @@ PRICING_FAQ = [
     ("When will the savings estimator be ready?", "Once our prices are final. Until then, book a demo and we'll walk through what you pay today and how NexFlo compares."),
     ("Is it pay-as-you-go?", "No. You'll have a monthly package with a set allowance, so your monthly cost is predictable."),
     ("Are there setup fees or long contracts?", "Those details aren't decided yet. Whatever they are, you'll have them in writing before you sign anything."),
-    ("When can I start?", "TradeFlo is in development, with early access open now. CareFlo and HealthFlo are planned for 2027."),
-    ("Do I need developers?", "No. You can exchange files over SFTP and use the dashboard. Teams with developers can use the REST API and JSON instead."),
 ]
 
 
@@ -1486,16 +1450,15 @@ def pricing():
         panels.append(f'''<div class="pk-panel {tone(p["name"])}" role="tabpanel" id="pk-{p["key"]}" aria-labelledby="pkt-{p["key"]}"{"" if i == 0 else " hidden"}>
   <div class="pk-meta"><span>{wordmark(p["name"])} · {p["sub"]}</span>{status_badge(p["status"])}<a href="{p["href"]}">See how {p["name"]} works <i aria-hidden="true">→</i></a></div>
   <div class="pk-grid">
-    <div class="pk-top pk-sig"><p class="pk-ribbon">Recommended</p><div class="pk-in">
+    <div class="pk-top pk-sig"><div class="pk-in">
       <h3>{PKG_MAIN}</h3><p class="pk-price">Pricing coming soon</p><p class="pk-bill">Billed monthly · a fixed number of {k["unit"]} each month</p>
       <p class="pk-desc">{k["sig"]}</p>
-      <a class="pk-btn pk-outline" href="demo.html?product={p["name"]}">Book Demo</a>
-      <p class="pk-fine">Prices will be published before launch</p></div></div>
+      <a class="pk-btn pk-outline" href="demo.html?product={p["name"]}">Book Demo</a></div></div>
     <div class="pk-top pk-ent"><div class="pk-in">
       <h3>Enterprise</h3><p class="pk-price">Custom</p><p class="pk-bill">Sized to your volume · priced by quote</p>
       <p class="pk-desc">{k["ent"]}</p>
       <a class="pk-btn pk-fill" href="?product={p["name"]}#quote">Get Custom Pricing</a>
-      <a class="pk-btn pk-soon" href="#estimate">Estimate Your Savings <span>Coming soon</span></a></div></div>
+      <a class="pk-btn pk-soon" href="#estimate">Estimate Your Savings <span>· coming soon</span></a></div></div>
     <ul class="pk-list pk-sig-list">{lis(k["sig_feats"])}</ul>
     <ul class="pk-list pk-ent-list">{lis(k["ent_feats"])}</ul>
   </div>
@@ -1506,18 +1469,17 @@ def pricing():
                   "Translation to and from clean JSON", "API and SFTP connections", "Partner management and transaction tracking",
                   "Validation and error alerts", "One dashboard and one team to talk to")]),
               ("Volume and billing", [("Monthly allowance", "Fixed, to be announced", "Sized to your volume"),
-                                      ("Price", "Monthly, coming soon", "Custom quote"),
-                                      ("Savings estimate", "Coming soon", "Coming soon")])]
+                                      ("Price", "Monthly, coming soon", "Custom quote")])]
     rows = "".join(f'<tr class="cmp-group"><th colspan="3" scope="colgroup">{g}</th></tr>' + "".join(
         f'<tr><th scope="row">{t}</th><td>{a}</td><td>{b}</td></tr>' for t, a, b in items) for g, items in groups)
 
     est_fields = "".join(f'<div class="est-field"><span>{l}</span><b>{v}</b><i style="--v:{w}%"></i></div>'
                          for l, v, w in (("Trading partners", "12", 30), ("Documents per month", "2,500", 46), ("What you pay today", "$ · · ·", 62)))
 
-    return f'''<section class="pk-hero"><div class="pk-glow" aria-hidden="true"></div><div class="container">
+    return f'''<section class="pk-hero"><div class="container">
   <div class="breadcrumbs"><a href="index.html">Home</a> / Pricing</div>
-  <h1>One platform for all your business data.</h1>
-  <p class="lead">Exchange orders, invoices, claims and health records with every partner you work with. Pick a product, then the package that fits.</p>
+  <h1>Monthly packages, sized to your volume.</h1>
+  <p class="lead">Every product comes in two packages. Prices are being set now, so there are no numbers here yet.</p>
 </div></section>
 
 <section class="pk-band"><div class="container">
@@ -1528,21 +1490,19 @@ def pricing():
 </div></section>
 
 <section class="est" id="estimate"><div class="container est-box">
-  <div class="est-copy"><span class="badge badge-soon">Coming soon</span><h2>Estimate your savings</h2>
-    <p class="lead">Soon you'll be able to enter your partners and monthly volume and see what you could save compared with what you pay today. It goes live once our prices are final.</p>
+  <div class="est-copy"><span class="eyebrow">Coming soon</span><h2>Estimate your savings</h2>
+    <p class="lead">Once prices are final, you'll be able to enter your partners and monthly volume and see what you could save on what you pay today.</p>
     <a class="btn btn-secondary" href="demo.html">Book Demo to talk it through</a></div>
   <div class="est-mock" aria-hidden="true"><span class="est-tag">Illustration</span>
     {est_fields}
-    <div class="est-result"><span>Your estimated savings</span><div class="est-blur"><i></i><i></i></div><b class="est-lock">{icon("lock", "est-ico")}Coming soon</b></div>
+    <div class="est-result"><span>Your estimated savings</span><b class="est-val">$ · · · a month</b><span class="est-lock">{icon("lock", "est-ico")}Available when prices are final</span></div>
   </div>
 </div></section>
 
 <section class="cmp"><div class="container">
-  <div class="cmp-head"><h2>Compare packages</h2>
-    <div><h3>{PKG_MAIN}</h3><a class="pk-btn pk-outline" href="demo.html">Book Demo</a></div>
-    <div><h3>Enterprise</h3><a class="pk-btn pk-fill" href="#quote">Get Custom Pricing</a></div></div>
+  <h2 class="cmp-title">Compare packages</h2>
   <div class="table-wrap"><table class="cmp-table"><caption class="sr-only">What each package includes</caption>
-    <thead class="sr-only"><tr><th scope="col">Feature</th><th scope="col">{PKG_MAIN}</th><th scope="col">Enterprise</th></tr></thead>
+    <thead><tr><th scope="col"><span class="sr-only">Feature</span></th><th scope="col">{PKG_MAIN}</th><th scope="col">Enterprise</th></tr></thead>
     <tbody>{rows}</tbody></table></div>
   <p class="small muted mt-3">Planned package contents. Prices, allowances and final details will be published before launch.</p>
 </div></section>
@@ -1570,8 +1530,7 @@ def pricing():
 <section class="pk-faq"><div class="container narrow">
   <h2 class="center">Frequently asked questions</h2>
   {faq(PRICING_FAQ).replace("<details>", "<details open>", 1)}
-</div></section>
-{cta_band(source="pricing", secondary=False)}'''
+</div></section>'''
 
 
 

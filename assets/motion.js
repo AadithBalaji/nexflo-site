@@ -17,7 +17,7 @@
   };
 
   /* ---- Reveal on scroll (home and inner pages) ---- */
-  const REVEAL = ".section-head, .how-head, .frow-text, .vis, .card, .feature, .step, .pain, .price-card, .form-card, .doc, .tile, .scard, .faq, .prow, .fact, .orbit-view, .notice, .cta2-box, .f4, .pkg-how li, .tf-side, .tf-engine, .tf-feats, .vs, .est-copy, .est-mock, .cmp-head, .cmp .table-wrap";
+  const REVEAL = ".section-head, .how-head, .frow-text, .vis, .card, .feature, .step, .pain, .price-card, .form-card, .doc, .tile, .scard, .faq, .prow, .fact, .orbit-view, .notice, .cta2-box, .f4, .pkg-how li, .tf-side, .tf-engine, .tf-feats, .vs";
   if ("IntersectionObserver" in window) {
     const els = [...document.querySelectorAll(REVEAL)].filter((e) => !e.closest(".hero-s, .page-hero, .dropdown") && !e.parentElement.closest(REVEAL));
     els.forEach((e) => {
@@ -324,21 +324,6 @@
       timer = setTimeout(() => { state = state === "with" ? "without" : "with"; apply(); schedule(); }, hold[state]);
     };
     const stop = () => { auto = false; vs.classList.remove("is-auto"); schedule(); };
-    /* "See it for": the same map for a TradeFlo or a CareFlo business. Picking one doesn't stop the auto-switch;
-       it starts the story again from "without". ?product=careflo opens on CareFlo. */
-    const auds = [...vs.querySelectorAll("[data-aud]")];
-    const setAud = (a, animate) => {
-      vs.dataset.for = a;
-      auds.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.aud === a)));
-      if (!animate) return;
-      vs.classList.remove("aud-swap");
-      void vs.offsetWidth;
-      vs.classList.add("aud-swap");
-      if (auto) { state = "without"; apply(); schedule(); }
-    };
-    auds.forEach((b) => b.addEventListener("click", () => setAud(b.dataset.aud, true)));
-    const wanted = (new URLSearchParams(location.search).get("product") || "").toLowerCase().replace(/flo$/, "");
-    if (auds.some((b) => b.dataset.aud === wanted)) setAud(wanted, false);
     tabs.forEach((t, k) => {
       t.addEventListener("click", () => { state = t.dataset.state; apply(); stop(); });
       t.addEventListener("keydown", (e) => {
